@@ -389,13 +389,17 @@ function showFastsForDate(date) {
     container.innerHTML = "";
 
     const summary = document.getElementById("fastsSummary");
+
     const fastsForDay = fasts.filter(f => {
         const start = new Date(f.startTime);
-        return start >= startOfDay && start < endOfDay;
+        const end = f.endTime ? new Date(f.endTime) : null;
+
+        return (
+            (start >= startOfDay && start < endOfDay) || // started today
+            (end && end >= startOfDay && end < endOfDay) || // ended today
+            (start < startOfDay && (!end || end > endOfDay)) // spanned entire day
+        );
     });
-    
-    console.log("Fasts for day:", fastsForDay);
-    console.log("Fasts:", fasts);
 
     const totalSeconds = fastsForDay.reduce((sum, f) => sum + (f.duration || 0), 0);
     const totalHours = Math.floor(totalSeconds / 3600);
@@ -403,28 +407,31 @@ function showFastsForDate(date) {
     summary.textContent = `⏳ Fasting Duration: ${fastsForDay.length} (${totalHours}h ${totalMinutes}m)`;
 
     if (fastsForDay.length === 0) {
-        container.textContent = "No fasts started on this day.";
+        container.textContent = "No fasts for this day.";
         return;
     }
 
     fastsForDay.forEach(fast => {
         const div = document.createElement("div");
-        div.classList.add("fast-block");
+        div.classList.add("food-log-block"); // reuse the same styling
 
         const start = formatDateTime(fast.startTime);
         const end = fast.endTime ? formatDateTime(fast.endTime) : "Ongoing";
         const durationStr = fast.duration
-          ? `${Math.floor(fast.duration / 3600)}h ${Math.floor((fast.duration % 3600) / 60)}m`
-          : "";
+            ? `${Math.floor(fast.duration / 3600)}h ${Math.floor((fast.duration % 3600) / 60)}m`
+            : "";
 
-        const notesLine = fast.notes ? `<div><strong>Notes:</strong> ${fast.notes}</div>` : "";
+        const notesLine = fast.notes
+            ? `<div class="food-log-details"><strong>Notes:</strong> ${fast.notes}</div>`
+            : "";
 
         div.innerHTML = `
-            <div><strong>Start:</strong> ${start}</div>
-            <div><strong>End:</strong> ${end}</div>
-            <div><strong>Duration:</strong> ${durationStr}</div>
+            <strong>Start:</strong> ${start}<br>
+            <strong>End:</strong> ${end}<br>
+            <strong>Duration:</strong> ${durationStr}
             ${notesLine}
         `;
+
         container.appendChild(div);
     });
 }
