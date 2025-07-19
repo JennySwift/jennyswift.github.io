@@ -13,6 +13,7 @@ let notes = [];
 let bolusDoses = [];
 let basalEntries = [];
 let workouts = [];
+let fasts = [];
 let basalChart;
 
 const noteIcon = new Image();
@@ -89,6 +90,19 @@ document.addEventListener("DOMContentLoaded", () => {
             text: n.text,
             tags: n.tags || [],
         })) || [];
+        
+        fasts = data.fasts?.map((f) => {
+            const startTime = new Date(f.startTime);
+            const endTime = f.endTime ? new Date(f.endTime) : null;
+            const duration = endTime ? (endTime - startTime) / 1000 : null; // in seconds
+
+            return {
+                startTime,
+                endTime,
+                duration,
+                notes: f.notes
+            };
+        }) || [];
         
         workouts = data.workouts?.map((w) => ({
             start: new Date(w.startTime),
@@ -364,6 +378,85 @@ function showWorkoutsForDate(date) {
     });
 }
 
+function showFastsForDate(date) {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const container = document.getElementById("fastsContainer");
+    container.innerHTML = "";
+
+    const summary = document.getElementById("fastsSummary");
+    const fastsForDay = fasts.filter(f => {
+        const start = new Date(f.startTime);
+        return start >= startOfDay && start < endOfDay;
+    });
+    
+    console.log("Fasts for day:", fastsForDay);
+    console.log("Fasts:", fasts);
+
+    const totalSeconds = fastsForDay.reduce((sum, f) => sum + (f.duration || 0), 0);
+    const totalHours = Math.floor(totalSeconds / 3600);
+    const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
+    summary.textContent = `⏳ Fasting Duration: ${fastsForDay.length} (${totalHours}h ${totalMinutes}m)`;
+
+    if (fastsForDay.length === 0) {
+        container.textContent = "No fasts started on this day.";
+        return;
+    }
+
+    fastsForDay.forEach(fast => {
+        const div = document.createElement("div");
+        div.classList.add("fast-block");
+
+        const start = formatDateTime(fast.startTime);
+        const end = fast.endTime ? formatDateTime(fast.endTime) : "Ongoing";
+        const durationStr = fast.duration
+          ? `${Math.floor(fast.duration / 3600)}h ${Math.floor((fast.duration % 3600) / 60)}m`
+          : "";
+
+        const notesLine = fast.notes ? `<div><strong>Notes:</strong> ${fast.notes}</div>` : "";
+
+        div.innerHTML = `
+            <div><strong>Start:</strong> ${start}</div>
+            <div><strong>End:</strong> ${end}</div>
+            <div><strong>Duration:</strong> ${durationStr}</div>
+            ${notesLine}
+        `;
+        container.appendChild(div);
+    });
+}
+
+function formatDateTime(dateStr) {
+    const d = new Date(dateStr);
+    const day = d.getDate();
+    const month = d.toLocaleString("en-AU", { month: "long" }); // e.g. "July"
+
+    // Get time parts
+    let hours = d.getHours();
+    const minutes = d.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12 || 12;
+
+    const time = `${hours}:${minutes}${ampm}`;
+
+    return `${day} ${month}, ${time}`;
+}
+
+//function formatDateTime(dateStr) {
+//    const d = new Date(dateStr);
+//    const day = d.getDate();
+//    const month = d.toLocaleString("en-AU", { month: "long" }); // "July"
+//    const time = d.toLocaleTimeString("en-AU", {
+//        hour: "numeric",
+//        minute: "2-digit",
+//        hour12: true,
+//    }).toLowerCase(); // "2:30pm"
+//    return `${day} ${month}, ${time}`;
+//}
+
 function showBolusesForDate(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
@@ -479,6 +572,7 @@ function updateChartForDate(date) {
     showFoodLogsForDate(date);
     showBolusesForDate(date);
     showWorkoutsForDate(date);
+    showFastsForDate(date);
     
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
