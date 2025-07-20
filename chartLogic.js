@@ -718,6 +718,14 @@ function updateStats(startOfDay, endOfDay) {
     fatItem.className = "summary-item summary-fat";
     fatItem.textContent = `🧈 Fat: ${totalFat.toFixed(1)}g`;
     summaryRow.appendChild(fatItem);
+    
+    //total calories
+    const totalCalories = foodLogsForDay.reduce((sum, log) => sum + (log.calories || 0), 0);
+
+    const caloriesItem = document.createElement("div");
+    caloriesItem.className = "summary-item summary-calories";
+    caloriesItem.textContent = `🔥 Calories: ${totalCalories.toFixed(0)}`;
+    summaryRow.appendChild(caloriesItem);
 }
 
 function calculateTotalBasalForDay(startOfDay, endOfDay) {
