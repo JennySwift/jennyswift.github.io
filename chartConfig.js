@@ -97,7 +97,7 @@ const foodChartTooltipCallbacks = {
         const point = context.raw;
         return [
             `🍽 ${point.foodName}`,
-            `🔥 ${point.calories} cal`,
+            `🔥 ${Math.round(point.calories)} cal`,
             `🍌 ${point.netCarbs}g net carbs`,
             `🥑 ${point.fat}g fat`
         ];
