@@ -613,6 +613,17 @@ function updateFoodChartForDate(date) {
     foodChart.update();
 }
 
+function scaleHeartRateToBG(hr) {
+    const heartRateMin = 80;
+    const heartRateMax = 180;
+    const bgMin = 2;
+    const bgMax = 15;
+
+    const clamped = Math.max(heartRateMin, Math.min(hr, heartRateMax));
+    const ratio = (clamped - heartRateMin) / (heartRateMax - heartRateMin);
+    return bgMin + ratio * (bgMax - bgMin);
+}
+
 function createWorkoutDataset(workouts) {
     const dataPoints = [];
 
@@ -648,14 +659,17 @@ function createWorkoutDataset(workouts) {
     return {
         label: "Workout",
         type: "scatter",
-        data: workouts.map(w => ({
-            x: w.start,
-            y: 7.5,
-            type: "workout",
-            name: w.name,
-            heartRate: Math.round(w.averageHeartRate),
-            duration: Math.round(w.duration / 60) // duration in minutes
-        })),
+        data: workouts.map(w => {
+            const heartRate = Math.round(w.averageHeartRate);
+            return {
+                x: w.start,
+                y: scaleHeartRateToBG(heartRate),
+                type: "workout",
+                name: w.name,
+                heartRate,
+                duration: Math.round(w.duration / 60)
+            };
+        }),
         borderColor: "green",
         borderWidth: 2,
         backgroundColor: 'rgba(0, 0, 255, 0.6)',
