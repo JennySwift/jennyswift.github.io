@@ -48,6 +48,33 @@ function showNotesForDate(date) {
     });
 }
 
+function updateFoodChartForDate(date) {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
+
+    const data = foodLogsForDay.map(log => ({
+        x: log.timestamp,
+        y: log.netCarbs,
+        foodName: log.foodName,
+        calories: log.calories,
+        netCarbs: log.netCarbs,
+        fat: log.fat
+    }));
+
+    foodChart.data.datasets[0].data = data;
+    foodChart.options.scales.x.min = startOfDay;
+    foodChart.options.scales.x.max = endOfDay;
+
+    const netCarbValues = foodLogsForDay.map(log => log.netCarbs);
+    setFoodChartYScales(netCarbValues);
+
+    foodChart.update();
+}
+
 function showFoodLogsForDate(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);

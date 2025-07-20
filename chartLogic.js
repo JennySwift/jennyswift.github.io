@@ -16,20 +16,6 @@ let workouts = [];
 let fasts = [];
 let basalChart;
 
-
-
-function updateVerticalLines(timestamp) {
-    //    console.log("📏 Setting dynamicLine value to:", timestamp);  // ← Add this
-    if (bgChart) {
-        bgChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
-        bgChart.update();
-    }
-    if (foodChart) {
-        foodChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
-        foodChart.update();
-    }
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     const ctx = document.getElementById("bgChart").getContext("2d");
     const foodCtx = document.getElementById("foodChart").getContext("2d");
@@ -61,6 +47,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     
 });
+
+function updateVerticalLines(timestamp) {
+    //    console.log("📏 Setting dynamicLine value to:", timestamp);  // ← Add this
+    if (bgChart) {
+        bgChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
+        bgChart.update();
+    }
+    if (foodChart) {
+        foodChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
+        foodChart.update();
+    }
+}
 
 
 function updateAnnotationZonesFromYScale() {
@@ -112,33 +110,6 @@ function handleLogClick(timestamp) {
     if (foodIndex !== -1) {
         highlightChartPoint(foodChart, 0, foodIndex);
     }
-}
-
-function updateFoodChartForDate(date) {
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(startOfDay);
-    endOfDay.setDate(endOfDay.getDate() + 1);
-    
-    const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
-    
-    const data = foodLogsForDay.map(log => ({
-        x: log.timestamp,
-        y: log.netCarbs,
-        foodName: log.foodName,
-        calories: log.calories,
-        netCarbs: log.netCarbs,
-        fat: log.fat
-    }));
-    
-    foodChart.data.datasets[0].data = data;
-    foodChart.options.scales.x.min = startOfDay;
-    foodChart.options.scales.x.max = endOfDay;
-    
-    const netCarbValues = foodLogsForDay.map(log => log.netCarbs);
-    setFoodChartYScales(netCarbValues);
-    
-    foodChart.update();
 }
 
 function scaleHeartRateToBG(hr) {
@@ -308,28 +279,6 @@ function updateChartForDate(date) {
     basalChart.update();
 }
 
-function getBolusXYPoints() {
-    return bolusDoses.map((dose) => {
-        const closestReading = glucoseReadings.reduce((closest, current) => {
-            const currentTime = new Date(current.timestamp);
-            const diff = Math.abs(currentTime - dose.timestamp);
-            const closestDiff = Math.abs(new Date(closest.timestamp) - dose.timestamp);
-            return diff < closestDiff ? current : closest;
-        }, glucoseReadings[0]);
-        
-        const safeOffset = 3;
-        const bgY = closestReading?.value ?? 6;
-        const dotY = bgY >= 6 ? bgY + safeOffset : bgY - safeOffset;
-        
-        return {
-            x: dose.timestamp,
-            y: dotY,
-            type: "bolus",
-            amount: dose.amount
-        };
-    });
-}
-
 function setChartXScales(start, end) {
     bgChart.options.scales.x.min = start;
     bgChart.options.scales.x.max = end;
@@ -349,33 +298,6 @@ function setChartYScales(glucoseValues) {
 function setFoodChartYScales(netCarbValues) {
     foodChart.options.scales.y.min = 0;
     foodChart.options.scales.y.max = Math.max(40, Math.ceil(Math.max(...netCarbValues)));
-}
-
-//Set the y value to change depending on what BG is at the time of the note so that the note icon doesn't cover up the BG graph
-function getNotesXYPoints(yValue) {
-    return notes.map(note => {
-        const noteTime = note.timestamp;
-        const closestReading = glucoseReadings.reduce((closest, current) => {
-            const currentTime = new Date(current.timestamp);
-            const diff = Math.abs(currentTime - noteTime);
-            const closestDiff = Math.abs(new Date(closest.timestamp) - noteTime);
-            return diff < closestDiff ? current : closest;
-        }, glucoseReadings[0]);
-        
-        
-        const safeOffset = 5;
-        const bgY = closestReading.value;
-        
-        // Nudge icon slightly above or below BG line depending on where it sits
-        const iconY = bgY >= 6 ? bgY - safeOffset : bgY + safeOffset;
-        
-        return {
-            x: note.timestamp,
-            y: iconY,
-            text: note.text,
-            type: "note"
-        };
-    });
 }
 
 function logChartLabelsAndValues(labels, values) {
