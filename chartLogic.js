@@ -394,8 +394,6 @@ function showFastsForDate(date) {
     const container = document.getElementById("fastsContainer");
     container.innerHTML = "";
 
-    const summary = document.getElementById("fastsSummary");
-
     const fastsForDay = fasts.filter(f => {
         const start = new Date(f.startTime);
         const end = f.endTime ? new Date(f.endTime) : null;
@@ -410,7 +408,6 @@ function showFastsForDate(date) {
     const totalSeconds = fastsForDay.reduce((sum, f) => sum + (f.duration || 0), 0);
     const totalHours = Math.floor(totalSeconds / 3600);
     const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
-    summary.textContent = `⏳ Fasting Duration: ${fastsForDay.length} (${totalHours}h ${totalMinutes}m)`;
 
     if (fastsForDay.length === 0) {
         container.textContent = "No fasts for this day.";
@@ -425,13 +422,13 @@ function showFastsForDate(date) {
         const isStartToday = isSameDay(fast.startTime, date);
         const isEndToday = fast.endTime && isSameDay(fast.endTime, date);
 
-        let label = "Continued Fast";
+        let label = "Continued";
         if (isStartToday && isEndToday) {
             label = "Started and Ended";
         } else if (isStartToday) {
-            label = "Start of Fast";
+            label = "Started fast:";
         } else if (isEndToday) {
-            label = "End of Fast";
+            label = "Ended fast:";
         }
 
         const start = formatDateTime(fast.startTime);
@@ -443,9 +440,9 @@ function showFastsForDate(date) {
 
         div.innerHTML = `
             <div class="fast-label">${label}</div>
+            ${duration ? `<div><strong>Duration:</strong> ${duration}</div>` : ""}
             <div><strong>Start:</strong> ${start}</div>
             <div><strong>End:</strong> ${end}</div>
-            ${duration ? `<div><strong>Duration:</strong> ${duration}</div>` : ""}
             ${fast.notes ? `<div class="fast-notes">📝 ${fast.notes}</div>` : ""}
         `;
         fastsContainer.appendChild(div);
