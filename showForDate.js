@@ -107,7 +107,10 @@ function showFoodLogsForDate(date) {
             <strong>${time}</strong>: ${log.foodName}
             <div class="log-details">
                 <span>🍌 Net Carbs: ${log.netCarbs}g</span>
+                <span>🍌 Total Carbs: ${log.totalCarbs}g</span>
                 <span>🥑 Fat: ${log.fat}g</span>
+                <span>🫘 Protein: ${log.protein}g</span>
+                <span>🌿 Fibre: ${log.fibre}g</span>
                 <span>🔥 Calories: ${log.calories}</span>
             </div>
         `;

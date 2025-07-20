@@ -17,6 +17,9 @@ function parseJSONData(data) {
         netCarbs: f.netCarbs,
         calories: f.calories,
         fat: f.fat,
+        protein: f.protein,
+        fibre: f.fibre,
+        totalCarbs: f.totalCarbs,
     })) || [];
 
     notes = data.notes?.map((n) => ({
