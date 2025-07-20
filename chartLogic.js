@@ -205,9 +205,19 @@ function buildBasalDataForDay(startOfDay, endOfDay) {
     // Fill to end of day if needed
     if (lastEnd < endOfDay) {
         basalDataForDay.push(
-                             { x: lastEnd, y: 0 },
-                             { x: endOfDay, y: 0 }
-                             );
+            {
+                x: lastEnd,
+                y: 0,
+                segmentStart: lastEnd,
+                segmentEnd: endOfDay
+            },
+            {
+                x: endOfDay,
+                y: 0,
+                segmentStart: lastEnd,
+                segmentEnd: endOfDay
+            }
+        );
     }
     return basalDataForDay;
 }
