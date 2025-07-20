@@ -12,12 +12,14 @@ function updateStats(startOfDay, endOfDay) {
     
     const totalBolus = calculateTotalBolusForDay(startOfDay, endOfDay);
     const totalBasal = calculateTotalBasalForDay(startOfDay, endOfDay);
+    const totalInsulin = totalBolus + totalBasal
     const totalNetCarbs = foodLogsForDay.reduce((sum, log) => sum + (log.netCarbs || 0), 0);
 
     appendBolusSummary(summaryRow, totalBolus);
     appendBasalSummary(summaryRow, totalBasal);
-    appendTotalInsulinSummary(summaryRow, totalBolus + totalBasal);
-    appendBolusToCarbRatio(summaryRow, totalBolus, totalNetCarbs);
+    appendTotalInsulinSummary(summaryRow, totalInsulin);
+    appendNetCarbsToBolusRatio(summaryRow, totalBolus, totalNetCarbs);
+    appendNetCarbsToTotalInsulinRatio(summaryRow, totalNetCarbs, totalInsulin);
     appendNetCarbsSummary(summaryRow, foodLogsForDay);
     appendTotalCarbsSummary(summaryRow, foodLogsForDay);
     appendFatSummary(summaryRow, foodLogsForDay);
@@ -27,14 +29,25 @@ function updateStats(startOfDay, endOfDay) {
     appendCaloriesSummary(summaryRow, foodLogsForDay);
 }
 
-function appendBolusToCarbRatio(container, totalBolus, totalNetCarbs) {
-    let ratioText = "-";
-    if (totalNetCarbs > 0) {
-        const ratio = totalNetCarbs / totalBolus;
-        ratioText = `${ratio.toFixed(2)}U/g`;
+function appendNetCarbsToTotalInsulinRatio(container, totalNetCarbs, totalInsulin) {
+    let ratioText = "N/A";
+    if (totalInsulin > 0) {
+        const ratio = totalNetCarbs / totalInsulin;
+        ratioText = `${ratio.toFixed(2)}g/u`;
     }
 
-    const item = createSummaryItem("summary-bolus-to-carb", `➗ Net Carbs / Bolus Unit: ${ratioText}`);
+    const item = createSummaryItem("summary-carb-to-insulin", `➗ Net Carbs/Total Insulin: ${ratioText}`);
+    container.appendChild(item);
+}
+
+function appendNetCarbsToBolusRatio(container, totalBolus, totalNetCarbs) {
+    let ratioText = "N/A";
+    if (totalNetCarbs > 0 && totalBolus > 0) {
+        const ratio = totalNetCarbs / totalBolus;
+        ratioText = `${ratio.toFixed(2)}g/U`;
+    }
+
+    const item = createSummaryItem("summary-bolus-to-carb", `➗ Net Carbs / Bolus Insulin: ${ratioText}`);
     container.appendChild(item);
 }
 
