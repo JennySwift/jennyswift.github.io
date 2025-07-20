@@ -736,6 +736,29 @@ function buildBasalDataForDay(startOfDay, endOfDay) {
     return basalDataForDay;
 }
 
+function createGlucoseDataset(filteredReadings) {
+    return {
+        label: "BG",
+        data: filteredReadings.map(r => ({ x: r.timestamp, y: r.value })),
+        pointRadius: 0, // Hide the dots visually
+        pointHoverRadius: 8, // Make them hoverable for tooltips
+        borderColor: "red",
+        tension: 0.1, //controls how curved or straight the lines between points are
+        fill: false
+    };
+}
+
+function createNoteDataset(minY) {
+    return {
+        label: "Notes",
+        data: getNotesXYPoints(minY),
+        pointRadius: 10,
+        showLine: false,
+        backgroundColor: "transparent",
+        borderColor: "transparent"
+    };
+}
+
 //For BG chart
 function updateChartForDate(date) {
     showNotesForDate(date);
@@ -745,56 +768,17 @@ function updateChartForDate(date) {
     showFastsForDate(date);
     
     const { startOfDay, endOfDay } = getStartAndEndOfDay(date);
-    
     setChartXScales(startOfDay, endOfDay);
-    
     updateDateHeading(startOfDay);
     
     const filtered = glucoseReadings.filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay);
-    
     const bolusDataset = createBolusDataset(startOfDay, endOfDay);
-    
-    
-    
-    
-    
-    const bgXYValues = filtered.map(r => ({ x: r.timestamp, y: r.value }));
     const glucoseValues = filtered.map(r => r.value);
     
     setChartYScales(glucoseValues);
     
-    
-    
-    const noteDataset = {
-        label: "Notes",
-        data: getNotesXYPoints(bgChart.options.scales.y.min),
-        //        pointStyle: noteIcon,
-        pointRadius: 10,
-        showLine: false,
-        backgroundColor: "transparent", // optional if your icon has transparency
-        borderColor: "transparent"      // same here
-    };
-    
-    const glucoseDataset = {
-        label: "BG",
-        data: bgXYValues,
-        pointRadius: 0,          // Hide the dots visually
-        pointHoverRadius: 8,     // Make them hoverable for tooltips
-        borderColor: "red",
-        tension: 0.1, //controls how curved or straight the lines between points are
-        fill: false
-    };
-    
-    //    const bolusDataset = {
-    //        label: "Bolus",
-    //        data: getBolusXYPoints(),
-    //        backgroundColor: "#7f00ff",
-    //        borderColor: "#4b0082",
-    //        pointRadius: 7,
-    //        pointHoverRadius: 10,
-    //        showLine: false,
-    //        parsing: false
-    //    };
+    const glucoseDataset = createGlucoseDataset(filtered);
+    const noteDataset = createNoteDataset(bgChart.options.scales.y.min);
     
     bgChart.data.datasets = [
         glucoseDataset,
@@ -807,7 +791,6 @@ function updateChartForDate(date) {
         xStr: b.timestamp.toLocaleTimeString(),
         y: b.amount
     })));
-    
     
     bgChart.update();
     updateFoodChartForDate(date);
