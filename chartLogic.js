@@ -64,38 +64,6 @@ function updateVerticalLines(timestamp) {
 }
 
 
-function updateAnnotationZonesFromYScale() {
-    const yScale = bgChart.scales.y;
-    if (!yScale) return;
-    
-    const annotations = bgChart.options.plugins.annotation.annotations;
-    
-    annotations.lowZone.yMin = yScale.min;
-    annotations.lowZone.yMax = 4;
-    
-    annotations.inRangeZone.yMin = 4;
-    annotations.inRangeZone.yMax = 8;
-    
-    annotations.highYellowZone.yMin = 8;
-    annotations.highYellowZone.yMax = 10;
-    
-    annotations.veryHighZone.yMin = 10;
-    annotations.veryHighZone.yMax = yScale.max;
-}
-
-//To fix the background colours not being in the right zones on page load
-function updateAnnotationZonesFromYMax(yMax) {
-    const annotations = chart.options.plugins.annotation.annotations;
-    annotations.lowZone.yMax = 4;
-    annotations.inRangeZone.yMin = 4;
-    annotations.inRangeZone.yMax = 8;
-    annotations.highYellowZone.yMin = 8;
-    annotations.highYellowZone.yMax = 10;
-    annotations.veryHighZone.yMin = 10;
-    annotations.veryHighZone.yMax = yMax;
-}
-
-
 
 function handleLogClick(timestamp) {
     jumpToTime(new Date(timestamp));
@@ -300,9 +268,9 @@ function setChartXScales(start, end) {
 //Automatically scale y-axis to fit data
 function setChartYScales(glucoseValues) {
     //Always show at least up to 10 but higher if needed
-    bgChart.options.scales.y.max = Math.max(10, Math.ceil(Math.max(...glucoseValues)));
-    //Always show at least down to 4 but lower if BG is lower than 4
-    bgChart.options.scales.y.min = Math.min(4, Math.floor(Math.min(...glucoseValues)));
+//    bgChart.options.scales.y.max = Math.max(10, Math.ceil(Math.max(...glucoseValues)));
+//    //Always show at least down to 4 but lower if BG is lower than 4
+//    bgChart.options.scales.y.min = Math.min(4, Math.floor(Math.min(...glucoseValues)));
 }
 
 function setFoodChartYScales(netCarbValues) {

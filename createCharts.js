@@ -205,8 +205,8 @@ function createBGChart(ctx) {
                     title: { display: true, text: "Time" }
                 },
                 y: {
-                    min: 2,
-                    max: 12,
+//                    min: 2,
+//                    max: 12,
                     title: { display: true, text: "mmol/L" },
                     grid: {
                         display: true,
@@ -230,7 +230,7 @@ function createBGChart(ctx) {
                     ...sharedTooltipStyle,
                     callbacks: tooltipCallbacks
                 },
-                legend: { display: true },
+                legend: { display: false },
                 annotation: {
                     annotations: {
                         ...getAnnotationZones(chartProps.lineWidth),

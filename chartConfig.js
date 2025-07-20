@@ -170,43 +170,7 @@ function getDynamicLineAnnotation() {
     };
 }
 
-function getAnnotationZones() {
-    return {
-        lowZone: {
-            type: "box",
-            yMin: 0,
-            yMax: 4,
-            backgroundColor: chartProps.lowColor,
-            borderWidth: chartProps.lineWidth,
-            borderColor: chartProps.annotationBorderColor,
-        },
-        inRangeZone: {
-            type: "box",
-            yMin: 4,
-            yMax: 8,
-            backgroundColor: chartProps.inRangeColor,
-            borderWidth: chartProps.lineWidth,
-            borderColor: chartProps.annotationBorderColor,
-        },
-        highYellowZone: {
-            type: "box",
-            yMin: 8,
-            yMax: 10,
-            backgroundColor: chartProps.highYellowColor,
-            borderWidth: chartProps.lineWidth,
-            borderColor: chartProps.annotationBorderColor,
-        },
-        veryHighZone: {
-            type: "box",
-            yMin: 10,
-            yMax: 20,
-            backgroundColor: chartProps.veryHighColor,
-            borderWidth: chartProps.lineWidth,
-            borderColor: chartProps.annotationBorderColor,
-        },
-        dynamicLine: getDynamicLineAnnotation(),
-    };
-}
+
 
 
 
