@@ -613,6 +613,41 @@ function updateFoodChartForDate(date) {
     foodChart.update();
 }
 
+function createWorkoutDataset(workouts) {
+    const dataPoints = [];
+
+    for (const workout of workouts) {
+        if (!workout.start || !workout.endTime || !workout.averageHeartRate) continue;
+
+        const fixedY = 7.5;
+
+        dataPoints.push(
+            { x: workout.start, y: fixedY, label: workout.name },
+            { x: workout.endTime, y: fixedY, label: workout.name }
+        );
+    }
+
+    console.log("[createWorkoutDataset] workout dataset:", dataPoints);
+    
+    return {
+        label: "Workout",
+        type: "line",
+        data: dataPoints,
+        borderColor: "green",
+        borderWidth: 6,
+        backgroundColor: 'rgba(0, 0, 255, 0.6)', // distinguishable color
+        pointRadius: 10,
+        pointStyle: 'rectRot',
+        fill: false,
+        tension: 0,
+        parsing: false,
+        yAxisID: 'y', // assumes you're using the main BG axis
+        segment: {
+            borderDash: ctx => ctx.p0DataIndex % 2 === 0 ? [] : [5, 5]
+        }
+    };
+}
+
 function getStartAndEndOfDay(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
@@ -847,10 +882,16 @@ function updateChartForDate(date) {
     const glucoseDataset = createGlucoseDataset(glucoseReadingsForDay);
     const noteDataset = createNoteDataset(bgChart.options.scales.y.min);
     
+    const workoutsForDay = workouts.filter(w =>
+        w.start >= startOfDay && w.start < endOfDay
+    );
+    const workoutDataset = createWorkoutDataset(workoutsForDay);
+    
     bgChart.data.datasets = [
         glucoseDataset,
         noteDataset,
-        bolusDataset
+        bolusDataset,
+        workoutDataset
     ];
     
     bgChart.update();
