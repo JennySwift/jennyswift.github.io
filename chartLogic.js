@@ -627,6 +627,16 @@ function updateFoodChartForDate(date) {
     foodChart.update();
 }
 
+function getStartAndEndOfDay(date) {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    return { startOfDay, endOfDay };
+}
+
 //For BG chart
 function updateChartForDate(date) {
     showNotesForDate(date);
@@ -635,11 +645,7 @@ function updateChartForDate(date) {
     showWorkoutsForDate(date);
     showFastsForDate(date);
     
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    
-    const endOfDay = new Date(startOfDay);
-    endOfDay.setDate(endOfDay.getDate() + 1);
+    const { startOfDay, endOfDay } = getStartAndEndOfDay(date);
     
     setChartXScales(startOfDay, endOfDay);
     
