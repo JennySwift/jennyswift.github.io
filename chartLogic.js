@@ -172,10 +172,26 @@ function buildBasalDataForDay(startOfDay, endOfDay) {
         // If there is a gap between lastEnd and this entry's start, fill with zero
         if (entry.startTime > lastEnd) {
             basalDataForDay.push(
-                                 { x: lastEnd, y: 0 },
-                                 { x: entry.startTime, y: 0 }
-                                 );
+                {
+                    x: lastEnd,
+                    y: 0,
+                    segmentStart: lastEnd,
+                    segmentEnd: entry.startTime
+                },
+                {
+                    x: entry.startTime,
+                    y: 0,
+                    segmentStart: lastEnd,
+                    segmentEnd: entry.startTime
+                }
+            );
         }
+//        if (entry.startTime > lastEnd) {
+//            basalDataForDay.push(
+//                                 { x: lastEnd, y: 0 },
+//                                 { x: entry.startTime, y: 0 }
+//                                 );
+//        }
         
         // Push the actual segment
         basalDataForDay.push(
