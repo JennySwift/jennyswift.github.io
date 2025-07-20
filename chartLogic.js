@@ -106,52 +106,7 @@ function updateDateHeading(date) {
 
 
 
-function updateStats(startOfDay, endOfDay) {
-    const summaryRow = document.getElementById("summaryRow");
-    summaryRow.innerHTML = ""; // Clear all previous summary items
 
-    // 💉 Bolus total
-    const bolusesForDay = bolusDoses.filter(b => b.timestamp >= startOfDay && b.timestamp < endOfDay);
-    const totalBolus = bolusesForDay.reduce((sum, b) => sum + (b.amount || 0), 0);
-
-    const bolusItem = document.createElement("div");
-    bolusItem.className = "summary-item summary-bolus";
-    bolusItem.textContent = `💉 Bolus: ${totalBolus.toFixed(2)}U`;
-    summaryRow.appendChild(bolusItem);
-
-    // 🩸 Basal total
-    const totalBasal = calculateTotalBasalForDay(startOfDay, endOfDay);
-
-    const basalItem = document.createElement("div");
-    basalItem.className = "summary-item summary-basal";
-    basalItem.textContent = `💉 Basal: ${totalBasal.toFixed(2)}U`;
-    summaryRow.appendChild(basalItem);
-    
-    //Net carbs total
-    const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
-    const totalNetCarbs = foodLogsForDay.reduce((sum, log) => sum + (log.netCarbs || 0), 0);
-
-    const carbsItem = document.createElement("div");
-    carbsItem.className = "summary-item summary-carbs";
-    carbsItem.textContent = `🥕 Net Carbs: ${totalNetCarbs.toFixed(1)}g`;
-    summaryRow.appendChild(carbsItem);
-    
-    //Total carbs
-    const totalFat = foodLogsForDay.reduce((sum, log) => sum + (log.fat || 0), 0);
-
-    const fatItem = document.createElement("div");
-    fatItem.className = "summary-item summary-fat";
-    fatItem.textContent = `🧈 Fat: ${totalFat.toFixed(1)}g`;
-    summaryRow.appendChild(fatItem);
-    
-    //total calories
-    const totalCalories = foodLogsForDay.reduce((sum, log) => sum + (log.calories || 0), 0);
-
-    const caloriesItem = document.createElement("div");
-    caloriesItem.className = "summary-item summary-calories";
-    caloriesItem.textContent = `🔥 Calories: ${totalCalories.toFixed(0)}`;
-    summaryRow.appendChild(caloriesItem);
-}
 
 
 

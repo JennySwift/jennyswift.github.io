@@ -4,6 +4,83 @@
 //
 //  Created by Jenny Swift on 20/7/2025.
 //
+function updateStats(startOfDay, endOfDay) {
+    const summaryRow = document.getElementById("summaryRow");
+    summaryRow.innerHTML = ""; // Clear previous summary
+
+    const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
+
+    appendBolusSummary(summaryRow, startOfDay, endOfDay);
+    appendBasalSummary(summaryRow, startOfDay, endOfDay);
+    appendNetCarbsSummary(summaryRow, foodLogsForDay);
+    appendTotalCarbsSummary(summaryRow, foodLogsForDay);
+    appendFatSummary(summaryRow, foodLogsForDay);
+    //I haven't entered protein data in my foods yet for this
+//    appendProteinSummary(summaryRow, foodLogsForDay);
+    appendFibreSummary(summaryRow, foodLogsForDay);
+    appendCaloriesSummary(summaryRow, foodLogsForDay);
+}
+
+function appendBolusSummary(container, start, end) {
+    const totalBolus = calculateTotalBolusForDay(start, end);
+    const item = createSummaryItem("summary-bolus", `💉 Bolus: ${totalBolus.toFixed(2)}U`);
+    container.appendChild(item);
+}
+
+function appendBasalSummary(container, start, end) {
+    const totalBasal = calculateTotalBasalForDay(start, end);
+    const item = createSummaryItem("summary-basal", `💉 Basal: ${totalBasal.toFixed(2)}U`);
+    container.appendChild(item);
+}
+
+function appendNetCarbsSummary(container, logs) {
+    const total = logs.reduce((sum, log) => sum + (log.netCarbs || 0), 0);
+    const item = createSummaryItem("summary-carbs", `🍌 Net Carbs: ${total.toFixed(1)}g`);
+    container.appendChild(item);
+}
+
+function appendTotalCarbsSummary(container, logs) {
+    const total = logs.reduce((sum, log) => sum + (log.totalCarbs || 0), 0);
+    const item = createSummaryItem("summary-total-carbs", `🍌 Total Carbs: ${total.toFixed(1)}g`);
+    container.appendChild(item);
+}
+
+function appendFatSummary(container, logs) {
+    const total = logs.reduce((sum, log) => sum + (log.fat || 0), 0);
+    const item = createSummaryItem("summary-fat", `🥑 Fat: ${total.toFixed(1)}g`);
+    container.appendChild(item);
+}
+
+function appendProteinSummary(container, logs) {
+    const total = logs.reduce((sum, log) => sum + (log.protein || 0), 0);
+    const item = createSummaryItem("summary-protein", `🫘 Protein: ${total.toFixed(1)}g`);
+    container.appendChild(item);
+}
+
+function appendFibreSummary(container, logs) {
+    const total = logs.reduce((sum, log) => sum + (log.fibre || 0), 0);
+    const item = createSummaryItem("summary-fibre", `🥦 Fibre: ${total.toFixed(1)}g`);
+    container.appendChild(item);
+}
+
+function appendCaloriesSummary(container, logs) {
+    const total = logs.reduce((sum, log) => sum + (log.calories || 0), 0);
+    const item = createSummaryItem("summary-calories", `🔥 Calories: ${total.toFixed(0)}`);
+    container.appendChild(item);
+}
+
+function createSummaryItem(className, text) {
+    const div = document.createElement("div");
+    div.className = `summary-item ${className}`;
+    div.textContent = text;
+    return div;
+}
+
+function calculateTotalBolusForDay(startOfDay, endOfDay) {
+    const bolusesForDay = bolusDoses.filter(b => b.timestamp >= startOfDay && b.timestamp < endOfDay);
+    
+    return bolusesForDay.reduce((sum, b) => sum + (b.amount || 0), 0);
+}
 
 function calculateTotalBasalForDay(startOfDay, endOfDay) {
     const dayEntries = basalEntries
