@@ -233,7 +233,14 @@ function createBGChart(ctx) {
                 legend: { display: false },
                 annotation: {
                     annotations: {
-                        ...getAnnotationZones(chartProps.lineWidth),
+//                        ...getAnnotationZones(chartProps.lineWidth),
+                        zone_4_to_6: {
+                            type: "box",
+                            yMin: 4,
+                            yMax: 6,
+                            backgroundColor: "rgba(0, 128, 255, 0.6)", // light blue with transparency
+                            borderWidth: 0
+                        },
                         dynamicLine: getDynamicLineAnnotation()
                     }
                 },
@@ -304,14 +311,14 @@ function createBGChart(ctx) {
             //            },
             animation: {
                 onComplete: () => {
-                    updateAnnotationZonesFromYScale();
+//                    updateAnnotationZonesFromYScale();
                     bgChart.update();
                 }
             },
             resizeDelay: 0,
             onResize: () => {
                 if (bgChart && bgChart.scales?.y) {
-                    updateAnnotationZonesFromYScale();
+//                    updateAnnotationZonesFromYScale();
                     bgChart.update();
                 }
             },

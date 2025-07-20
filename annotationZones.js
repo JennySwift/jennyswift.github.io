@@ -51,18 +51,3 @@ function updateAnnotationZonesFromYScale() {
     annotations.veryHighZone.yMin = zoneBoundaries.highYellowMax;
     annotations.veryHighZone.yMax = yScale.max;
 }
-
-function updateAnnotationZonesFromYMax(yMax) {
-    const annotations = chart.options.plugins.annotation.annotations;
-
-    annotations.lowZone.yMax = zoneBoundaries.lowMax;
-
-    annotations.inRangeZone.yMin = zoneBoundaries.lowMax;
-    annotations.inRangeZone.yMax = zoneBoundaries.inRangeMax;
-
-    annotations.highYellowZone.yMin = zoneBoundaries.inRangeMax;
-    annotations.highYellowZone.yMax = zoneBoundaries.highYellowMax;
-
-    annotations.veryHighZone.yMin = zoneBoundaries.highYellowMax;
-    annotations.veryHighZone.yMax = yMax;
-}
