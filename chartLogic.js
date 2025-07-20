@@ -39,76 +39,9 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("https://dl.dropboxusercontent.com/scl/fi/0udoq3x6gkchstkq2hqxg/glucoseData.json?rlkey=vllvwb6wlx2el12c9aqijw37p")
     .then((response) => response.json())
     .then((data) => {
+        parseJSONData(data);
         //        console.log("📦 Raw data from JSON:", data);
-        glucoseReadings = data.glucoseReadings.map((r) => ({
-            timestamp: new Date(r.timestamp),
-            value: r.value,
-        }));
-        
-        foodLogs = data.foodLogs?.map((f) => ({
-            timestamp: new Date(f.timestamp),
-            foodName: f.foodName,
-            netCarbs: f.netCarbs,
-            calories: f.calories,
-            fat: f.fat,
-        })) || [];
-        
-        notes = data.notes?.map((n) => ({
-            timestamp: new Date(n.startTime),
-            text: n.text,
-            tags: n.tags || [],
-        })) || [];
-        
-        fasts = data.fasts?.map((f) => {
-            const startTime = new Date(f.startTime);
-            const endTime = f.endTime ? new Date(f.endTime) : null;
-            const duration = endTime ? (endTime - startTime) / 1000 : null; // in seconds
-            
-            return {
-                startTime,
-                endTime,
-                duration,
-                notes: f.notes
-            };
-        }) || [];
-        
-        workouts = data.workouts?.map((w) => ({
-            start: new Date(w.startTime),
-            name: w.name,
-            type: w.type,
-            duration: w.duration,
-            distance: w.distance,
-            activeCalories: w.activeCalories,
-            maxHeartRate: w.maxHeartRate,
-            endTime: w.endTime,
-            source: w.source,
-            elapsedTime: w.elapsedTime,
-            averageHeartRate: w.averageHeartRate,
-            notes: w.notes,
-            tags: w.tags || []
-        })) || [];
-        
-        basalEntries = data.basalEntries?.map(b => ({
-            startTime: new Date(b.startTime),
-            endTime: b.endTime ? new Date(b.endTime) : null,
-            rate: b.rate,
-            mode: b.mode,
-            notes: b.notes
-        })) || [];
-        
-        console.log("Basal entries:", basalEntries);
-        
-        bolusDoses = data.bolusDoses?.map((b) => ({
-            timestamp: new Date(b.timestamp),
-            amount: b.amount,
-            duration: b.duration,
-            type: b.type,
-            notes: b.notes,
-            carbRatioUsed: b.carbRatioUsed,
-            source: b.source,
-            tags: b.tags || []
-        })) || [];
-        
+
         //        console.log("✅ Food Logs:", foodLogs);
         //
         const now = new Date();
