@@ -141,6 +141,25 @@ canvas {
     border-radius: 4px;
 }
 
+.fast-block {
+    border-left: 4px solid #66bb6a; /* greenish tone for fasts */
+    padding: 8px;
+    margin: 6px 0;
+    background-color: #f2fdf4;
+    border-radius: 4px;
+}
+
+.fast-label {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #2e7d32;
+}
+.fast-notes {
+    margin-top: 4px;
+    font-style: italic;
+    color: #555;
+}
+
 .data-summary {
     font-size: 1.1rem;
     margin: 10px 0 6px;

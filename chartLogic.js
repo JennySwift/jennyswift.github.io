@@ -378,6 +378,12 @@ function showWorkoutsForDate(date) {
     });
 }
 
+function isSameDay(date1, date2) {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+}
+
 function showFastsForDate(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
@@ -413,26 +419,36 @@ function showFastsForDate(date) {
 
     fastsForDay.forEach(fast => {
         const div = document.createElement("div");
-        div.classList.add("food-log-block"); // reuse the same styling
+        div.classList.add("fast-block");
+
+        // Heading label based on whether start/end is on the selected date
+        const isStartToday = isSameDay(fast.startTime, date);
+        const isEndToday = fast.endTime && isSameDay(fast.endTime, date);
+
+        let label = "Continued Fast";
+        if (isStartToday && isEndToday) {
+            label = "Started and Ended";
+        } else if (isStartToday) {
+            label = "Start of Fast";
+        } else if (isEndToday) {
+            label = "End of Fast";
+        }
 
         const start = formatDateTime(fast.startTime);
         const end = fast.endTime ? formatDateTime(fast.endTime) : "Ongoing";
-        const durationStr = fast.duration
+
+        const duration = fast.duration
             ? `${Math.floor(fast.duration / 3600)}h ${Math.floor((fast.duration % 3600) / 60)}m`
             : "";
 
-        const notesLine = fast.notes
-            ? `<div class="food-log-details"><strong>Notes:</strong> ${fast.notes}</div>`
-            : "";
-
         div.innerHTML = `
-            <strong>Start:</strong> ${start}<br>
-            <strong>End:</strong> ${end}<br>
-            <strong>Duration:</strong> ${durationStr}
-            ${notesLine}
+            <div class="fast-label">${label}</div>
+            <div><strong>Start:</strong> ${start}</div>
+            <div><strong>End:</strong> ${end}</div>
+            ${duration ? `<div><strong>Duration:</strong> ${duration}</div>` : ""}
+            ${fast.notes ? `<div class="fast-notes">📝 ${fast.notes}</div>` : ""}
         `;
-
-        container.appendChild(div);
+        fastsContainer.appendChild(div);
     });
 }
 
