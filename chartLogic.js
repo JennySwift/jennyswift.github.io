@@ -710,6 +710,14 @@ function updateStats(startOfDay, endOfDay) {
     carbsItem.className = "summary-item summary-carbs";
     carbsItem.textContent = `🥕 Net Carbs: ${totalNetCarbs.toFixed(1)}g`;
     summaryRow.appendChild(carbsItem);
+    
+    //Total carbs
+    const totalFat = foodLogsForDay.reduce((sum, log) => sum + (log.fat || 0), 0);
+
+    const fatItem = document.createElement("div");
+    fatItem.className = "summary-item summary-fat";
+    fatItem.textContent = `🧈 Fat: ${totalFat.toFixed(1)}g`;
+    summaryRow.appendChild(fatItem);
 }
 
 function calculateTotalBasalForDay(startOfDay, endOfDay) {
