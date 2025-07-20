@@ -637,6 +637,16 @@ function getStartAndEndOfDay(date) {
     return { startOfDay, endOfDay };
 }
 
+function updateDateHeading(date) {
+    const heading = document.getElementById("dateHeading");
+    heading.textContent = date.toLocaleDateString("en-AU", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
+}
+
 //For BG chart
 function updateChartForDate(date) {
     showNotesForDate(date);
@@ -649,13 +659,7 @@ function updateChartForDate(date) {
     
     setChartXScales(startOfDay, endOfDay);
     
-    const heading = document.getElementById("dateHeading");
-    heading.textContent = startOfDay.toLocaleDateString("en-AU", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-    });
+    updateDateHeading(startOfDay);
     
     const filtered = glucoseReadings.filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay);
     
