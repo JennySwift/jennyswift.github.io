@@ -12,10 +12,12 @@ function updateStats(startOfDay, endOfDay) {
     
     const totalBolus = calculateTotalBolusForDay(startOfDay, endOfDay);
     const totalBasal = calculateTotalBasalForDay(startOfDay, endOfDay);
+    const totalNetCarbs = foodLogsForDay.reduce((sum, log) => sum + (log.netCarbs || 0), 0);
 
     appendBolusSummary(summaryRow, totalBolus);
     appendBasalSummary(summaryRow, totalBasal);
     appendTotalInsulinSummary(summaryRow, totalBolus + totalBasal);
+    appendBolusToCarbRatio(summaryRow, totalBolus, totalNetCarbs);
     appendNetCarbsSummary(summaryRow, foodLogsForDay);
     appendTotalCarbsSummary(summaryRow, foodLogsForDay);
     appendFatSummary(summaryRow, foodLogsForDay);
@@ -23,6 +25,17 @@ function updateStats(startOfDay, endOfDay) {
 //    appendProteinSummary(summaryRow, foodLogsForDay);
     appendFibreSummary(summaryRow, foodLogsForDay);
     appendCaloriesSummary(summaryRow, foodLogsForDay);
+}
+
+function appendBolusToCarbRatio(container, totalBolus, totalNetCarbs) {
+    let ratioText = "-";
+    if (totalNetCarbs > 0) {
+        const ratio = totalNetCarbs / totalBolus;
+        ratioText = `${ratio.toFixed(2)}U/g`;
+    }
+
+    const item = createSummaryItem("summary-bolus-to-carb", `➗ Net Carbs / Bolus Unit: ${ratioText}`);
+    container.appendChild(item);
 }
 
 function appendBolusSummary(container, total) {
