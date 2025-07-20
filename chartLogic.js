@@ -498,6 +498,22 @@ function formatDateTime(dateStr) {
 //    return `${day} ${month}, ${time}`;
 //}
 
+function updateBolusSummaryRow(bolusDoses, startOfDay, endOfDay) {
+    const summaryRow = document.getElementById("summaryRow");
+
+    // Only clear bolus portion (other items may be added separately)
+    const existing = summaryRow.querySelector(".summary-bolus");
+    if (existing) existing.remove();
+
+    const bolusesForDay = bolusDoses.filter(b => b.timestamp >= startOfDay && b.timestamp < endOfDay);
+    const totalBolus = bolusesForDay.reduce((sum, b) => sum + (b.amount || 0), 0);
+
+    const item = document.createElement("div");
+    item.className = "summary-item summary-bolus";
+    item.textContent = `💉 Bolus: ${totalBolus.toFixed(2)}U`;
+    summaryRow.appendChild(item);
+}
+
 function showBolusesForDate(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
@@ -508,14 +524,13 @@ function showBolusesForDate(date) {
     const container = document.getElementById("bolusContainer");
     container.innerHTML = "";
     
-    const summary = document.getElementById("bolusSummary");
+    updateBolusSummaryRow(bolusDoses, startOfDay, endOfDay);
+    
     const bolusesForDay = bolusDoses.filter(b => b.timestamp >= startOfDay && b.timestamp < endOfDay);
     
     const totalUnits = bolusesForDay.reduce((sum, b) => sum + (b.amount || 0), 0);
-    summary.textContent = `💉 Total Bolus: ${totalUnits.toFixed(2)}U`;
     
     if (bolusesForDay.length === 0) {
-        summary.textContent = "💉 Total Bolus: 0U";
         container.textContent = "No bolus doses for this day.";
         return;
     }

@@ -200,11 +200,19 @@ canvas {
     color: #555;
 }
 
-.data-summary {
-    font-size: 1.1rem;
-    margin: 10px 0 6px;
-    font-weight: bold;
-    color: #1565c0;
+.summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.summary-item {
+  padding: 0.25rem 0.5rem;
+  background: #f0f4f8;
+  border-radius: 6px;
 }
 
 .help-tip {
