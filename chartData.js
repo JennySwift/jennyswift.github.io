@@ -77,7 +77,55 @@ function parseJSONData(data) {
 
 }
 
-function createBolusDataset(startOfDay, endOfDay) {
+function createBolusDatasetForBolusChart(startOfDay, endOfDay) {
+    const bolusesForDay = bolusDoses.filter(dose =>
+                                            dose.timestamp >= startOfDay && dose.timestamp < endOfDay
+                                            );
+    
+    console.log("💉 Bolus doses for day:", bolusesForDay.map(dose => ({
+        time: dose.timestamp.toLocaleTimeString(),
+        amount: dose.amount
+    })));
+    
+    const bolusDataset = {
+        label: "Bolus",
+        data: bolusesForDay.map(dose => ({
+            x: dose.timestamp,
+            y: dose.amount,
+            amount: dose.amount,
+            notes: dose.notes,
+            source: dose.source,
+            //            y: dose.amount,
+            type: "bolus"
+        })),
+        yAxisID: "yBolus",
+        type: "bar",
+        backgroundColor: "#1976d2",
+        borderColor: "black",
+        borderWidth: 2,
+        barThickness: 10,
+        maxBarThickness: 24,
+        datalabels: {
+            anchor: 'end',
+            align: 'top',
+            color: 'black',
+            font: {
+                weight: 'bold',
+                size: 14
+            },
+            formatter: (value) => value.amount?.toFixed(2).replace(/^0/, "")
+        }
+    };
+    
+    console.log("📊 Bolus dataset being graphed:", bolusDataset.data.map(d => ({
+        time: new Date(d.x).toLocaleTimeString(),
+        amount: d.y
+    })));
+    
+    return bolusDataset;
+}
+
+function createBolusDatasetForBGChart(startOfDay, endOfDay) {
     const bolusesForDay = bolusDoses.filter(dose =>
                                             dose.timestamp >= startOfDay && dose.timestamp < endOfDay
     );

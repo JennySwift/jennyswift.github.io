@@ -7,6 +7,7 @@
 
 let bgChart;
 let foodChart;
+let bolusChart;
 let glucoseReadings = [];
 let foodLogs = [];
 let notes = [];
@@ -20,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ctx = document.getElementById("bgChart").getContext("2d");
     const foodCtx = document.getElementById("foodChart").getContext("2d");
     const basalCtx = document.getElementById("basalChart").getContext("2d");
+    const bolusCtx = document.getElementById("bolusChart").getContext("2d");
     const selectedDateInput = document.getElementById("selectedDate");
     
     fetch("https://dl.dropboxusercontent.com/scl/fi/0udoq3x6gkchstkq2hqxg/glucoseData.json?rlkey=vllvwb6wlx2el12c9aqijw37p")
@@ -40,7 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
         bgChart = createBGChart(ctx);
         foodChart = createFoodChart(foodCtx);
         basalChart = createBasalChart(basalCtx);
-        
+        bolusChart = createBolusChart(bolusCtx);
+
         updateChartForDate(today);
 
         setupEventListeners();
@@ -246,7 +249,7 @@ function updateChartForDate(date) {
     
     
     const glucoseReadingsForDay = glucoseReadings.filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay);
-    const bolusDataset = createBolusDataset(startOfDay, endOfDay);
+    const bolusDataset = createBolusDatasetForBGChart(startOfDay, endOfDay);
     const glucoseValues = glucoseReadingsForDay.map(r => r.value);
     
     setChartXScales(startOfDay, endOfDay);
@@ -269,6 +272,13 @@ function updateChartForDate(date) {
     console.log("[updateChart] Final dataset being used:", bgChart.data.datasets);
     
     bgChart.update();
+    
+    bolusChart.data.datasets = [
+        createBolusDatasetForBolusChart(startOfDay, endOfDay)
+    ];
+    bolusChart.options.scales.x.min = startOfDay;
+    bolusChart.options.scales.x.max = endOfDay;
+    bolusChart.update();
     
     
     const basalDataForDay = buildBasalDataForDay(startOfDay, endOfDay);
