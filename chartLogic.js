@@ -544,16 +544,21 @@ function showNotesForDate(date) {
 
     notesForDay.forEach(note => {
         const div = document.createElement("div");
-        div.classList.add("note-block");
+        div.classList.add("note-log-block");
 
         const time = formatTime12hCompact(note.timestamp);
-
         const tags = note.tags?.join(" ") ?? "";
 
-        div.innerHTML = `
-            <strong>${time}</strong>: ${note.text.replace(/\n/g, "<br>")}
-            <div class="note-tags">${tags}</div>
-        `;
+        const bodyDiv = document.createElement("div");
+        bodyDiv.classList.add("note-log-body");
+        bodyDiv.innerHTML = `<strong>${time}</strong>: ${note.text.replace(/\n/g, "<br>")}`;
+
+        const tagsDiv = document.createElement("div");
+        tagsDiv.classList.add("note-tags");
+        tagsDiv.textContent = tags;
+
+        div.appendChild(bodyDiv);
+        if (tags) div.appendChild(tagsDiv);
 
         notesContainer.appendChild(div);
     });
