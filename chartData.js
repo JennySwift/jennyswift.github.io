@@ -271,7 +271,8 @@ function createGlucoseDataset(filteredReadings) {
         data: filteredReadings.map(r => ({ x: r.timestamp, y: r.value })),
         pointRadius: 0, // Hide the dots visually
         pointHoverRadius: 8, // Make them hoverable for tooltips
-        borderColor: "red",
+        borderColor: "rgba(128, 128, 128, 0.8)",
+        borderWidth: 4,
         tension: 0.1, //controls how curved or straight the lines between points are
         fill: false
     };

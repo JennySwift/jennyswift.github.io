@@ -215,6 +215,10 @@ function createBGChart(ctx) {
                         drawTicks: true,
                         drawBorder: true,
                     },
+                    ticks: {
+                          stepSize: 2,
+                          beginAtZero: false
+                        }
                 },
                 //Create second y axis
 //                yBolus: {

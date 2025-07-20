@@ -30,8 +30,8 @@ const drawNoteIconsPlugin = {
         
         dataset.data.forEach((point) => {
             const x = scales.x.getPixelForValue(point.x);
-            const y = scales.y.getPixelForValue(point.y) - 30; // ⬆️ shift icon up by 10px
-            const iconSize = 100;
+            const y = scales.y.getPixelForValue(point.y) - 10; // ⬆️ shift icon up by 10px
+            const iconSize = 50;
             
             ctx.drawImage(noteIcon, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
         });
