@@ -115,7 +115,7 @@ canvas {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
-.food-log-block {
+.log-block {
   background: #f9f9f9;
   padding: 8px 12px;
   margin: 8px 0;
@@ -124,13 +124,19 @@ canvas {
   font-family: sans-serif;
 }
 
-.food-log-details {
+.log-details {
   margin-top: 4px;
   font-size: 0.9em;
   color: #444;
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.log-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #2e7d32;
 }
 
 .note-log-block {

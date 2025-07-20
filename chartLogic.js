@@ -34,16 +34,16 @@ const drawNoteIconsPlugin = {
     id: 'drawNoteIcons',
     afterDatasetsDraw(chart, args, options) {
         if (!noteIconLoaded) return;
-
+        
         const {ctx, scales} = chart;
         const dataset = chart.data.datasets.find(d => d.label === "Notes");
         if (!dataset) return;
-
+        
         dataset.data.forEach((point) => {
             const x = scales.x.getPixelForValue(point.x);
             const y = scales.y.getPixelForValue(point.y) - 30; // ⬆️ shift icon up by 10px
             const iconSize = 100;
-
+            
             ctx.drawImage(noteIcon, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
         });
     }
@@ -51,7 +51,7 @@ const drawNoteIconsPlugin = {
 Chart.register(drawNoteIconsPlugin);
 
 function updateVerticalLines(timestamp) {
-//    console.log("📏 Setting dynamicLine value to:", timestamp);  // ← Add this
+    //    console.log("📏 Setting dynamicLine value to:", timestamp);  // ← Add this
     if (bgChart) {
         bgChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
         bgChart.update();
@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const startTime = new Date(f.startTime);
             const endTime = f.endTime ? new Date(f.endTime) : null;
             const duration = endTime ? (endTime - startTime) / 1000 : null; // in seconds
-
+            
             return {
                 startTime,
                 endTime,
@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
         attachChartMousemoveSync(foodChart, "foodChart");
         
         
-//        attachChartMouseleaveClear();
+        //        attachChartMouseleaveClear();
         
     });
     
@@ -187,20 +187,20 @@ document.addEventListener("DOMContentLoaded", () => {
     
     
     
-//    document.getElementById("bgChart").addEventListener("mousemove", (evt) => {
-//        if (!bgChart) return;
-//
-//        const points = bgChart.getElementsAtEventForMode(evt, "nearest", { intersect: false }, false);
-//        if (points.length > 0) {
-//            const index = points[0].index;
-//            const label = bgChart.data.datasets[0].data[index]?.x;
-//            bgChart.options.plugins.annotation.annotations.dynamicLine.value = label;
-//            bgChart.update("none");
-//        }
-//    });
+    //    document.getElementById("bgChart").addEventListener("mousemove", (evt) => {
+    //        if (!bgChart) return;
+    //
+    //        const points = bgChart.getElementsAtEventForMode(evt, "nearest", { intersect: false }, false);
+    //        if (points.length > 0) {
+    //            const index = points[0].index;
+    //            const label = bgChart.data.datasets[0].data[index]?.x;
+    //            bgChart.options.plugins.annotation.annotations.dynamicLine.value = label;
+    //            bgChart.update("none");
+    //        }
+    //    });
     
     
-
+    
 });
 
 //    Hide the vertical line when mouse leaves chart
@@ -224,7 +224,7 @@ function attachChartMousemoveSync(chartInstance, chartElementId) {
     const el = document.getElementById(chartElementId);
     el.addEventListener("mousemove", (evt) => {
         if (!chartInstance) return;
-
+        
         const points = chartInstance.getElementsAtEventForMode(evt, "nearest", { intersect: false }, false);
         if (points.length > 0) {
             const index = points[0].index;
@@ -277,14 +277,14 @@ function formatTime12hCompact(date) {
 
 function handleLogClick(timestamp) {
     jumpToTime(new Date(timestamp));
-
+    
     // Highlight matching point in BG chart
     const bgDataset = bgChart.data.datasets[0].data;
     const bgIndex = bgDataset.findIndex(p => Math.abs(new Date(p.x) - timestamp) < 2 * 60 * 1000);
     if (bgIndex !== -1) {
         highlightChartPoint(bgChart, 0, bgIndex);
     }
-
+    
     // Highlight matching point in Food chart
     const foodDataset = foodChart.data.datasets[0].data;
     const foodIndex = foodDataset.findIndex(p => Math.abs(new Date(p.x) - timestamp) < 2 * 60 * 1000);
@@ -296,33 +296,33 @@ function handleLogClick(timestamp) {
 function showFoodLogsForDate(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-
+    
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
-
+    
     const foodLogsContainer = document.getElementById("foodLogsContainer");
     foodLogsContainer.innerHTML = ""; // clear old food logs
-
-//    console.log("Food logs:", foodLogs);
+    
+    //    console.log("Food logs:", foodLogs);
     
     const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
-            
-//    console.log("Food Logs for day:", foodLogsForDay);
-
+    
+    //    console.log("Food Logs for day:", foodLogsForDay);
+    
     if (foodLogsForDay.length === 0) {
         foodLogsContainer.textContent = "No food logs for this day.";
         return;
     }
-
+    
     foodLogsForDay.forEach(log => {
         const div = document.createElement("div");
-        div.classList.add("food-log-block");
-
+        div.classList.add("log-block");
+        
         const time = formatTime12hCompact(log.timestamp);
         
         div.innerHTML = `
             <strong>${time}</strong>: ${log.foodName}
-            <div class="food-log-details">
+            <div class="log-details">
                 <span>🍌 Net Carbs: ${log.netCarbs}g</span>
                 <span>🥑 Fat: ${log.fat}g</span>
                 <span>🔥 Calories: ${log.calories}</span>
@@ -334,8 +334,8 @@ function showFoodLogsForDate(date) {
         div.addEventListener("click", () => {
             handleLogClick(new Date(log.timestamp));
         });
-
-
+        
+        
         foodLogsContainer.appendChild(div);
     });
 }
@@ -343,85 +343,110 @@ function showFoodLogsForDate(date) {
 function showWorkoutsForDate(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-
+    
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
-
+    
     const container = document.getElementById("workoutsContainer");
     container.innerHTML = "";
-
+    
     const workoutsForDay = workouts.filter(w => w.start >= startOfDay && w.start < endOfDay);
     
     console.log("workouts:", workouts);
     console.log("workouts for day:", workoutsForDay);
-        
+    
     if (workoutsForDay.length === 0) {
         container.textContent = "No workouts for this day.";
         return;
     }
-
-    workoutsForDay.forEach(workout => {
+    
+    workoutsForDay.forEach((w) => {
         const div = document.createElement("div");
-        div.classList.add("workout-block");
-
-        const time = formatTime12hCompact(workout.start);
-        const type = workout.type;
-
-        let extra = "";
+        div.classList.add("log-block");
         
-        if (workout.name) {
-            extra += ` · ${workout.name}`;
-        }
+        const startTime = formatTimeOnly(w.start);
+            const endTime = formatTimeOnly(w.endTime);
+        const elapsedMinutes = Math.round(w.elapsedTime / 60);
+        const elapsedStr = `${elapsedMinutes} min`;
+        
+        const durationMinutes = Math.round(w.duration / 60);
+        const durationStr = `${durationMinutes} min`;
+        
+        const distanceStr = w.distance ? `<div><strong>Distance:</strong> ${w.distance.toFixed(2)} km</div>` : "";
+        
+        const activeCaloriesStr = Math.round(w.activeCalories);
+            const averageHeartRateStr = Math.round(w.averageHeartRate);
+        
+        div.innerHTML = `
+            <div class="log-title">${w.name}</div>
+            <div><strong>Duration:</strong> ${durationStr}</div>
+            <div><strong>Average H/R:</strong> ${averageHeartRateStr}bpm</div>
+            <div><strong>Max H/R:</strong> ${w.maxHeartRate}bpm</div>
+            <div><strong>Calories:</strong> ${activeCaloriesStr}</div>
+            <div><strong>Start:</strong> ${startTime}</div>
+            <div><strong>End:</strong> ${endTime}</div>
+            <div><strong>Elapsed Time:</strong> ${elapsedStr}</div>
+            
+            ${distanceStr}
+        `;
+        
+        workoutsContainer.appendChild(div);
+    });
+}
 
-        div.innerHTML = `<strong>${type}</strong>: 💉 ${extra}`;
-        container.appendChild(div);
+function formatTimeOnly(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
     });
 }
 
 function isSameDay(date1, date2) {
     return date1.getFullYear() === date2.getFullYear() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getDate() === date2.getDate();
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate();
 }
 
 function showFastsForDate(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-
+    
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
-
+    
     const container = document.getElementById("fastsContainer");
     container.innerHTML = "";
-
+    
     const fastsForDay = fasts.filter(f => {
         const start = new Date(f.startTime);
         const end = f.endTime ? new Date(f.endTime) : null;
-
+        
         return (
-            (start >= startOfDay && start < endOfDay) || // started today
-            (end && end >= startOfDay && end < endOfDay) || // ended today
-            (start < startOfDay && (!end || end > endOfDay)) // spanned entire day
-        );
+                (start >= startOfDay && start < endOfDay) || // started today
+                (end && end >= startOfDay && end < endOfDay) || // ended today
+                (start < startOfDay && (!end || end > endOfDay)) // spanned entire day
+                );
     });
-
+    
     const totalSeconds = fastsForDay.reduce((sum, f) => sum + (f.duration || 0), 0);
     const totalHours = Math.floor(totalSeconds / 3600);
     const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
-
+    
     if (fastsForDay.length === 0) {
         container.textContent = "No fasts for this day.";
         return;
     }
-
+    
     fastsForDay.forEach(fast => {
         const div = document.createElement("div");
         div.classList.add("fast-block");
-
+        
         // Heading label based on whether start/end is on the selected date
         const isStartToday = isSameDay(fast.startTime, date);
         const isEndToday = fast.endTime && isSameDay(fast.endTime, date);
-
+        
         let label = "Continued";
         if (isStartToday && isEndToday) {
             label = "Started and Ended";
@@ -430,14 +455,14 @@ function showFastsForDate(date) {
         } else if (isEndToday) {
             label = "Ended fast:";
         }
-
+        
         const start = formatDateTime(fast.startTime);
         const end = fast.endTime ? formatDateTime(fast.endTime) : "Ongoing";
-
+        
         const duration = fast.duration
-            ? `${Math.floor(fast.duration / 3600)}h ${Math.floor((fast.duration % 3600) / 60)}m`
-            : "";
-
+        ? `${Math.floor(fast.duration / 3600)}h ${Math.floor((fast.duration % 3600) / 60)}m`
+        : "";
+        
         div.innerHTML = `
             <div class="fast-label">${label}</div>
             ${duration ? `<div><strong>Duration:</strong> ${duration}</div>` : ""}
@@ -453,15 +478,15 @@ function formatDateTime(dateStr) {
     const d = new Date(dateStr);
     const day = d.getDate();
     const month = d.toLocaleString("en-AU", { month: "long" }); // e.g. "July"
-
+    
     // Get time parts
     let hours = d.getHours();
     const minutes = d.getMinutes().toString().padStart(2, "0");
     const ampm = hours >= 12 ? "pm" : "am";
     hours = hours % 12 || 12;
-
+    
     const time = `${hours}:${minutes}${ampm}`;
-
+    
     return `${day} ${month}, ${time}`;
 }
 
@@ -480,13 +505,13 @@ function formatDateTime(dateStr) {
 function showBolusesForDate(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-
+    
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
-
+    
     const container = document.getElementById("bolusContainer");
     container.innerHTML = "";
-
+    
     const summary = document.getElementById("bolusSummary");
     const bolusesForDay = bolusDoses.filter(b => b.timestamp >= startOfDay && b.timestamp < endOfDay);
     
@@ -498,16 +523,16 @@ function showBolusesForDate(date) {
         container.textContent = "No bolus doses for this day.";
         return;
     }
-
     
-
+    
+    
     bolusesForDay.forEach(bolus => {
         const div = document.createElement("div");
         div.classList.add("bolus-block");
-
+        
         const time = formatTime12hCompact(bolus.timestamp);
         const amount = bolus.amount?.toFixed(2) ?? "?";
-
+        
         let extra = "";
         if (bolus.carbRatioUsed) {
             extra += ` · Ratio: 1:${bolus.carbRatioUsed}`;
@@ -515,7 +540,7 @@ function showBolusesForDate(date) {
         if (bolus.notes) {
             extra += ` · ${bolus.notes}`;
         }
-
+        
         div.innerHTML = `<strong>${time}</strong>: 💉 ${amount}U ${extra}`;
         container.appendChild(div);
     });
@@ -524,42 +549,42 @@ function showBolusesForDate(date) {
 function showNotesForDate(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-
+    
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
-
+    
     const notesContainer = document.getElementById("notesContainer");
     notesContainer.innerHTML = ""; // clear old notes
-
+    
     console.log("Notes:", notes);
     
     const notesForDay = notes.filter(note => note.timestamp >= startOfDay && note.timestamp < endOfDay);
-            
+    
     console.log("Notes for day:", notesForDay);
-
+    
     if (notesForDay.length === 0) {
         notesContainer.textContent = "No notes for this day.";
         return;
     }
-
+    
     notesForDay.forEach(note => {
         const div = document.createElement("div");
         div.classList.add("note-log-block");
-
+        
         const time = formatTime12hCompact(note.timestamp);
         const tags = note.tags?.map(tag => `<span class="note-tag">${tag}</span>`).join(" ") ?? "";
         
         const bodyDiv = document.createElement("div");
         bodyDiv.classList.add("note-log-body");
         bodyDiv.innerHTML = `<strong>${time}</strong>: ${note.text.replace(/\n/g, "<br>")}`;
-
+        
         const tagsDiv = document.createElement("div");
         tagsDiv.classList.add("note-tags");
         tagsDiv.innerHTML = tags;
-
+        
         div.appendChild(bodyDiv);
         if (tags) div.appendChild(tagsDiv);
-
+        
         notesContainer.appendChild(div);
     });
 }
@@ -569,9 +594,9 @@ function updateFoodChartForDate(date) {
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
-
+    
     const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
-
+    
     const data = foodLogsForDay.map(log => ({
         x: log.timestamp,
         y: log.netCarbs,
@@ -580,7 +605,7 @@ function updateFoodChartForDate(date) {
         netCarbs: log.netCarbs,
         fat: log.fat
     }));
-
+    
     foodChart.data.datasets[0].data = data;
     foodChart.options.scales.x.min = startOfDay;
     foodChart.options.scales.x.max = endOfDay;
@@ -601,12 +626,12 @@ function updateChartForDate(date) {
     
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-
+    
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
-
+    
     setChartXScales(startOfDay, endOfDay);
-
+    
     const heading = document.getElementById("dateHeading");
     heading.textContent = startOfDay.toLocaleDateString("en-AU", {
         weekday: "long",
@@ -614,7 +639,7 @@ function updateChartForDate(date) {
         month: "long",
         day: "numeric"
     });
-
+    
     const filtered = glucoseReadings.filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay);
     
     const bolusesForDay = bolusDoses.filter(dose => dose.timestamp >= startOfDay && dose.timestamp < endOfDay);
@@ -623,15 +648,15 @@ function updateChartForDate(date) {
     
     const bgXYValues = filtered.map(r => ({ x: r.timestamp, y: r.value }));
     const glucoseValues = filtered.map(r => r.value);
-
+    
     setChartYScales(glucoseValues);
     
     
-
+    
     const noteDataset = {
         label: "Notes",
         data: getNotesXYPoints(bgChart.options.scales.y.min),
-//        pointStyle: noteIcon,
+        //        pointStyle: noteIcon,
         pointRadius: 10,
         showLine: false,
         backgroundColor: "transparent", // optional if your icon has transparency
@@ -658,45 +683,45 @@ function updateChartForDate(date) {
             amount: dose.amount,
             notes: dose.notes,
             source: dose.source,
-//            y: dose.amount,
+            //            y: dose.amount,
             type: "bolus"
         })),
         yAxisID: "yBolus",
         type: "bar",
         backgroundColor: "#1976d2",
-          borderColor: "black",
-          borderWidth: 2,
-          barThickness: 10,
-          maxBarThickness: 24,
+        borderColor: "black",
+        borderWidth: 2,
+        barThickness: 10,
+        maxBarThickness: 24,
         datalabels: {
-                anchor: 'end',
-                align: 'top',
-                color: 'black',
-                font: {
-                    weight: 'bold',
-                    size: 14
-                },
+            anchor: 'end',
+            align: 'top',
+            color: 'black',
+            font: {
+                weight: 'bold',
+                size: 14
+            },
             formatter: (value) => value.amount?.toFixed(2).replace(/^0/, "")
-            }
+        }
     };
     
-//    const bolusDataset = {
-//        label: "Bolus",
-//        data: getBolusXYPoints(),
-//        backgroundColor: "#7f00ff",
-//        borderColor: "#4b0082",
-//        pointRadius: 7,
-//        pointHoverRadius: 10,
-//        showLine: false,
-//        parsing: false
-//    };
-
+    //    const bolusDataset = {
+    //        label: "Bolus",
+    //        data: getBolusXYPoints(),
+    //        backgroundColor: "#7f00ff",
+    //        borderColor: "#4b0082",
+    //        pointRadius: 7,
+    //        pointHoverRadius: 10,
+    //        showLine: false,
+    //        parsing: false
+    //    };
+    
     bgChart.data.datasets = [
         glucoseDataset,
         noteDataset,
         bolusDataset
     ];
-
+    
     console.log("📊 Bolus data being graphed:", bolusDoses.map(b => ({
         x: b.timestamp,
         xStr: b.timestamp.toLocaleTimeString(),
@@ -709,82 +734,82 @@ function updateChartForDate(date) {
     
     const basalDataForDay = [];
     const dayEntries = basalEntries
-        .filter(entry =>
+    .filter(entry =>
             (entry.startTime >= startOfDay && entry.startTime < endOfDay) ||
             (entry.endTime && entry.endTime > startOfDay && entry.endTime <= endOfDay)
-        )
-        .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-
+            )
+    .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    
     let lastEnd = startOfDay;
-
+    
     for (const entry of dayEntries) {
         if (!entry.endTime) continue;
-
+        
         // If there is a gap between lastEnd and this entry's start, fill with zero
         if (entry.startTime > lastEnd) {
             basalDataForDay.push(
-                { x: lastEnd, y: 0 },
-                { x: entry.startTime, y: 0 }
-            );
+                                 { x: lastEnd, y: 0 },
+                                 { x: entry.startTime, y: 0 }
+                                 );
         }
-
+        
         // Push the actual segment
         basalDataForDay.push(
-            { x: entry.startTime, y: entry.rate, segmentStart: entry.startTime, segmentEnd: entry.endTime },
-            { x: entry.endTime, y: entry.rate, segmentStart: entry.startTime, segmentEnd: entry.endTime }
-        );
-
+                             { x: entry.startTime, y: entry.rate, segmentStart: entry.startTime, segmentEnd: entry.endTime },
+                             { x: entry.endTime, y: entry.rate, segmentStart: entry.startTime, segmentEnd: entry.endTime }
+                             );
+        
         lastEnd = entry.endTime;
     }
-
+    
     // Fill to end of day if needed
     if (lastEnd < endOfDay) {
         basalDataForDay.push(
-            { x: lastEnd, y: 0 },
-            { x: endOfDay, y: 0 }
-        );
+                             { x: lastEnd, y: 0 },
+                             { x: endOfDay, y: 0 }
+                             );
     }
     
     
     //This worked for manual entries but not for tidepool entries
-//    const basalDataForDay = [];
-//
-//    basalEntries
-//        .filter(entry => entry.startTime >= startOfDay && entry.startTime < endOfDay)
-//        .forEach(entry => {
-//            if (!entry.endTime) return; // skip if no end time
-//
-//            basalDataForDay.push(
-//                {
-//                    x: entry.startTime,
-//                    y: entry.rate,
-//                    segmentStart: entry.startTime,
-//                    segmentEnd: entry.endTime
-//                },
-//                {
-//                    x: entry.endTime,
-//                    y: entry.rate,
-//                    segmentStart: entry.startTime,
-//                    segmentEnd: entry.endTime
-//                }
-//            );
-//        });
+    //    const basalDataForDay = [];
+    //
+    //    basalEntries
+    //        .filter(entry => entry.startTime >= startOfDay && entry.startTime < endOfDay)
+    //        .forEach(entry => {
+    //            if (!entry.endTime) return; // skip if no end time
+    //
+    //            basalDataForDay.push(
+    //                {
+    //                    x: entry.startTime,
+    //                    y: entry.rate,
+    //                    segmentStart: entry.startTime,
+    //                    segmentEnd: entry.endTime
+    //                },
+    //                {
+    //                    x: entry.endTime,
+    //                    y: entry.rate,
+    //                    segmentStart: entry.startTime,
+    //                    segmentEnd: entry.endTime
+    //                }
+    //            );
+    //        });
     
-//    const basalDataForDay = basalEntries
-//        .filter(entry => entry.startTime >= startOfDay && entry.startTime < endOfDay)
-//        .map(entry => ({
-//            x: entry.startTime,
-//            end: entry.endTime,
-//            notes: entry.notes,
-//            y: entry.rate
-//        }));
-
+    //    const basalDataForDay = basalEntries
+    //        .filter(entry => entry.startTime >= startOfDay && entry.startTime < endOfDay)
+    //        .map(entry => ({
+    //            x: entry.startTime,
+    //            end: entry.endTime,
+    //            notes: entry.notes,
+    //            y: entry.rate
+    //        }));
+    
     basalChart.data.datasets[0].data = basalDataForDay;
     basalChart.options.scales.x.min = startOfDay;
     basalChart.options.scales.x.max = endOfDay;
     basalChart.update();
     
-
+    
     
     console.log("💉 Bolus doses for day:", bolusesForDay.map(dose => ({
         time: dose.timestamp.toLocaleTimeString(),
@@ -810,11 +835,11 @@ function getBolusXYPoints() {
             const closestDiff = Math.abs(new Date(closest.timestamp) - dose.timestamp);
             return diff < closestDiff ? current : closest;
         }, glucoseReadings[0]);
-
+        
         const safeOffset = 3;
         const bgY = closestReading?.value ?? 6;
         const dotY = bgY >= 6 ? bgY + safeOffset : bgY - safeOffset;
-
+        
         return {
             x: dose.timestamp,
             y: dotY,
@@ -856,13 +881,13 @@ function getNotesXYPoints(yValue) {
             return diff < closestDiff ? current : closest;
         }, glucoseReadings[0]);
         
-
+        
         const safeOffset = 5;
         const bgY = closestReading.value;
-
+        
         // Nudge icon slightly above or below BG line depending on where it sits
         const iconY = bgY >= 6 ? bgY - safeOffset : bgY + safeOffset;
-
+        
         return {
             x: note.timestamp,
             y: iconY,
@@ -881,18 +906,18 @@ function logChartLabelsAndValues(labels, values) {
 
 function highlightChartPoint(chart, datasetIndex, pointIndex) {
     const dataset = chart.data.datasets[datasetIndex];
-
+    
     const original = dataset._originalPointRadius ?? dataset.pointRadius ?? 3;
     if (!dataset._originalPointRadius) {
         dataset._originalPointRadius = original;
     }
-
+    
     dataset.pointRadius = (ctx) => {
         return ctx.dataIndex === pointIndex ? 15 : original;
     };
-
+    
     chart.update();
-
+    
     setTimeout(() => {
         dataset.pointRadius = original;
         chart.update();
@@ -901,13 +926,13 @@ function highlightChartPoint(chart, datasetIndex, pointIndex) {
 
 function jumpToTime(inputTime) {
     let parsed;
-
+    
     if (inputTime instanceof Date) {
         parsed = inputTime;
     } else {
         const input = document.getElementById("jumpInput").value.trim();
         if (!input) return;
-
+        
         const selected = document.getElementById("selectedDate").valueAsDate;
         parsed = parseFlexibleTime(input, selected);
         if (!parsed) {
@@ -915,12 +940,12 @@ function jumpToTime(inputTime) {
             return;
         }
     }
-
+    
     const dataset = bgChart.data.datasets[0].data;
-
+    
     let closestIndex = 0;
     let closestDiff = Infinity;
-
+    
     for (let i = 0; i < dataset.length; i++) {
         const dataTime = new Date(dataset[i].x);
         const diff = Math.abs(dataTime - parsed);
@@ -929,14 +954,14 @@ function jumpToTime(inputTime) {
             closestIndex = i;
         }
     }
-
+    
     const matchedLabel = dataset[closestIndex]?.x;
     const formattedTarget = parsed.toLocaleTimeString([], {
         hour: "numeric",
         minute: "2-digit",
         hour12: true,
     });
-
+    
     console.log("⏩ Jumping to:", formattedTarget);
     console.log("🔍 Matched label:", matchedLabel);
     console.log("🩸 BG value at match:", dataset[closestIndex]?.y);
@@ -948,13 +973,13 @@ function jumpToTime(inputTime) {
     console.log("🧪 jumpToTime → timestamp to jump to:", timestamp);
     
     updateVerticalLines(timestamp);
-
+    
     bgChart.setActiveElements([{ datasetIndex: 0, index: closestIndex }]);
     bgChart.tooltip.setActiveElements([{ datasetIndex: 0, index: closestIndex }], { x: 0, y: 0 });
     bgChart.update();
-
-//    bgChart.options.plugins.annotation.annotations.dynamicLine.value = matchedLabel;
-//    bgChart.setActiveElements([{ datasetIndex: 0, index: closestIndex }]);
-//    bgChart.tooltip.setActiveElements([{ datasetIndex: 0, index: closestIndex }], { x: 0, y: 0 });
-//    bgChart.update();
+    
+    //    bgChart.options.plugins.annotation.annotations.dynamicLine.value = matchedLabel;
+    //    bgChart.setActiveElements([{ datasetIndex: 0, index: closestIndex }]);
+    //    bgChart.tooltip.setActiveElements([{ datasetIndex: 0, index: closestIndex }], { x: 0, y: 0 });
+    //    bgChart.update();
 }
