@@ -128,6 +128,8 @@ document.addEventListener("DOMContentLoaded", () => {
             notes: b.notes
         })) || [];
         
+        console.log("Basal entries:", basalEntries);
+        
         bolusDoses = data.bolusDoses?.map((b) => ({
             timestamp: new Date(b.timestamp),
             amount: b.amount,
@@ -498,21 +500,7 @@ function formatDateTime(dateStr) {
 //    return `${day} ${month}, ${time}`;
 //}
 
-function updateBolusSummaryRow(bolusDoses, startOfDay, endOfDay) {
-    const summaryRow = document.getElementById("summaryRow");
-    
-    // Only clear bolus portion (other items may be added separately)
-    const existing = summaryRow.querySelector(".summary-bolus");
-    if (existing) existing.remove();
-    
-    const bolusesForDay = bolusDoses.filter(b => b.timestamp >= startOfDay && b.timestamp < endOfDay);
-    const totalBolus = bolusesForDay.reduce((sum, b) => sum + (b.amount || 0), 0);
-    
-    const item = document.createElement("div");
-    item.className = "summary-item summary-bolus";
-    item.textContent = `💉 Bolus: ${totalBolus.toFixed(2)}U`;
-    summaryRow.appendChild(item);
-}
+
 
 function showBolusesForDate(date) {
     const startOfDay = new Date(date);
@@ -523,8 +511,6 @@ function showBolusesForDate(date) {
     
     const container = document.getElementById("bolusContainer");
     container.innerHTML = "";
-    
-    updateBolusSummaryRow(bolusDoses, startOfDay, endOfDay);
     
     const bolusesForDay = bolusDoses.filter(b => b.timestamp >= startOfDay && b.timestamp < endOfDay);
     
@@ -695,6 +681,54 @@ function createBolusDataset(startOfDay, endOfDay) {
     return bolusDataset;
 }
 
+function updateStats(startOfDay, endOfDay) {
+    const summaryRow = document.getElementById("summaryRow");
+    summaryRow.innerHTML = ""; // Clear all previous summary items
+
+    // 💉 Bolus total
+    const bolusesForDay = bolusDoses.filter(b => b.timestamp >= startOfDay && b.timestamp < endOfDay);
+    const totalBolus = bolusesForDay.reduce((sum, b) => sum + (b.amount || 0), 0);
+
+    const bolusItem = document.createElement("div");
+    bolusItem.className = "summary-item summary-bolus";
+    bolusItem.textContent = `💉 Bolus: ${totalBolus.toFixed(2)}U`;
+    summaryRow.appendChild(bolusItem);
+
+    // 🩸 Basal total
+    const totalBasal = calculateTotalBasalForDay(startOfDay, endOfDay);
+
+    const basalItem = document.createElement("div");
+    basalItem.className = "summary-item summary-basal";
+    basalItem.textContent = `💉 Basal: ${totalBasal.toFixed(2)}U`;
+    summaryRow.appendChild(basalItem);
+}
+
+function calculateTotalBasalForDay(startOfDay, endOfDay) {
+    const dayEntries = basalEntries
+        .filter(entry =>
+            entry.startTime < endOfDay && // starts before end of day
+            (entry.endTime === undefined || entry.endTime > startOfDay) // ends after day starts
+        )
+        .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+    let totalUnits = 0;
+
+    for (const entry of dayEntries) {
+        const start = new Date(Math.max(new Date(entry.startTime), startOfDay));
+        const end = entry.endTime
+            ? new Date(Math.min(new Date(entry.endTime), endOfDay))
+            : endOfDay;
+
+        const durationMinutes = (end - start) / (1000 * 60);
+        if (durationMinutes > 0) {
+            const delivered = entry.rate * (durationMinutes / 60);
+            totalUnits += delivered;
+        }
+    }
+
+    return totalUnits;
+}
+
 function buildBasalDataForDay(startOfDay, endOfDay) {
     const basalDataForDay = [];
     const dayEntries = basalEntries
@@ -775,6 +809,8 @@ function updateChartForDate(date) {
     const { startOfDay, endOfDay } = getStartAndEndOfDay(date);
     
     updateDateHeading(startOfDay);
+    updateStats(startOfDay, endOfDay);
+    
     
     const glucoseReadingsForDay = glucoseReadings.filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay);
     const bolusDataset = createBolusDataset(startOfDay, endOfDay);
