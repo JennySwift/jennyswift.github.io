@@ -629,23 +629,57 @@ function createWorkoutDataset(workouts) {
 
     console.log("[createWorkoutDataset] workout dataset:", dataPoints);
     
+//    return {
+//        label: "Workout",
+//        type: "line",
+//        yAxisID: "y",
+//        data: workouts.flatMap(w => ([
+//          { x: w.start, y: 7.5 },
+//          { x: w.end, y: 7.5 },
+//          { x: null, y: null } // this breaks the line between workouts
+//        ])),
+//        borderColor: "purple",
+//        borderWidth: 6,
+//        pointRadius: 0,
+//        spanGaps: false,
+//        parsing: false,
+//        showLine: true
+//    }
+    
     return {
         label: "Workout",
-        type: "line",
-        data: dataPoints,
+        type: "scatter",
+        data: workouts.map(w => ({
+            x: w.start,
+            y: 7.5
+        })),
         borderColor: "green",
-        borderWidth: 6,
-        backgroundColor: 'rgba(0, 0, 255, 0.6)', // distinguishable color
+        borderWidth: 2,
+        backgroundColor: 'rgba(0, 0, 255, 0.6)',
         pointRadius: 10,
-        pointStyle: 'rectRot',
         fill: false,
         tension: 0,
         parsing: false,
-        yAxisID: 'y', // assumes you're using the main BG axis
-        segment: {
-            borderDash: ctx => ctx.p0DataIndex % 2 === 0 ? [] : [5, 5]
-        }
+        yAxisID: 'y'
     };
+    
+//    return {
+//        label: "Workout",
+//        type: "scatter",
+//        data: dataPoints,
+//        borderColor: "green",
+//        borderWidth: 2,
+//        backgroundColor: 'rgba(0, 0, 255, 0.6)', // distinguishable color
+//        pointRadius: 10,
+////        pointStyle: 'rectRot',
+//        fill: false,
+//        tension: 0,
+//        parsing: false,
+//        yAxisID: 'y', // assumes you're using the main BG axis
+//        segment: {
+//            borderDash: ctx => ctx.p0DataIndex % 2 === 0 ? [] : [5, 5]
+//        }
+//    };
 }
 
 function getStartAndEndOfDay(date) {
@@ -893,6 +927,7 @@ function updateChartForDate(date) {
         bolusDataset,
         workoutDataset
     ];
+    console.log("[updateChart] Final dataset being used:", bgChart.data.datasets);
     
     bgChart.update();
     
