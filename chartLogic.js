@@ -647,55 +647,16 @@ function updateDateHeading(date) {
     });
 }
 
-//For BG chart
-function updateChartForDate(date) {
-    showNotesForDate(date);
-    showFoodLogsForDate(date);
-    showBolusesForDate(date);
-    showWorkoutsForDate(date);
-    showFastsForDate(date);
-    
-    const { startOfDay, endOfDay } = getStartAndEndOfDay(date);
-    
-    setChartXScales(startOfDay, endOfDay);
-    
-    updateDateHeading(startOfDay);
-    
-    const filtered = glucoseReadings.filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay);
-    
-    const bolusesForDay = bolusDoses.filter(dose => dose.timestamp >= startOfDay && dose.timestamp < endOfDay);
-    
-    
-    
-    const bgXYValues = filtered.map(r => ({ x: r.timestamp, y: r.value }));
-    const glucoseValues = filtered.map(r => r.value);
-    
-    setChartYScales(glucoseValues);
-    
-    
-    
-    const noteDataset = {
-        label: "Notes",
-        data: getNotesXYPoints(bgChart.options.scales.y.min),
-        //        pointStyle: noteIcon,
-        pointRadius: 10,
-        showLine: false,
-        backgroundColor: "transparent", // optional if your icon has transparency
-        borderColor: "transparent"      // same here
-    };
-    
-    const glucoseDataset = {
-        label: "BG",
-        data: bgXYValues,
-        pointRadius: 0,          // Hide the dots visually
-        pointHoverRadius: 8,     // Make them hoverable for tooltips
-        borderColor: "red",
-        tension: 0.1, //controls how curved or straight the lines between points are
-        fill: false
-    };
-    
-    
-    
+function createBolusDataset(startOfDay, endOfDay) {
+    const bolusesForDay = bolusDoses.filter(dose =>
+        dose.timestamp >= startOfDay && dose.timestamp < endOfDay
+    );
+
+    console.log("💉 Bolus doses for day:", bolusesForDay.map(dose => ({
+        time: dose.timestamp.toLocaleTimeString(),
+        amount: dose.amount
+    })));
+
     const bolusDataset = {
         label: "Bolus",
         data: bolusesForDay.map(dose => ({
@@ -724,6 +685,63 @@ function updateChartForDate(date) {
             },
             formatter: (value) => value.amount?.toFixed(2).replace(/^0/, "")
         }
+    };
+
+    console.log("📊 Bolus dataset being graphed:", bolusDataset.data.map(d => ({
+        time: new Date(d.x).toLocaleTimeString(),
+        amount: d.y
+    })));
+
+    return bolusDataset;
+}
+
+//For BG chart
+function updateChartForDate(date) {
+    showNotesForDate(date);
+    showFoodLogsForDate(date);
+    showBolusesForDate(date);
+    showWorkoutsForDate(date);
+    showFastsForDate(date);
+    
+    const { startOfDay, endOfDay } = getStartAndEndOfDay(date);
+    
+    setChartXScales(startOfDay, endOfDay);
+    
+    updateDateHeading(startOfDay);
+    
+    const filtered = glucoseReadings.filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay);
+    
+    const bolusDataset = createBolusDataset(startOfDay, endOfDay);
+    
+    
+    
+    
+    
+    const bgXYValues = filtered.map(r => ({ x: r.timestamp, y: r.value }));
+    const glucoseValues = filtered.map(r => r.value);
+    
+    setChartYScales(glucoseValues);
+    
+    
+    
+    const noteDataset = {
+        label: "Notes",
+        data: getNotesXYPoints(bgChart.options.scales.y.min),
+        //        pointStyle: noteIcon,
+        pointRadius: 10,
+        showLine: false,
+        backgroundColor: "transparent", // optional if your icon has transparency
+        borderColor: "transparent"      // same here
+    };
+    
+    const glucoseDataset = {
+        label: "BG",
+        data: bgXYValues,
+        pointRadius: 0,          // Hide the dots visually
+        pointHoverRadius: 8,     // Make them hoverable for tooltips
+        borderColor: "red",
+        tension: 0.1, //controls how curved or straight the lines between points are
+        fill: false
     };
     
     //    const bolusDataset = {
@@ -829,13 +847,6 @@ function updateChartForDate(date) {
     basalChart.options.scales.x.min = startOfDay;
     basalChart.options.scales.x.max = endOfDay;
     basalChart.update();
-    
-    
-    
-    console.log("💉 Bolus doses for day:", bolusesForDay.map(dose => ({
-        time: dose.timestamp.toLocaleTimeString(),
-        amount: dose.amount
-    })));
     
     //debug
     if (bolusDataset) {
