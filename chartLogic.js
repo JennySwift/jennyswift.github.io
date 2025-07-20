@@ -645,18 +645,22 @@ function createWorkoutDataset(workouts) {
 //        parsing: false,
 //        showLine: true
 //    }
-    
     return {
         label: "Workout",
         type: "scatter",
         data: workouts.map(w => ({
             x: w.start,
-            y: 7.5
+            y: 7.5,
+            type: "workout",
+            name: w.name,
+            heartRate: Math.round(w.averageHeartRate),
+            duration: Math.round(w.duration / 60) // duration in minutes
         })),
         borderColor: "green",
         borderWidth: 2,
         backgroundColor: 'rgba(0, 0, 255, 0.6)',
         pointRadius: 10,
+        pointHitRadius: 20,
         fill: false,
         tension: 0,
         parsing: false,

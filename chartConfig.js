@@ -109,6 +109,14 @@ const tooltipCallbacks = {
         //            return `💉 ${point.amount.toFixed(2)}U bolus`;
         //        }
         
+        if (point?.type === "workout") {
+                return [
+                    `🏋️ ${point.name || "Workout"}`,
+                    `❤️ Avg HR: ${point.heartRate ?? "?"} bpm`,
+                    `⏱️ Duration: ${point.duration ?? "?"} min`
+                ];
+            }
+        
         
         // Default for BG readings
         const mmol = context.parsed.y;
