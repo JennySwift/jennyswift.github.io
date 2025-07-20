@@ -267,6 +267,11 @@ function updateAnnotationZonesFromYMax(yMax) {
     annotations.veryHighZone.yMax = yMax;
 }
 
+function formatTimeFromString(dateStr) {
+    const date = new Date(dateStr);
+    return formatTime12hCompact(date)
+}
+
 function formatTime12hCompact(date) {
     return date.toLocaleTimeString([], {
         hour: "numeric",
@@ -364,8 +369,8 @@ function showWorkoutsForDate(date) {
         const div = document.createElement("div");
         div.classList.add("log-block");
         
-        const startTime = formatTimeOnly(w.start);
-            const endTime = formatTimeOnly(w.endTime);
+        const startTime = formatTimeFromString(w.start);
+            const endTime = formatTimeFromString(w.endTime);
         const elapsedMinutes = Math.round(w.elapsedTime / 60);
         const elapsedStr = `${elapsedMinutes} min`;
         
@@ -391,15 +396,6 @@ function showWorkoutsForDate(date) {
         `;
         
         workoutsContainer.appendChild(div);
-    });
-}
-
-function formatTimeOnly(dateStr) {
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
     });
 }
 
