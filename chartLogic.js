@@ -768,16 +768,17 @@ function updateChartForDate(date) {
     showFastsForDate(date);
     
     const { startOfDay, endOfDay } = getStartAndEndOfDay(date);
-    setChartXScales(startOfDay, endOfDay);
+    
     updateDateHeading(startOfDay);
     
-    const filtered = glucoseReadings.filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay);
+    const glucoseReadingsForDay = glucoseReadings.filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay);
     const bolusDataset = createBolusDataset(startOfDay, endOfDay);
-    const glucoseValues = filtered.map(r => r.value);
+    const glucoseValues = glucoseReadingsForDay.map(r => r.value);
     
+    setChartXScales(startOfDay, endOfDay);
     setChartYScales(glucoseValues);
     
-    const glucoseDataset = createGlucoseDataset(filtered);
+    const glucoseDataset = createGlucoseDataset(glucoseReadingsForDay);
     const noteDataset = createNoteDataset(bgChart.options.scales.y.min);
     
     bgChart.data.datasets = [
@@ -786,64 +787,15 @@ function updateChartForDate(date) {
         bolusDataset
     ];
     
-    console.log("📊 Bolus data being graphed:", bolusDoses.map(b => ({
-        x: b.timestamp,
-        xStr: b.timestamp.toLocaleTimeString(),
-        y: b.amount
-    })));
-    
     bgChart.update();
     updateFoodChartForDate(date);
     
     const basalDataForDay = buildBasalDataForDay(startOfDay, endOfDay);
     
-    //This worked for manual entries but not for tidepool entries
-    //    const basalDataForDay = [];
-    //
-    //    basalEntries
-    //        .filter(entry => entry.startTime >= startOfDay && entry.startTime < endOfDay)
-    //        .forEach(entry => {
-    //            if (!entry.endTime) return; // skip if no end time
-    //
-    //            basalDataForDay.push(
-    //                {
-    //                    x: entry.startTime,
-    //                    y: entry.rate,
-    //                    segmentStart: entry.startTime,
-    //                    segmentEnd: entry.endTime
-    //                },
-    //                {
-    //                    x: entry.endTime,
-    //                    y: entry.rate,
-    //                    segmentStart: entry.startTime,
-    //                    segmentEnd: entry.endTime
-    //                }
-    //            );
-    //        });
-    
-    //    const basalDataForDay = basalEntries
-    //        .filter(entry => entry.startTime >= startOfDay && entry.startTime < endOfDay)
-    //        .map(entry => ({
-    //            x: entry.startTime,
-    //            end: entry.endTime,
-    //            notes: entry.notes,
-    //            y: entry.rate
-    //        }));
-    
     basalChart.data.datasets[0].data = basalDataForDay;
     basalChart.options.scales.x.min = startOfDay;
     basalChart.options.scales.x.max = endOfDay;
     basalChart.update();
-    
-    //debug
-    if (bolusDataset) {
-        console.log("📊 Bolus dataset being graphed:", bolusDataset.data.map(d => ({
-            time: new Date(d.x).toLocaleTimeString(),
-            amount: d.y
-        })));
-    } else {
-        console.warn("⚠️ No Bolus dataset found in chart");
-    }
 }
 
 function getBolusXYPoints() {
