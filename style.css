@@ -28,6 +28,14 @@ canvas {
   width: 100%;
 }
 
+#bgChart {
+    height: 200px
+}
+
+#bolusChart {
+    height: 200px
+}
+
 #foodChart {
     height: 200px
 }

@@ -19,6 +19,17 @@ const chartProps = {
     foodBorderColor: "#ef6c00"
 };
 
+const chartAreaBackground = {
+    id: 'chartAreaBackground',
+    beforeDraw(chart, args, options) {
+        const { ctx, chartArea } = chart;
+        ctx.save();
+        ctx.fillStyle = options.color || 'white'; // fallback
+        ctx.fillRect(chartArea.left, chartArea.top, chartArea.width, chartArea.height);
+        ctx.restore();
+    }
+};
+
 const reusableXTicks = {
     source: "auto",
     autoSkip: false,
@@ -30,7 +41,8 @@ const reusableXGrid = {
     color: chartProps.xGridColor,
     lineWidth: chartProps.lineWidth,
     drawTicks: true,
-    drawBorder: true
+    drawBorder: true,
+    drawOnChartArea: true
 };
 
 const reusableYGrid = {
@@ -52,6 +64,24 @@ const sharedTooltipStyle = {
         rotation: 0,
     },
     displayColors: false
+};
+
+const bolusChartTooltipCallbacks = {
+    title: (context) => {
+        const timestamp = context[0].parsed.x;
+        return new Date(timestamp).toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+        }).toLowerCase();
+    },
+    label: (context) => {
+        const point = context.raw;
+        
+        return [
+                `💉 ${point.y.toFixed(2)}U bolus`
+        ];
+    }
 };
 
 const foodChartTooltipCallbacks = {

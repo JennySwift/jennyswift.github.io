@@ -266,7 +266,7 @@ function updateChartForDate(date) {
     bgChart.data.datasets = [
         glucoseDataset,
         noteDataset,
-        bolusDataset,
+//        bolusDataset,
         workoutDataset
     ];
     console.log("[updateChart] Final dataset being used:", bgChart.data.datasets);

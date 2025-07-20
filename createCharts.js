@@ -9,66 +9,61 @@ function createBolusChart(ctx) {
     return new Chart(ctx, {
         type: "bar",
         data: {
-            datasets: [] // Will be replaced in updateChartForDate
+            datasets: [{
+                data: [],
+                //Update the other properties in createBolusDatasetForBolusChart
+            }]
         },
         options: {
-            interaction: {
-                mode: "nearest",
-                intersect: false
-            },
-            hover: {
-                mode: "nearest",
-                intersect: false
-            },
-            parsing: false,
             scales: {
                 x: {
                     type: "time",
                     time: {
                         unit: "hour",
-                        tooltipFormat: "h:mm a"
+                        displayFormats: { hour: "h:mm a" }
                     },
+                    title: { display: true, text: "Time" },
                     min: new Date().setHours(0, 0, 0, 0),
                     max: new Date().setHours(24, 0, 0, 0),
                     ticks: reusableXTicks,
                     grid: reusableXGrid
                 },
                 y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: "U/hr"
-                    },
+                    title: { display: true, text: "Units" },
+//                    ticks: { stepSize: 10 },
                     grid: reusableYGrid
                 }
             },
             plugins: {
-                annotation: {
-                    annotations: {
-
-                    }
-                },
-                datalabels: {
-                    display: false
-                },
-
-                legend: { display: false },
+                chartAreaBackground: {
+                        color: "rgba(33, 150, 243, 0.4)"
+                      },
                 tooltip: {
                     ...sharedTooltipStyle,
-                    callbacks: {
-
-                    }
-
+                    callbacks: bolusChartTooltipCallbacks
+                },
+                legend: { display: false },
+//                annotation: {
+//                    annotations: {
+//                        dynamicLine: getDynamicLineAnnotation(),
+//                        backgroundZone: {
+//                            type: "box",
+//                            xMin: null,
+//                            xMax: null,
+//                            yMin: 0,
+//                            yMax: 20,
+//                            backgroundColor: chartProps.backgroundZoneColor
+//                        }
+//                    }
+//                },
+                datalabels: {
+                    display: false
                 }
-
-
-
-
             },
             responsive: true,
-            //Needed for my CSS that sets the height to work
             maintainAspectRatio: false
-        }
+        },
+        plugins: [chartAreaBackground]
     });
 }
 
@@ -77,7 +72,6 @@ function createBasalChart(ctx) {
         type: "line",
         data: {
             datasets: [{
-                label: "Basal Rate (U/hr)",
                 data: [], // will be populated in updateChartForDate
 //                borderColor: "rgba(76, 175, 80, 0.6)",
 //                backgroundColor: "rgba(76, 175, 80, 0.2)",
@@ -117,7 +111,7 @@ function createBasalChart(ctx) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: "U/hr"
+                        text: "Units/Hour"
                     },
                     grid: reusableYGrid
                 }
@@ -223,13 +217,13 @@ function createBGChart(ctx) {
                     },
                 },
                 //Create second y axis
-                yBolus: {
-                    position: "right",
-                    title: { display: true, text: "Bolus (U)" },
-                    grid: { display: false }, // optional: turn off bolus grid lines
-                    min: 0,
-                    max: 10, // adjust based on your typical max bolus
-                }
+//                yBolus: {
+//                    position: "right",
+//                    title: { display: true, text: "Bolus (U)" },
+//                    grid: { display: false }, // optional: turn off bolus grid lines
+//                    min: 0,
+//                    max: 10, // adjust based on your typical max bolus
+//                }
             },
             plugins: {
                 tooltip: {
@@ -265,6 +259,8 @@ function createBGChart(ctx) {
                 }
                 
             },
+            //Needed for my CSS that sets the height to work
+            maintainAspectRatio: false,
             //This is the most strict and precise configuration:
             //You must actually hover the point or bar.
             //Each dataset will show its tooltip independently.
@@ -328,8 +324,8 @@ function createFoodChart(ctx) {
         type: "scatter",
         data: {
             datasets: [{
-                label: "Food Log",
                 data: [],
+                label: "Food Log",
                 pointRadius: chartProps.pointRadius,
                 pointHoverRadius: chartProps.pointHoverRadius,
                 pointStyle: "circle",

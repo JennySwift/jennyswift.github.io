@@ -74,7 +74,21 @@ function parseJSONData(data) {
         source: b.source,
         tags: b.tags || []
     })) || [];
+}
 
+function createFoodDataset(startOfDay, endOfDay) {
+    return {
+        pointRadius: chartProps.pointRadius,
+        pointHoverRadius: chartProps.pointHoverRadius,
+        pointStyle: "circle",
+        pointRadius: 6,
+        pointHoverRadius: 10,
+        backgroundColor: chartProps.foodBackgroundColor,
+        borderColor: chartProps.foodBorderColor,
+        borderWidth: 2,
+        showLine: false,
+        parsing: false
+    }
 }
 
 function createBolusDatasetForBolusChart(startOfDay, endOfDay) {
@@ -98,23 +112,25 @@ function createBolusDatasetForBolusChart(startOfDay, endOfDay) {
             //            y: dose.amount,
             type: "bolus"
         })),
-        yAxisID: "yBolus",
         type: "bar",
-        backgroundColor: "#1976d2",
-        borderColor: "black",
-        borderWidth: 2,
-        barThickness: 10,
-        maxBarThickness: 24,
-        datalabels: {
-            anchor: 'end',
-            align: 'top',
-            color: 'black',
-            font: {
-                weight: 'bold',
-                size: 14
-            },
-            formatter: (value) => value.amount?.toFixed(2).replace(/^0/, "")
-        }
+        backgroundColor: "rgba(33, 150, 243, 0.9)",
+        borderColor: "rgba(33, 150, 243, 0.9)",
+        borderWidth: 6,
+        showLine: false,
+        parsing: false,
+//        barPercentage: 0.6, // default is 0.9,
+//        barThickness: 10, // in pixels
+        maxBarThickness: 10,
+//        datalabels: {
+//            anchor: 'end',
+//            align: 'top',
+//            color: 'black',
+//            font: {
+//                weight: 'bold',
+//                size: 14
+//            },
+//            formatter: (value) => value.amount?.toFixed(2).replace(/^0/, "")
+//        }
     };
     
     console.log("📊 Bolus dataset being graphed:", bolusDataset.data.map(d => ({
