@@ -547,15 +547,15 @@ function showNotesForDate(date) {
         div.classList.add("note-log-block");
 
         const time = formatTime12hCompact(note.timestamp);
-        const tags = note.tags?.join(" ") ?? "";
-
+        const tags = note.tags?.map(tag => `<span class="note-tag">${tag}</span>`).join(" ") ?? "";
+        
         const bodyDiv = document.createElement("div");
         bodyDiv.classList.add("note-log-body");
         bodyDiv.innerHTML = `<strong>${time}</strong>: ${note.text.replace(/\n/g, "<br>")}`;
 
         const tagsDiv = document.createElement("div");
         tagsDiv.classList.add("note-tags");
-        tagsDiv.textContent = tags;
+        tagsDiv.innerHTML = tags;
 
         div.appendChild(bodyDiv);
         if (tags) div.appendChild(tagsDiv);

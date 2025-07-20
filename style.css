@@ -148,6 +148,19 @@ canvas {
     color: #212529;
 }
 
+.note-tag {
+    display: inline-block;
+    background-color: rgba(180, 180, 180, 1); 
+    color: #333;
+    padding: 2px 8px;
+    margin: 2px 4px 0 0;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+
 .note-tags {
     margin-top: 4px;
     font-size: 12px;
