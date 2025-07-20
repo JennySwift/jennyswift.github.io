@@ -66,8 +66,6 @@ function updateFoodChartForDate(date) {
     }));
 
     foodChart.data.datasets[0].data = data;
-    foodChart.options.scales.x.min = startOfDay;
-    foodChart.options.scales.x.max = endOfDay;
 
     const netCarbValues = foodLogsForDay.map(log => log.netCarbs);
     setFoodChartYScales(netCarbValues);

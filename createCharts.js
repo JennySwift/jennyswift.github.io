@@ -22,21 +22,33 @@ function createBolusChart(ctx) {
                         unit: "hour",
                         displayFormats: { hour: "h:mm a" }
                     },
-                    title: { display: true, text: "Time" },
+//                    title: { display: true, text: "Time" },
                     min: new Date().setHours(0, 0, 0, 0),
                     max: new Date().setHours(24, 0, 0, 0),
                     ticks: reusableXTicks,
                     grid: reusableXGrid
                 },
                 y: {
-                    title: { display: true, text: "Units" },
+//                    title: { display: true, text: "Units" },
 //                    ticks: { stepSize: 10 },
-                    grid: reusableYGrid
+                    grid: reusableYGrid,
+                    ticks: {
+                        font: { size: 14 },   // Force same size
+                        padding: 8 ,
+//                        callback: function(value) {
+//                            return value.toFixed(0);
+//                          }// Ensure consistent tick padding
+                      },
+                      grace: '5%',            // Optional: avoids crowding
+                      title: {
+                        display: true,
+                        text: "Bolus Units" // e.g. "mmol/L" or "Units"
+                      },
                 }
             },
             plugins: {
                 chartAreaBackground: {
-                        color: "rgba(33, 150, 243, 0.4)"
+                        color: chartProps.chartAreaBackgroundColour
                       },
                 tooltip: {
                     ...sharedTooltipStyle,
@@ -63,7 +75,10 @@ function createBolusChart(ctx) {
             responsive: true,
             maintainAspectRatio: false
         },
-        plugins: [chartAreaBackground]
+        plugins: [
+            chartAreaBackground,
+//            highlightChartArea
+        ]
     });
 }
 
@@ -75,7 +90,7 @@ function createBasalChart(ctx) {
                 data: [], // will be populated in updateChartForDate
 //                borderColor: "rgba(76, 175, 80, 0.6)",
 //                backgroundColor: "rgba(76, 175, 80, 0.2)",
-                borderWidth: 4,
+                borderWidth: 0,
                 stepped: "before", // 👈 this makes it a step line
                 pointRadius: 0,
                 fill: true,
@@ -85,6 +100,7 @@ function createBasalChart(ctx) {
                 
             }]
         },
+//        plugins: [highlightChartArea],
         options: {
             interaction: {
                 mode: "nearest",
@@ -100,12 +116,16 @@ function createBasalChart(ctx) {
                     type: "time",
                     time: {
                         unit: "hour",
-                        tooltipFormat: "h:mm a"
+                        displayFormats: { hour: "h:mm a" }
                     },
                     min: new Date().setHours(0, 0, 0, 0),
                     max: new Date().setHours(24, 0, 0, 0),
                     ticks: reusableXTicks,
-                    grid: reusableXGrid
+                    grid: reusableXGrid,
+//                    title: {
+//                        display: true,
+//                        text: "Time"
+//                      }
                 },
                 y: {
                     beginAtZero: true,
@@ -113,7 +133,16 @@ function createBasalChart(ctx) {
                         display: true,
                         text: "Units/Hour"
                     },
-                    grid: reusableYGrid
+                    grid: reusableYGrid,
+                    
+                    ticks: {
+                        font: { size: 14 },   // Force same size
+                        padding: 8,
+//                        callback: function(value) {
+//                            return value.toFixed(0);
+//                          }
+                      },
+                      grace: '5%'         // Optional: avoids crowding
                 }
             },
             plugins: {
@@ -166,7 +195,10 @@ function createBasalChart(ctx) {
                         }
                     }
                     
-                }
+                },
+                chartAreaBackground: {
+                        color: chartProps.chartAreaBackgroundColour
+                      },
                 
                 
                 
@@ -184,6 +216,7 @@ function createBGChart(ctx) {
     return new Chart(ctx, {
         type: "line",
         data: getChartData(),
+//        plugins: [highlightChartArea],
         options: {
             scales: {
                 x: {
@@ -202,7 +235,7 @@ function createBGChart(ctx) {
                         drawTicks: true,
                         drawBorder: true,
                     },
-                    title: { display: true, text: "Time" }
+//                    title: { display: true, text: "Time" }
                 },
                 y: {
 //                    min: 2,
@@ -216,9 +249,19 @@ function createBGChart(ctx) {
                         drawBorder: true,
                     },
                     ticks: {
-                          stepSize: 2,
-                          beginAtZero: false
-                        }
+                        font: { size: 14 },   // Force same size
+                        padding: 8,
+                        stepSize: 2,
+                        beginAtZero: false,
+//                        callback: function(value) {
+//                            return value.toFixed(0);
+//                          }
+                      },
+                      grace: '5%',            // Optional: avoids crowding
+                      title: {
+                        display: true,
+                        text: "mmol/L" 
+                      },
                 },
                 //Create second y axis
 //                yBolus: {
@@ -234,6 +277,9 @@ function createBGChart(ctx) {
                     ...sharedTooltipStyle,
                     callbacks: tooltipCallbacks
                 },
+                chartAreaBackground: {
+                        color: chartProps.chartAreaBackgroundColour
+                      },
                 legend: { display: false },
                 annotation: {
                     annotations: {
@@ -270,6 +316,7 @@ function createBGChart(ctx) {
                 }
                 
             },
+            responsive: true,
             //Needed for my CSS that sets the height to work
             maintainAspectRatio: false,
             //This is the most strict and precise configuration:
@@ -349,6 +396,7 @@ function createFoodChart(ctx) {
                 parsing: false
             }]
         },
+//        plugins: [highlightChartArea],
         options: {
             scales: {
                 x: {
@@ -365,7 +413,16 @@ function createFoodChart(ctx) {
                 },
                 y: {
                     title: { display: true, text: "Net Carbs (g)" },
-                    ticks: { stepSize: 10 },
+                    
+                    ticks: {
+                        stepSize: 10,
+                        font: { size: 14 },   // Force same size
+                        padding: 8  ,
+//                        callback: function(value) {
+//                            return value.toFixed(0);
+//                          }// Ensure consistent tick padding
+                      },
+                      grace: '5%',
                     grid: reusableYGrid
                 }
             },
@@ -374,6 +431,9 @@ function createFoodChart(ctx) {
                     ...sharedTooltipStyle,
                     callbacks: foodChartTooltipCallbacks
                 },
+                chartAreaBackground: {
+                        color: chartProps.chartAreaBackgroundColour
+                      },
                 legend: { display: false },
                 annotation: {
                     annotations: {

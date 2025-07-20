@@ -252,17 +252,31 @@ function updateChartForDate(date) {
     const basalDataForDay = buildBasalDataForDay(startOfDay, endOfDay);
     
     basalChart.data.datasets[0].data = basalDataForDay;
-    basalChart.options.scales.x.min = startOfDay;
-    basalChart.options.scales.x.max = endOfDay;
+    
     basalChart.update();
+}
+
+function logChartAreas() {
+  console.log("📏 chartArea widths:");
+  console.log("BG:", bgChart.chartArea.width);
+  console.log("Food:", foodChart.chartArea.width);
+  console.log("Basal:", basalChart.chartArea.width);
+  console.log("Bolus:", bolusChart.chartArea.width);
 }
 
 function setChartXScales(start, end) {
     bgChart.options.scales.x.min = start;
     bgChart.options.scales.x.max = end;
     
+    basalChart.options.scales.x.min = start;
+    basalChart.options.scales.x.max = end;
+    
+    foodChart.options.scales.x.min = start;
+    foodChart.options.scales.x.max = end;
+    
     bgChart.options.scales.x.ticks.maxTicksLimit = 12;
     foodChart.options.scales.x.ticks.maxTicksLimit = 12;
+    bolusChart.options.scales.x.ticks.maxTicksLimit = 12;
 }
 
 //Automatically scale y-axis to fit data

@@ -16,8 +16,39 @@ const chartProps = {
     backgroundZoneColor: "rgba(255, 0, 0, 0.4)",
     basalBackgroundZoneColor: "rgba(0, 255, 0, 0.4)",
     foodBackgroundColor: "#ffa726",
-    foodBorderColor: "#ef6c00"
+    foodBorderColor: "#ef6c00",
+    chartAreaBackgroundColour: "rgba(100, 100, 100, 0.4)"
 };
+
+//const highlightChartArea = {
+//  id: 'highlightChartArea',
+//  beforeDraw(chart, args, options) {
+//    const { ctx, chartArea } = chart;
+//    if (!chartArea) return;
+//
+//    const highlightX = options?.x || chart.tooltip?.caretX;
+//    const highlightWidth = options?.width || 2;
+//
+//    if (!highlightX) return;
+//
+//    ctx.save();
+//    ctx.fillStyle = 'rgba(255, 0, 0, 0.4)';
+//    ctx.fillRect(highlightX - highlightWidth / 2, chartArea.top, highlightWidth, chartArea.height);
+//    ctx.restore();
+//  }
+//};
+
+//const highlightChartArea = {
+//  id: 'highlightChartArea',
+//  beforeDraw(chart) {
+//    const { ctx, chartArea } = chart;
+//    ctx.save();
+//    ctx.strokeStyle = 'red';
+//    ctx.lineWidth = 1;
+//    ctx.strokeRect(chartArea.left, chartArea.top, chartArea.width, chartArea.height);
+//    ctx.restore();
+//  }
+//};
 
 const chartAreaBackground = {
     id: 'chartAreaBackground',

@@ -14,34 +14,32 @@ canvas {
   height: 400px;
 }
 
-#bgChartContainer, #basalChartContainer {
+.chartContainer {
   display: flex;
   justify-content: center;   /* Center horizontally */
   align-items: center;       /* Center vertically if needed */
   width: 100%;
-}
-
-#foodChartContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
+  max-width: 1000px;
 }
 
 #bgChart {
-    height: 200px
+    height: 150px;
 }
 
 #bolusChart {
-    height: 150px
+    height: 150px;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 18px; /* 👈 manually align the chartArea width across all */
 }
 
 #foodChart {
-    height: 150px
+    height: 150px;
 }
 
 #basalChart {
-    height: 100px
+    height: 150px;
 }
 
 /*#foodChart {*/
