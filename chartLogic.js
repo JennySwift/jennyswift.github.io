@@ -759,13 +759,18 @@ function createNoteDataset(minY) {
     };
 }
 
-//For BG chart
-function updateChartForDate(date) {
+function showInfoForDate(date) {
     showNotesForDate(date);
     showFoodLogsForDate(date);
     showBolusesForDate(date);
     showWorkoutsForDate(date);
     showFastsForDate(date);
+    updateFoodChartForDate(date);
+}
+
+//For BG chart
+function updateChartForDate(date) {
+    showInfoForDate(date)
     
     const { startOfDay, endOfDay } = getStartAndEndOfDay(date);
     
@@ -788,7 +793,7 @@ function updateChartForDate(date) {
     ];
     
     bgChart.update();
-    updateFoodChartForDate(date);
+    
     
     const basalDataForDay = buildBasalDataForDay(startOfDay, endOfDay);
     
