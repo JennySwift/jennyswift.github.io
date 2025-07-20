@@ -370,7 +370,7 @@ function showWorkoutsForDate(date) {
         div.classList.add("log-block");
         
         const startTime = formatTimeFromString(w.start);
-            const endTime = formatTimeFromString(w.endTime);
+        const endTime = formatTimeFromString(w.endTime);
         const elapsedMinutes = Math.round(w.elapsedTime / 60);
         const elapsedStr = `${elapsedMinutes} min`;
         
@@ -380,7 +380,7 @@ function showWorkoutsForDate(date) {
         const distanceStr = w.distance ? `<div><strong>Distance:</strong> ${w.distance.toFixed(2)} km</div>` : "";
         
         const activeCaloriesStr = Math.round(w.activeCalories);
-            const averageHeartRateStr = Math.round(w.averageHeartRate);
+        const averageHeartRateStr = Math.round(w.averageHeartRate);
         
         div.innerHTML = `
             <div class="log-title">${w.name}</div>
@@ -500,14 +500,14 @@ function formatDateTime(dateStr) {
 
 function updateBolusSummaryRow(bolusDoses, startOfDay, endOfDay) {
     const summaryRow = document.getElementById("summaryRow");
-
+    
     // Only clear bolus portion (other items may be added separately)
     const existing = summaryRow.querySelector(".summary-bolus");
     if (existing) existing.remove();
-
+    
     const bolusesForDay = bolusDoses.filter(b => b.timestamp >= startOfDay && b.timestamp < endOfDay);
     const totalBolus = bolusesForDay.reduce((sum, b) => sum + (b.amount || 0), 0);
-
+    
     const item = document.createElement("div");
     item.className = "summary-item summary-bolus";
     item.textContent = `💉 Bolus: ${totalBolus.toFixed(2)}U`;
@@ -630,10 +630,10 @@ function updateFoodChartForDate(date) {
 function getStartAndEndOfDay(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-
+    
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
-
+    
     return { startOfDay, endOfDay };
 }
 
@@ -649,14 +649,14 @@ function updateDateHeading(date) {
 
 function createBolusDataset(startOfDay, endOfDay) {
     const bolusesForDay = bolusDoses.filter(dose =>
-        dose.timestamp >= startOfDay && dose.timestamp < endOfDay
-    );
-
+                                            dose.timestamp >= startOfDay && dose.timestamp < endOfDay
+                                            );
+    
     console.log("💉 Bolus doses for day:", bolusesForDay.map(dose => ({
         time: dose.timestamp.toLocaleTimeString(),
         amount: dose.amount
     })));
-
+    
     const bolusDataset = {
         label: "Bolus",
         data: bolusesForDay.map(dose => ({
@@ -686,13 +686,54 @@ function createBolusDataset(startOfDay, endOfDay) {
             formatter: (value) => value.amount?.toFixed(2).replace(/^0/, "")
         }
     };
-
+    
     console.log("📊 Bolus dataset being graphed:", bolusDataset.data.map(d => ({
         time: new Date(d.x).toLocaleTimeString(),
         amount: d.y
     })));
-
+    
     return bolusDataset;
+}
+
+function buildBasalDataForDay(startOfDay, endOfDay) {
+    const basalDataForDay = [];
+    const dayEntries = basalEntries
+    .filter(entry =>
+            (entry.startTime >= startOfDay && entry.startTime < endOfDay) ||
+            (entry.endTime && entry.endTime > startOfDay && entry.endTime <= endOfDay)
+            )
+    .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    
+    let lastEnd = startOfDay;
+    
+    for (const entry of dayEntries) {
+        if (!entry.endTime) continue;
+        
+        // If there is a gap between lastEnd and this entry's start, fill with zero
+        if (entry.startTime > lastEnd) {
+            basalDataForDay.push(
+                                 { x: lastEnd, y: 0 },
+                                 { x: entry.startTime, y: 0 }
+                                 );
+        }
+        
+        // Push the actual segment
+        basalDataForDay.push(
+                             { x: entry.startTime, y: entry.rate, segmentStart: entry.startTime, segmentEnd: entry.endTime },
+                             { x: entry.endTime, y: entry.rate, segmentStart: entry.startTime, segmentEnd: entry.endTime }
+                             );
+        
+        lastEnd = entry.endTime;
+    }
+    
+    // Fill to end of day if needed
+    if (lastEnd < endOfDay) {
+        basalDataForDay.push(
+                             { x: lastEnd, y: 0 },
+                             { x: endOfDay, y: 0 }
+                             );
+    }
+    return basalDataForDay;
 }
 
 //For BG chart
@@ -771,44 +812,7 @@ function updateChartForDate(date) {
     bgChart.update();
     updateFoodChartForDate(date);
     
-    const basalDataForDay = [];
-    const dayEntries = basalEntries
-    .filter(entry =>
-            (entry.startTime >= startOfDay && entry.startTime < endOfDay) ||
-            (entry.endTime && entry.endTime > startOfDay && entry.endTime <= endOfDay)
-            )
-    .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-    
-    let lastEnd = startOfDay;
-    
-    for (const entry of dayEntries) {
-        if (!entry.endTime) continue;
-        
-        // If there is a gap between lastEnd and this entry's start, fill with zero
-        if (entry.startTime > lastEnd) {
-            basalDataForDay.push(
-                                 { x: lastEnd, y: 0 },
-                                 { x: entry.startTime, y: 0 }
-                                 );
-        }
-        
-        // Push the actual segment
-        basalDataForDay.push(
-                             { x: entry.startTime, y: entry.rate, segmentStart: entry.startTime, segmentEnd: entry.endTime },
-                             { x: entry.endTime, y: entry.rate, segmentStart: entry.startTime, segmentEnd: entry.endTime }
-                             );
-        
-        lastEnd = entry.endTime;
-    }
-    
-    // Fill to end of day if needed
-    if (lastEnd < endOfDay) {
-        basalDataForDay.push(
-                             { x: lastEnd, y: 0 },
-                             { x: endOfDay, y: 0 }
-                             );
-    }
-    
+    const basalDataForDay = buildBasalDataForDay(startOfDay, endOfDay);
     
     //This worked for manual entries but not for tidepool entries
     //    const basalDataForDay = [];
