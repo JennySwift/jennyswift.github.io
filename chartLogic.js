@@ -314,7 +314,7 @@ function showFoodLogsForDate(date) {
     
     const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
     
-    //    console.log("Food Logs for day:", foodLogsForDay);
+        console.log("Food Logs for day:", foodLogsForDay);
     
     if (foodLogsForDay.length === 0) {
         foodLogsContainer.textContent = "No food logs for this day.";
@@ -701,6 +701,15 @@ function updateStats(startOfDay, endOfDay) {
     basalItem.className = "summary-item summary-basal";
     basalItem.textContent = `💉 Basal: ${totalBasal.toFixed(2)}U`;
     summaryRow.appendChild(basalItem);
+    
+    //Net carbs total
+    const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
+    const totalNetCarbs = foodLogsForDay.reduce((sum, log) => sum + (log.netCarbs || 0), 0);
+
+    const carbsItem = document.createElement("div");
+    carbsItem.className = "summary-item summary-carbs";
+    carbsItem.textContent = `🥕 Net Carbs: ${totalNetCarbs.toFixed(1)}g`;
+    summaryRow.appendChild(carbsItem);
 }
 
 function calculateTotalBasalForDay(startOfDay, endOfDay) {
