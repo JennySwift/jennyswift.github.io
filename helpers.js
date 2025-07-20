@@ -5,6 +5,51 @@
 //  Created by Jenny Swift on 16/7/2025.
 //
 
+function getStartAndEndOfDay(date) {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+    
+    return { startOfDay, endOfDay };
+}
+
+function isSameDay(date1, date2) {
+    return date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate();
+}
+
+function formatTimeFromString(dateStr) {
+    const date = new Date(dateStr);
+    return formatTime12hCompact(date)
+}
+
+function formatTime12hCompact(date) {
+    return date.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+    }).toLowerCase().replace(' ', '');
+}
+
+function formatDateTime(dateStr) {
+    const d = new Date(dateStr);
+    const day = d.getDate();
+    const month = d.toLocaleString("en-AU", { month: "long" }); // e.g. "July"
+    
+    // Get time parts
+    let hours = d.getHours();
+    const minutes = d.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12 || 12;
+    
+    const time = `${hours}:${minutes}${ampm}`;
+    
+    return `${day} ${month}, ${time}`;
+}
+
 function parseFlexibleTime(input, baseDate) {
     if (!baseDate) return null;
 
