@@ -9,9 +9,13 @@ function updateStats(startOfDay, endOfDay) {
     summaryRow.innerHTML = ""; // Clear previous summary
 
     const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
+    
+    const totalBolus = calculateTotalBolusForDay(startOfDay, endOfDay);
+    const totalBasal = calculateTotalBasalForDay(startOfDay, endOfDay);
 
-    appendBolusSummary(summaryRow, startOfDay, endOfDay);
-    appendBasalSummary(summaryRow, startOfDay, endOfDay);
+    appendBolusSummary(summaryRow, totalBolus);
+    appendBasalSummary(summaryRow, totalBasal);
+    appendTotalInsulinSummary(summaryRow, totalBolus + totalBasal);
     appendNetCarbsSummary(summaryRow, foodLogsForDay);
     appendTotalCarbsSummary(summaryRow, foodLogsForDay);
     appendFatSummary(summaryRow, foodLogsForDay);
@@ -21,15 +25,18 @@ function updateStats(startOfDay, endOfDay) {
     appendCaloriesSummary(summaryRow, foodLogsForDay);
 }
 
-function appendBolusSummary(container, start, end) {
-    const totalBolus = calculateTotalBolusForDay(start, end);
-    const item = createSummaryItem("summary-bolus", `💉 Bolus: ${totalBolus.toFixed(2)}U`);
+function appendBolusSummary(container, total) {
+    const item = createSummaryItem("summary-bolus", `💉 Bolus: ${total.toFixed(2)}U`);
     container.appendChild(item);
 }
 
-function appendBasalSummary(container, start, end) {
-    const totalBasal = calculateTotalBasalForDay(start, end);
-    const item = createSummaryItem("summary-basal", `💉 Basal: ${totalBasal.toFixed(2)}U`);
+function appendBasalSummary(container, total) {
+    const item = createSummaryItem("summary-basal", `💉 Basal: ${total.toFixed(2)}U`);
+    container.appendChild(item);
+}
+
+function appendTotalInsulinSummary(container, total) {
+    const item = createSummaryItem("summary-total-insulin", `💉 Total Insulin: ${total.toFixed(2)}U`);
     container.appendChild(item);
 }
 
