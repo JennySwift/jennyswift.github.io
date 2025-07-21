@@ -191,7 +191,7 @@ function showWorkoutsForDate(date) {
         container.textContent = "No workouts for this day.";
         return;
     }
-    
+    console.log("First workout object:", workoutsForDay[0]);
     workoutsForDay.forEach((w) => {
         const div = document.createElement("div");
         div.classList.add("log-block");
@@ -204,7 +204,7 @@ function showWorkoutsForDate(date) {
         const durationMinutes = Math.round(w.duration / 60);
         const durationStr = `${durationMinutes} min`;
         
-        const distanceStr = w.distance ? `<div><strong>Distance:</strong> ${w.distance.toFixed(2)} km</div>` : "";
+        const distanceStr = w.distance ? `<div><strong>Distance:</strong> ${formatDistance(w.distance)}</div>` : "";
         
         const activeCaloriesStr = Math.round(w.activeCalories);
         const averageHeartRateStr = Math.round(w.averageHeartRate);
@@ -220,6 +220,9 @@ function showWorkoutsForDate(date) {
             <div><strong>Elapsed Time:</strong> ${elapsedStr}</div>
             
             ${distanceStr}
+            ${w.kmPerHour ? `<div><strong>Speed:</strong> ${formatKmPerHour(w.kmPerHour)}</div>` : ""}
+        ${w.minutesPerKm ? `<div><strong>Pace:</strong> ${formatMinutesPerKm(w.minutesPerKm)}</div>` : ""}
+        ${w.notes ? `<div><strong>Notes:</strong> ${w.notes}</div>` : ""}
         `;
         
         div.style.cursor = "pointer";

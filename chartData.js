@@ -54,6 +54,8 @@ function parseJSONData(data) {
         elapsedTime: w.elapsedTime,
         averageHeartRate: w.averageHeartRate,
         notes: w.notes,
+        kmPerHour: w.kmPerHour,
+        minutesPerKm: w.minutesPerKm,
         tags: w.tags || []
     })) || [];
 
