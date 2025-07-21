@@ -8,29 +8,47 @@ function updateStats(startOfDay, endOfDay) {
     const summaryRow = document.getElementById("summaryRow");
     summaryRow.innerHTML = ""; // Clear previous summary
 
-    const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
+    // Create grouped containers
+    const insulinGroup = document.createElement("div");
+    insulinGroup.className = "summary-group insulin-group";
+
+    const nutritionGroup = document.createElement("div");
+    nutritionGroup.className = "summary-group nutrition-group";
+
+    const bgGroup = document.createElement("div");
+    bgGroup.className = "summary-group bg-group";
     
+    
+
+    const foodLogsForDay = foodLogs.filter(log => log.timestamp >= startOfDay && log.timestamp < endOfDay);
+    const glucoseSummary = calculateTimeInRangesForDay(glucoseReadings, startOfDay);
     const totalBolus = calculateTotalBolusForDay(startOfDay, endOfDay);
     const totalBasal = calculateTotalBasalForDay(startOfDay, endOfDay);
     const totalInsulin = totalBolus + totalBasal
     const totalNetCarbs = foodLogsForDay.reduce((sum, log) => sum + (log.netCarbs || 0), 0);
 
-    appendBolusSummary(summaryRow, totalBolus);
-    appendBasalSummary(summaryRow, totalBasal);
-    appendTotalInsulinSummary(summaryRow, totalInsulin);
-    appendNetCarbsToBolusRatio(summaryRow, totalBolus, totalNetCarbs);
-    appendNetCarbsToTotalInsulinRatio(summaryRow, totalNetCarbs, totalInsulin);
-    appendNetCarbsSummary(summaryRow, foodLogsForDay);
-    appendTotalCarbsSummary(summaryRow, foodLogsForDay);
-    appendFatSummary(summaryRow, foodLogsForDay);
-    //I haven't entered protein data in my foods yet for this
-//    appendProteinSummary(summaryRow, foodLogsForDay);
-    appendFibreSummary(summaryRow, foodLogsForDay);
-    appendCaloriesSummary(summaryRow, foodLogsForDay);
+    // Append insulin-related stats
+    appendBolusSummary(insulinGroup, totalBolus);
+    appendBasalSummary(insulinGroup, totalBasal);
+    appendTotalInsulinSummary(insulinGroup, totalInsulin);
+    appendNetCarbsToBolusRatio(insulinGroup, totalBolus, totalNetCarbs);
+    appendNetCarbsToTotalInsulinRatio(insulinGroup, totalNetCarbs, totalInsulin);
+
+    // Append nutrition-related stats
+    appendNetCarbsSummary(nutritionGroup, foodLogsForDay);
+    appendTotalCarbsSummary(nutritionGroup, foodLogsForDay);
+    appendFatSummary(nutritionGroup, foodLogsForDay);
+    //I haven't entered protein info in my foods yet to display it
+    // appendProteinSummary(nutritionGroup, foodLogsForDay);
+    appendFibreSummary(nutritionGroup, foodLogsForDay);
+    appendCaloriesSummary(nutritionGroup, foodLogsForDay);
+
+    // Append BG-related stats
+    appendGlucoseTimeInRangeSummary(bgGroup, glucoseSummary);
     
-    //Time in ranges
-    const glucoseSummary = calculateTimeInRangesForDay(glucoseReadings, startOfDay);
-    appendGlucoseTimeInRangeSummary(summaryRow, glucoseSummary);
+    summaryRow.appendChild(insulinGroup);
+    summaryRow.appendChild(nutritionGroup);
+    summaryRow.appendChild(bgGroup);
 }
 
 function calculateTimeInRangesForDay(glucoseReadings, selectedDate) {
