@@ -78,66 +78,6 @@ function jumpToTime(inputTime) {
 //    showNearestTooltip(basalChart, parsed);
 }
 
-//function jumpToTime(inputTime) {
-//    let parsed;
-//    
-//    if (inputTime instanceof Date) {
-//        parsed = inputTime;
-//    } else {
-//        const input = document.getElementById("jumpInput").value.trim();
-//        if (!input) return;
-//        
-//        const selected = document.getElementById("selectedDate").valueAsDate;
-//        parsed = parseFlexibleTime(input, selected);
-//        if (!parsed) {
-//            alert("Couldn't understand that time. Try e.g. 2:30 PM or 14:00");
-//            return;
-//        }
-//    }
-//    
-//    const dataset = bgChart.data.datasets[0].data;
-//    
-//    let closestIndex = 0;
-//    let closestDiff = Infinity;
-//    
-//    for (let i = 0; i < dataset.length; i++) {
-//        const dataTime = new Date(dataset[i].x);
-//        const diff = Math.abs(dataTime - parsed);
-//        if (diff < closestDiff) {
-//            closestDiff = diff;
-//            closestIndex = i;
-//        }
-//    }
-//    
-//    const matchedLabel = dataset[closestIndex]?.x;
-//    const formattedTarget = parsed.toLocaleTimeString([], {
-//        hour: "numeric",
-//        minute: "2-digit",
-//        hour12: true,
-//    });
-//    
-//    console.log("⏩ Jumping to:", formattedTarget);
-//    console.log("🔍 Matched label:", matchedLabel);
-//    console.log("🩸 BG value at match:", dataset[closestIndex]?.y);
-//    
-//    const timestamp = bgChart.data.datasets[0].data[closestIndex]?.x ?? null;
-//    
-//    console.log("🧪 jumpToTime → dataset length:", dataset.length);
-//    console.log("🧪 jumpToTime → closestIndex:", closestIndex);
-//    console.log("🧪 jumpToTime → timestamp to jump to:", timestamp);
-//    
-//    updateVerticalLines(timestamp);
-//    
-//    bgChart.setActiveElements([{ datasetIndex: 0, index: closestIndex }]);
-//    bgChart.tooltip.setActiveElements([{ datasetIndex: 0, index: closestIndex }], { x: 0, y: 0 });
-//    bgChart.update();
-//    
-//    //    bgChart.options.plugins.annotation.annotations.dynamicLine.value = matchedLabel;
-//    //    bgChart.setActiveElements([{ datasetIndex: 0, index: closestIndex }]);
-//    //    bgChart.tooltip.setActiveElements([{ datasetIndex: 0, index: closestIndex }], { x: 0, y: 0 });
-//    //    bgChart.update();
-//}
-
 document.getElementById("prevDate").addEventListener("click", () => {
     const selected = document.getElementById("selectedDate");
     const date = new Date(selected.value);

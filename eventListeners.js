@@ -1,13 +1,27 @@
 
 //To try to make the tooltip disappear on phone when clicking away
 function setUpHideTooltip() {
-    document.addEventListener('touchstart', function(event) {
-      if (!event.target.closest('canvas')) {
-        Chart.helpers.each(Chart.instances, function(instance) {
-          instance.tooltip?.setActiveElements([], { x: 0, y: 0 });
-          instance.update();
-        });
-      }
+    document.addEventListener("touchstart", (e) => {
+        const chartEls = [
+            document.getElementById("bgChart"),
+            document.getElementById("foodChart"),
+            document.getElementById("bolusChart"),
+            document.getElementById("basalChart")
+        ];
+
+        const touchedInsideAnyChart = chartEls.some(chartEl => chartEl?.contains(e.target));
+
+        if (!touchedInsideAnyChart) {
+            [bgChart, foodChart, bolusChart, basalChart].forEach(chart => {
+                if (chart?.options.plugins.annotation?.annotations?.dynamicLine) {
+                    chart.options.plugins.annotation.annotations.dynamicLine.value = null;
+                }
+
+                chart?.setActiveElements?.([]);
+                chart?.tooltip?.setActiveElements?.([], { x: 0, y: 0 });
+                chart?.update?.("none");
+            });
+        }
     });
 }
 
@@ -44,16 +58,6 @@ function setupEventListeners() {
         updateChartForDate(selected);
     });
 
-    // Hide tooltip + vertical line when tapping outside chart on iPhone
-    document.addEventListener("touchstart", (e) => {
-        const chartEl = document.getElementById("bgChart");
-        if (!chartEl.contains(e.target)) {
-            bgChart.setActiveElements([]);
-            bgChart.options.plugins.annotation.annotations.dynamicLine.value = null;
-            bgChart.update();
-        }
-    });
-
     document.getElementById("jumpInput").addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             jumpToTime();
@@ -63,23 +67,6 @@ function setupEventListeners() {
     setUpVerticalLineMouseTracking();
     
     setUpHideTooltip()
-}
-
-//    Hide the vertical line when mouse leaves chart
-function attachChartMouseleaveClear() {
-    ["bgChart", "foodChart"].forEach((chartId) => {
-        const el = document.getElementById(chartId);
-        el.addEventListener("mouseleave", () => {
-            if (bgChart) {
-                bgChart.options.plugins.annotation.annotations.dynamicLine.value = null;
-                bgChart.update("none");
-            }
-            if (foodChart) {
-                foodChart.options.plugins.annotation.annotations.dynamicLine.value = null;
-                foodChart.update("none");
-            }
-        });
-    });
 }
 
 function setUpVerticalLineMouseTracking() {
@@ -102,15 +89,3 @@ function attachChartMousemoveSync(chartInstance, chartElementId) {
         }
     });
 }
-
-//    document.getElementById("bgChart").addEventListener("mousemove", (evt) => {
-//        if (!bgChart) return;
-//
-//        const points = bgChart.getElementsAtEventForMode(evt, "nearest", { intersect: false }, false);
-//        if (points.length > 0) {
-//            const index = points[0].index;
-//            const label = bgChart.data.datasets[0].data[index]?.x;
-//            bgChart.options.plugins.annotation.annotations.dynamicLine.value = label;
-//            bgChart.update("none");
-//        }
-//    });

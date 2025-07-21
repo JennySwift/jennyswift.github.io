@@ -67,20 +67,6 @@ function updateVerticalLines(timestamp) {
     });
 }
 
-//function updateVerticalLines(timestamp) {
-//    //    console.log("📏 Setting dynamicLine value to:", timestamp);  // ← Add this
-//    if (bgChart) {
-//        bgChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
-//        bgChart.update();
-//    }
-//    if (foodChart) {
-//        foodChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
-//        foodChart.update();
-//    }
-//}
-
-
-
 function handleLogClick(timestamp) {
     jumpToTime(new Date(timestamp));
     

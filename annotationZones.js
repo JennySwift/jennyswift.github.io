@@ -28,8 +28,7 @@ function getAnnotationZones() {
         lowZone: createZone(0, zoneBoundaries.lowMax, "lowColor"),
         inRangeZone: createZone(zoneBoundaries.lowMax, zoneBoundaries.inRangeMax, "inRangeColor"),
         highYellowZone: createZone(zoneBoundaries.inRangeMax, zoneBoundaries.highYellowMax, "highYellowColor"),
-        veryHighZone: createZone(zoneBoundaries.highYellowMax, 20, "veryHighColor"),
-        dynamicLine: getDynamicLineAnnotation(),
+        veryHighZone: createZone(zoneBoundaries.highYellowMax, 20, "veryHighColor")
     };
 }
 
