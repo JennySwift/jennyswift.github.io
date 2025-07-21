@@ -20,6 +20,7 @@ function handleNoteClick(timestamp) {
 
     // Jump to the exact note time on the graph
     jumpToTime(new Date(timestamp));
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function jumpToTime(inputTime) {
