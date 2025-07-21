@@ -5,6 +5,15 @@
 //  Created by Jenny Swift on 16/7/2025.
 //
 
+function highlightElement(element) {
+    element.classList.add("highlighted-log");
+
+    // Remove the class after animation completes
+    setTimeout(() => {
+        element.classList.remove("highlighted-log");
+    }, 1500);
+}
+
 function formatMinutesAsHM(minutes) {
     const total = Math.round(minutes);
     const h = Math.floor(total / 60);

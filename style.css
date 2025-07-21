@@ -390,3 +390,13 @@ canvas {
 .tab-content.active-tab {
   display: block;
 }
+
+.highlighted-log {
+  animation: highlightFlash 1.5s ease-out;
+}
+
+@keyframes highlightFlash {
+  0%   { background-color: #fff9c4; }   /* light yellow */
+  50%  { background-color: #fff59d; }
+  100% { background-color: transparent; }
+}

@@ -72,6 +72,7 @@ function showNotesForDate(date) {
         div.style.cursor = "pointer";
         div.addEventListener("click", () => {
             jumpToTime(new Date(note.timestamp));
+            highlightElement(div);
         });
         
         const time = formatTime12hCompact(note.timestamp);
@@ -163,6 +164,7 @@ function showFoodLogsForDate(date) {
         
         div.addEventListener("click", () => {
             handleLogClick(new Date(log.timestamp));
+            highlightElement(div);
         });
         
         
@@ -223,6 +225,7 @@ function showWorkoutsForDate(date) {
         div.style.cursor = "pointer";
         div.addEventListener("click", () => {
             jumpToTime(new Date(w.start));
+            highlightElement(div);
         });
         
         workoutsContainer.appendChild(div);
@@ -334,6 +337,7 @@ function showBolusesForDate(date) {
         div.style.cursor = "pointer";
         div.addEventListener("click", () => {
             jumpToTime(new Date(bolus.timestamp));
+            highlightElement(div);
         });
         container.appendChild(div);
     });
