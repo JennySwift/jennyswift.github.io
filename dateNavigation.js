@@ -23,7 +23,7 @@ function handleNoteClick(timestamp) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function highlightClosestPoint(chart, parsedTime, maxDiffMs = 2 * 60 * 1000) {
+function showNearestTooltip(chart, parsedTime, maxDiffMs = 2 * 60 * 1000) {
     const dataset = chart.data.datasets[0]?.data ?? [];
     let closestIndex = -1;
     let closestDiff = Infinity;
@@ -72,10 +72,10 @@ function jumpToTime(inputTime) {
     updateVerticalLines(parsed);  // ✅ This syncs the vertical line across all charts
 
     // ✅ Highlight closest points in all charts
-    highlightClosestPoint(bgChart, parsed);
-    highlightClosestPoint(foodChart, parsed);
-    highlightClosestPoint(bolusChart, parsed);
-    highlightClosestPoint(basalChart, parsed);
+    showNearestTooltip(bgChart, parsed);
+    showNearestTooltip(foodChart, parsed);
+    showNearestTooltip(bolusChart, parsed);
+//    showNearestTooltip(basalChart, parsed);
 }
 
 //function jumpToTime(inputTime) {
