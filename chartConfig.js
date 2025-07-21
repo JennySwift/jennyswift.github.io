@@ -190,16 +190,7 @@ const tooltipCallbacks = {
 };
 
 
-function getDynamicLineAnnotation() {
-    return {
-        type: "line",
-        scaleID: "x",
-        borderColor: chartProps.dynamicLineColor,
-        borderWidth: chartProps.lineWidth,
-        display: ctx => ctx.chart.options.plugins.annotation.annotations.dynamicLine.value !== null,
-        label: { display: false },
-    };
-}
+
 
 function getChartData() {
     return {

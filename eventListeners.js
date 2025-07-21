@@ -59,9 +59,9 @@ function setupEventListeners() {
             jumpToTime();
         }
     });
-
-    attachChartMousemoveSync(bgChart, "bgChart");
-    attachChartMousemoveSync(foodChart, "foodChart");
+    
+    setUpVerticalLineMouseTracking();
+    
     setUpHideTooltip()
 }
 
@@ -80,6 +80,13 @@ function attachChartMouseleaveClear() {
             }
         });
     });
+}
+
+function setUpVerticalLineMouseTracking() {
+    attachChartMousemoveSync(bgChart, "bgChart");
+    attachChartMousemoveSync(foodChart, "foodChart");
+    attachChartMousemoveSync(bolusChart, "bolusChart");
+    attachChartMousemoveSync(basalChart, "basalChart");
 }
 
 function attachChartMousemoveSync(chartInstance, chartElementId) {

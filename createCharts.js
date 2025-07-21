@@ -47,6 +47,11 @@ function createBolusChart(ctx) {
                 }
             },
             plugins: {
+                annotation: {
+                    annotations: {
+                        dynamicLine: getDynamicLineAnnotation()
+                    }
+                },
                 chartAreaBackground: {
                         color: chartProps.chartAreaBackgroundColour
                       },
@@ -55,19 +60,6 @@ function createBolusChart(ctx) {
                     callbacks: bolusChartTooltipCallbacks
                 },
                 legend: { display: false },
-//                annotation: {
-//                    annotations: {
-//                        dynamicLine: getDynamicLineAnnotation(),
-//                        backgroundZone: {
-//                            type: "box",
-//                            xMin: null,
-//                            xMax: null,
-//                            yMin: 0,
-//                            yMax: 20,
-//                            backgroundColor: chartProps.backgroundZoneColor
-//                        }
-//                    }
-//                },
                 datalabels: {
                     display: false
                 }
@@ -148,23 +140,7 @@ function createBasalChart(ctx) {
             plugins: {
                 annotation: {
                     annotations: {
-//                        backgroundZone: {
-//                            type: "box",
-//                            xMin: null,
-//                            xMax: null,
-//                            yMin: 0,
-//                            yMax: 100,
-//                            backgroundColor: chartProps.backgroundZoneColor
-//                        }
-                        //                        backgroundZone: {
-                        //                          type: "box",
-                        //                          xMin: "start",
-                        //                          xMax: "end",
-                        ////                          yMin: 0,
-                        ////                          yMax: 100,
-                        //                          backgroundColor: chartProps.basalBackgroundZoneColor,
-                        //                          borderWidth: 0
-                        //                        }
+                        dynamicLine: getDynamicLineAnnotation()
                     }
                 },
                 datalabels: {
@@ -199,10 +175,6 @@ function createBasalChart(ctx) {
                 chartAreaBackground: {
                         color: chartProps.chartAreaBackgroundColour
                       },
-                
-                
-                
-                
             },
             responsive: true,
             //Needed for my CSS that sets the height to work

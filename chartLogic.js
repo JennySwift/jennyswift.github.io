@@ -53,16 +53,31 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function updateVerticalLines(timestamp) {
-    //    console.log("📏 Setting dynamicLine value to:", timestamp);  // ← Add this
-    if (bgChart) {
-        bgChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
-        bgChart.update();
-    }
-    if (foodChart) {
-        foodChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
-        foodChart.update();
-    }
+    const charts = [bgChart, foodChart, bolusChart, basalChart];
+
+    charts.forEach(chart => {
+        if (
+            chart &&
+            chart.options.plugins.annotation?.annotations?.dynamicLine
+        ) {
+            chart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
+            //"none" animation mode to avoid lag when dragging the line.
+            chart.update("none");
+        }
+    });
 }
+
+//function updateVerticalLines(timestamp) {
+//    //    console.log("📏 Setting dynamicLine value to:", timestamp);  // ← Add this
+//    if (bgChart) {
+//        bgChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
+//        bgChart.update();
+//    }
+//    if (foodChart) {
+//        foodChart.options.plugins.annotation.annotations.dynamicLine.value = timestamp;
+//        foodChart.update();
+//    }
+//}
 
 
 
