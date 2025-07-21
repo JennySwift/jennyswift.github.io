@@ -131,7 +131,7 @@ function createBasalChart(ctx) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: "Units/Hour"
+                        text: "Basal Rate"
                     },
                     grid: reusableYGrid,
                     
