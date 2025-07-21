@@ -69,6 +69,10 @@ function showNotesForDate(date) {
     notesForDay.forEach(note => {
         const div = document.createElement("div");
         div.classList.add("note-log-block");
+        div.style.cursor = "pointer";
+        div.addEventListener("click", () => {
+            jumpToTime(new Date(note.timestamp));
+        });
         
         const time = formatTime12hCompact(note.timestamp);
         const tags = note.tags?.map(tag => `<span class="note-tag">${tag}</span>`).join(" ") ?? "";
