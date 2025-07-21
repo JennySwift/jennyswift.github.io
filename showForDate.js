@@ -220,6 +220,11 @@ function showWorkoutsForDate(date) {
             ${distanceStr}
         `;
         
+        div.style.cursor = "pointer";
+        div.addEventListener("click", () => {
+            jumpToTime(new Date(w.start));
+        });
+        
         workoutsContainer.appendChild(div);
     });
 }
