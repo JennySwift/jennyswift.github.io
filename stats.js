@@ -56,7 +56,16 @@ function calculateTimeInRangesForDay(glucoseReadings, selectedDate) {
         const next = readings[i + 1];
 
         const startTime = current.timestamp;
-        const endTime = next ? next.timestamp : endOfDay;
+        
+        let endTime;
+        if (next) {
+            endTime = next.timestamp;
+        } else {
+            const assumedEnd = new Date(current.timestamp.getTime() + 5 * 60 * 1000); // 5 mins later
+            endTime = assumedEnd > endOfDay ? endOfDay : assumedEnd;
+        }
+        
+        
         const durationMs = endTime - startTime;
         const durationMinutes = durationMs / 60000;
         totalCoveredMinutes += durationMinutes;
@@ -100,7 +109,7 @@ function appendGlucoseTimeInRangeSummary(container, glucoseSummary) {
         <div>⏱ BG 4–6: ${formatMinutesAsHM(timeBetween4and6)}</div>
         <div>⏱ BG < 4: ${formatMinutesAsHM(timeBelow4)}</div>
         <div>⏱ Calculations covered: ${formatMinutesAsHM(totalCoveredMinutes)}</div>
-        <div>⏳ These calculations use the first BG reading of the day till the last, and therefore did not include: ${formatMinutesAsHM(uncoveredMinutes)} mins</div>
+        <div>⏳ These calculations use the first BG reading of the day till 5 mins after the last (but not past midnight), and therefore did not include: ${formatMinutesAsHM(uncoveredMinutes)} mins</div>
     `;
 
     container.appendChild(div);
