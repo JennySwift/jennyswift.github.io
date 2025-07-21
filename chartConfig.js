@@ -4,7 +4,6 @@ const chartProps = {
     lineWidth: 1,
     pointRadius: 8,
     pointHoverRadius: 12,
-    dynamicLineColor: "rgba(100, 100, 100, 0.8)",
     annotationBorderColor: "rgba(0, 0, 0, 0.4)",
     inRangeColor: "rgba(0, 255, 0, 0.5)",
     highYellowColor: "rgba(0, 255, 0, 0.4)",
