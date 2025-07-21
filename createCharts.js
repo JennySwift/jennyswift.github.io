@@ -275,7 +275,10 @@ function createBGChart(ctx) {
             plugins: {
                 tooltip: {
                     ...sharedTooltipStyle,
-                    callbacks: tooltipCallbacks
+                    callbacks: tooltipCallbacks,
+                    // This will make the tooltip hide if no point is hovered
+                          // or if you tap away (especially useful on mobile)
+                          events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove']
                 },
                 chartAreaBackground: {
                         color: chartProps.chartAreaBackgroundColour
