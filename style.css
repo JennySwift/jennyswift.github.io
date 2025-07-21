@@ -251,13 +251,17 @@ canvas {
   color: white;
   padding: 8px 12px;
   border-radius: 6px;
-  white-space: nowrap;
+  white-space: normal;
+  min-width: 300px;
+  max-width: 400px;
   font-size: 1rem;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
   z-index: 1000;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  text-align: left;          /* Align text neatly */
+  word-wrap: break-word;     /* Just in case */
 }
 
 /* Show tooltip on hover */
