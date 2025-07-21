@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateChartForDate(today);
 
         setupEventListeners();
+        setUpTabListeners();
     });
     
 });

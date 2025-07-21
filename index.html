@@ -62,29 +62,47 @@
               <span class="help-tip" data-tip="Click a log below to navigate to that time in the chart.">?</span>
             </div>
             
-            <div id="dailyDetails" class="flex-container">
-                <div class="daily-column">
-                    <h3>⏳ Fasts</h3>
-                    <div id="fastsContainer" class="daily-section"></div>
-                </div>
-                <div class="daily-column">
-                    <h3>📝 Notes</h3>
-                    <div id="notesContainer" class="daily-section"></div>
-                </div>
-                <div class="daily-column">
-                    <h3>⛹️ Workouts</h3>
-                    <div id="workoutsContainer" class="daily-section"></div>
-                </div>
-                <div class="daily-column">
-                    <h3>💉 Boluses</h3>
-                    <div id="bolusContainer" class="daily-section"></div>
-                </div>
-                <div class="daily-column">
-                    <h3>🥗 Food Logs</h3>
-                    <div id="foodLogsContainer" class="daily-section"></div>
-                </div>
-                
+            <div id="dailyTabs" class="tab-section">
+              <div class="tab-bar">
+                <button class="tab-button active" data-tab="notes">📝 Notes</button>
+                <button class="tab-button" data-tab="foodLogs">🥗 Food</button>
+                <button class="tab-button" data-tab="bolus">💉 Bolus</button>
+                <button class="tab-button" data-tab="fasts">⏳ Fasts</button>
+                <button class="tab-button" data-tab="workouts">🏃‍♀️ Workouts</button>
+                <button class="tab-button" data-tab="all-notes">🔍 All Notes</button>
+              </div>
+
+              <div id="notesContainer" class="tab-content active-tab daily-section"></div>
+              <div id="foodLogsContainer" class="tab-content daily-section"></div>
+              <div id="bolusContainer" class="tab-content daily-section"></div>
+              <div id="fastsContainer" class="tab-content daily-section"></div>
+              <div id="workoutsContainer" class="tab-content daily-section"></div>
+              <div id="all-notes" class="tab-content daily-section"></div>
             </div>
+            
+<!--            <div id="dailyDetails" class="flex-container">-->
+<!--                <div class="daily-column">-->
+<!--                    <h3>⏳ Fasts</h3>-->
+<!--                    <div id="fastsContainer" class="daily-section"></div>-->
+<!--                </div>-->
+<!--                <div class="daily-column">-->
+<!--                    <h3>📝 Notes</h3>-->
+<!--                    <div id="notesContainer" class="daily-section"></div>-->
+<!--                </div>-->
+<!--                <div class="daily-column">-->
+<!--                    <h3>⛹️ Workouts</h3>-->
+<!--                    <div id="workoutsContainer" class="daily-section"></div>-->
+<!--                </div>-->
+<!--                <div class="daily-column">-->
+<!--                    <h3>💉 Boluses</h3>-->
+<!--                    <div id="bolusContainer" class="daily-section"></div>-->
+<!--                </div>-->
+<!--                <div class="daily-column">-->
+<!--                    <h3>🥗 Food Logs</h3>-->
+<!--                    <div id="foodLogsContainer" class="daily-section"></div>-->
+<!--                </div>-->
+<!--                -->
+<!--            </div>-->
             
         </div>
         

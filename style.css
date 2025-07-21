@@ -355,3 +355,38 @@ canvas {
 .red-border {
   border-left-color: #d32f2f;
 }
+
+.tab-section {
+  margin-top: 2rem;
+}
+
+.tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.tab-button {
+  background: #e0e0e0;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.tab-button.active {
+  background: #007acc;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active-tab {
+  display: block;
+}

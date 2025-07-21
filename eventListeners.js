@@ -1,4 +1,26 @@
 
+
+function setUpTabListeners() {
+    const buttons = document.querySelectorAll(".tab-button");
+      const tabs = document.querySelectorAll(".tab-content");
+
+      buttons.forEach(button => {
+        button.addEventListener("click", () => {
+          const target = button.getAttribute("data-tab");
+
+          buttons.forEach(btn => btn.classList.remove("active"));
+          button.classList.add("active");
+
+          tabs.forEach(tab => {
+            tab.classList.remove("active-tab");
+            if (tab.id === `${target}Container` || tab.id === target) {
+              tab.classList.add("active-tab");
+            }
+          });
+        });
+      });
+}
+
 function setupEventListeners() {
     const selectedDateInput = document.getElementById("selectedDate");
 
