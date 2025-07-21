@@ -326,6 +326,10 @@ function showBolusesForDate(date) {
         }
         
         div.innerHTML = `<strong>${time}</strong>: 💉 ${amount}U ${extra}`;
+        div.style.cursor = "pointer";
+        div.addEventListener("click", () => {
+            jumpToTime(new Date(bolus.timestamp));
+        });
         container.appendChild(div);
     });
 }
