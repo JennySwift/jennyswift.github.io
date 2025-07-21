@@ -109,25 +109,42 @@ function calculateTimeInRangesForDay(glucoseReadings, selectedDate) {
 
 function appendGlucoseTimeInRangeSummary(container, glucoseSummary) {
     const {
-            timeBelow4,
-            timeBetween4and6,
-            timeAbove8,
-            timeAbove10,
-            totalCoveredMinutes
-        } = glucoseSummary;
-    
-    const uncoveredMinutes = 1440 - totalCoveredMinutes
+        timeBelow4,
+        timeBetween4and6,
+        timeAbove8,
+        timeAbove10,
+        totalCoveredMinutes
+    } = glucoseSummary;
+
+    const uncoveredMinutes = 1440 - totalCoveredMinutes;
 
     const div = document.createElement("div");
-    div.className = "summary-item summary-glucose";
+    div.className = "summary-glucose-block";
 
     div.innerHTML = `
-        <div>⏱ BG > 10: ${formatMinutesAsHM(timeAbove10)}</div>
-        <div>⏱ BG > 8: ${formatMinutesAsHM(timeAbove8)}</div>
-        <div>⏱ BG 4–6: ${formatMinutesAsHM(timeBetween4and6)}</div>
-        <div>⏱ BG < 4: ${formatMinutesAsHM(timeBelow4)}</div>
-        <div>⏱ Calculations covered: ${formatMinutesAsHM(totalCoveredMinutes)}</div>
-        <div>⏳ These calculations use the first BG reading of the day till 5 mins after the last (but not past midnight), and therefore did not include: ${formatMinutesAsHM(uncoveredMinutes)} mins</div>
+        <div class="bg-stat-row red-border">
+            <span class="bg-label">⏱ BG > 10:</span>
+            <span class="bg-value">${formatMinutesAsHM(timeAbove10)}</span>
+        </div>
+        <div class="bg-stat-row orange-border">
+            <span class="bg-label">⏱ BG > 8:</span>
+            <span class="bg-value">${formatMinutesAsHM(timeAbove8)}</span>
+        </div>
+        <div class="bg-stat-row green-border">
+            <span class="bg-label">⏱ BG 4–6:</span>
+            <span class="bg-value">${formatMinutesAsHM(timeBetween4and6)}</span>
+        </div>
+        <div class="bg-stat-row red-border">
+            <span class="bg-label">⏱ BG < 4:</span>
+            <span class="bg-value">${formatMinutesAsHM(timeBelow4)}</span>
+        </div>
+
+        <div class="bg-details">
+            ⏱ Calculations covered: <strong>${formatMinutesAsHM(totalCoveredMinutes)}</strong>
+        </div>
+        <div class="bg-details">
+            ⏳ These calculations use the first BG reading of the day until 5 mins after the last (but not past midnight). Uncovered: <strong>${formatMinutesAsHM(uncoveredMinutes)} mins</strong>
+        </div>
     `;
 
     container.appendChild(div);
