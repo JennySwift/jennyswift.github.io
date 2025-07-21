@@ -1,4 +1,15 @@
 
+//To try to make the tooltip disappear on phone when clicking away
+function setUpHideTooltip() {
+    document.addEventListener('touchstart', function(event) {
+      if (!event.target.closest('canvas')) {
+        Chart.helpers.each(Chart.instances, function(instance) {
+          instance.tooltip?.setActiveElements([], { x: 0, y: 0 });
+          instance.update();
+        });
+      }
+    });
+}
 
 function setUpTabListeners() {
     const buttons = document.querySelectorAll(".tab-button");
@@ -51,6 +62,7 @@ function setupEventListeners() {
 
     attachChartMousemoveSync(bgChart, "bgChart");
     attachChartMousemoveSync(foodChart, "foodChart");
+    setUpHideTooltip()
 }
 
 //    Hide the vertical line when mouse leaves chart
