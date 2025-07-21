@@ -5,6 +5,46 @@
 //  Created by Jenny Swift on 20/7/2025.
 //
 
+function showAllNotes() {
+    const container = document.getElementById("all-notes");
+    container.innerHTML = "";
+
+    if (notes.length === 0) {
+        container.textContent = "No notes found.";
+        return;
+    }
+
+    // Sort notes newest to oldest
+    const sortedNotes = [...notes].sort((a, b) => b.timestamp - a.timestamp);
+
+    sortedNotes.forEach(note => {
+        const div = document.createElement("div");
+        div.classList.add("note-log-block");
+        div.style.cursor = "pointer";
+
+        const timestamp = new Date(note.timestamp);
+        const time = formatDateTime(timestamp); // e.g. "21 July, 7:14am"
+        const tags = note.tags?.map(tag => `<span class="note-tag">${tag}</span>`).join(" ") ?? "";
+
+        const bodyDiv = document.createElement("div");
+        bodyDiv.classList.add("note-log-body");
+        bodyDiv.innerHTML = `<strong>${time}</strong>: ${note.text.replace(/\n/g, "<br>")}`;
+
+        const tagsDiv = document.createElement("div");
+        tagsDiv.classList.add("note-tags");
+        tagsDiv.innerHTML = tags;
+
+        div.appendChild(bodyDiv);
+        if (tags) div.appendChild(tagsDiv);
+
+        div.addEventListener("click", () => {
+            handleNoteClick(timestamp);
+        });
+
+        container.appendChild(div);
+    });
+}
+
 function showNotesForDate(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);

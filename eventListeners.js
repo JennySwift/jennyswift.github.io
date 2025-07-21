@@ -7,6 +7,10 @@ function setUpTabListeners() {
       buttons.forEach(button => {
         button.addEventListener("click", () => {
           const target = button.getAttribute("data-tab");
+            
+            if (target === "all-notes") {
+              showAllNotes();
+            }
 
           buttons.forEach(btn => btn.classList.remove("active"));
           button.classList.add("active");
