@@ -5,6 +5,16 @@
 //  Created by Jenny Swift on 16/7/2025.
 //
 
+function formatMinutesAsHM(minutes) {
+    const total = Math.round(minutes);
+    const h = Math.floor(total / 60);
+    const m = total % 60;
+
+    if (h > 0 && m > 0) return `${h}h${m}m`;
+    if (h > 0) return `${h}h`;
+    return `${m}m`;
+}
+
 function getStartAndEndOfDay(date) {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);

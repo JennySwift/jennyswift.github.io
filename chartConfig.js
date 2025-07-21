@@ -201,10 +201,6 @@ function getDynamicLineAnnotation() {
     };
 }
 
-
-
-
-
 function getChartData() {
     return {
         datasets: [{

@@ -27,6 +27,83 @@ function updateStats(startOfDay, endOfDay) {
 //    appendProteinSummary(summaryRow, foodLogsForDay);
     appendFibreSummary(summaryRow, foodLogsForDay);
     appendCaloriesSummary(summaryRow, foodLogsForDay);
+    
+    //Time in ranges
+    const glucoseSummary = calculateTimeInRangesForDay(glucoseReadings, startOfDay);
+    appendGlucoseTimeInRangeSummary(summaryRow, glucoseSummary);
+}
+
+function calculateTimeInRangesForDay(glucoseReadings, selectedDate) {
+    const startOfDay = new Date(selectedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const readings = glucoseReadings
+        .filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay)
+        .sort((a, b) => a.timestamp - b.timestamp);
+
+    let timeBelow4 = 0;
+    let timeBetween4and6 = 0;
+    let timeAbove8 = 0;
+    let timeAbove10 = 0;
+    //For displaying how many minutes in the day weren't calculated, such as if the BG readings don't go all the way to midnight or don't start at midnight
+    let totalCoveredMinutes = 0;
+
+    for (let i = 0; i < readings.length; i++) {
+        const current = readings[i];
+        const next = readings[i + 1];
+
+        const startTime = current.timestamp;
+        const endTime = next ? next.timestamp : endOfDay;
+        const durationMs = endTime - startTime;
+        const durationMinutes = durationMs / 60000;
+        totalCoveredMinutes += durationMinutes;
+
+        const value = current.value;
+
+        if (value < 4) timeBelow4 += durationMinutes;
+        if (value >= 4 && value <= 6) timeBetween4and6 += durationMinutes;
+        if (value > 8) timeAbove8 += durationMinutes;
+        if (value > 10) timeAbove10 += durationMinutes;
+    }
+    
+//    const uncoveredMinutes = 1440 - totalCoveredMinutes;
+
+    return {
+        timeBelow4,
+        timeBetween4and6,
+        timeAbove8,
+        timeAbove10,
+        totalCoveredMinutes
+    };
+}
+
+function appendGlucoseTimeInRangeSummary(container, glucoseSummary) {
+    const {
+            timeBelow4,
+            timeBetween4and6,
+            timeAbove8,
+            timeAbove10,
+            totalCoveredMinutes
+        } = glucoseSummary;
+    
+    const uncoveredMinutes = 1440 - totalCoveredMinutes
+
+    const div = document.createElement("div");
+    div.className = "summary-item summary-glucose";
+
+    div.innerHTML = `
+        <div>⏱ BG > 10: ${formatMinutesAsHM(timeAbove10)}</div>
+        <div>⏱ BG > 8: ${formatMinutesAsHM(timeAbove8)}</div>
+        <div>⏱ BG 4–6: ${formatMinutesAsHM(timeBetween4and6)}</div>
+        <div>⏱ BG < 4: ${formatMinutesAsHM(timeBelow4)}</div>
+        <div>⏱ Calculations covered: ${formatMinutesAsHM(totalCoveredMinutes)}</div>
+        <div>⏳ These calculations use the first BG reading of the day till the last, and therefore did not include: ${formatMinutesAsHM(uncoveredMinutes)} mins</div>
+    `;
+
+    container.appendChild(div);
 }
 
 function appendNetCarbsToTotalInsulinRatio(container, totalNetCarbs, totalInsulin) {

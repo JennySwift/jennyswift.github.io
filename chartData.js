@@ -79,6 +79,8 @@ function parseJSONData(data) {
     })) || [];
 }
 
+
+
 function createFoodDataset(startOfDay, endOfDay) {
     return {
         pointRadius: chartProps.pointRadius,
