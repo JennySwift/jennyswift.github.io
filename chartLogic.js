@@ -212,16 +212,16 @@ function updateChartForDate(date) {
     const glucoseDataset = createGlucoseDataset(glucoseReadingsForDay);
     const noteDataset = createNoteDataset(bgChart.options.scales.y.min);
     
-    const workoutsForDay = workouts.filter(w =>
-        w.start >= startOfDay && w.start < endOfDay
-    );
-    const workoutDataset = createWorkoutDataset(workoutsForDay);
+//    const workoutsForDay = workouts.filter(w =>
+//        w.start >= startOfDay && w.start < endOfDay
+//    );
+//    const workoutDataset = createWorkoutDataset(workoutsForDay);
     
     bgChart.data.datasets = [
         glucoseDataset,
-        noteDataset,
+        noteDataset
 //        bolusDataset,
-        workoutDataset
+//        workoutDataset
     ];
     console.log("[updateChart] Final dataset being used:", bgChart.data.datasets);
     
@@ -258,10 +258,28 @@ function updateWorkoutChartForDate(startOfDay, endOfDay) {
 
     workoutChart.options.scales.x.min = startOfDay;
     workoutChart.options.scales.x.max = endOfDay;
-    workoutChart.options.scales.y.min = 0;
-    workoutChart.options.scales.y.max = Math.ceil(maxHR + 10);
+    setWorkoutChartYAxis(workoutsForDay)
 
     workoutChart.update();
+}
+
+function setWorkoutChartYAxis(workoutsForDay) {
+    const avgHRs = workoutsForDay.map(w => w.averageHeartRate).filter(Boolean);
+
+    // Set realistic baseline bounds
+    let yMin = 90;
+    let yMax = 150;
+
+    if (avgHRs.length > 0) {
+        const minHR = Math.min(...avgHRs);
+        const maxHR = Math.max(...avgHRs);
+
+        if (minHR < yMin) yMin = Math.floor(minHR / 10) * 10;
+        if (maxHR > yMax) yMax = Math.ceil(maxHR / 10) * 10;
+    }
+
+    workoutChart.options.scales.y.min = yMin;
+//    workoutChart.options.scales.y.max = yMax;
 }
 
 //function updateWorkoutChartForDate(startOfDay, endOfDay) {

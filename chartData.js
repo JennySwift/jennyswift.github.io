@@ -143,7 +143,7 @@ function createWorkoutDatasetForWorkoutChart(startOfDay, endOfDay) {
         data: data,
         stepped: "before",
 //        borderColor: "red",
-        backgroundColor: "green",
+        backgroundColor: "rgba(255, 112, 67, 1)",
         borderWidth: 0,
         pointRadius: 0,
         fill: true,
