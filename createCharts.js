@@ -20,6 +20,7 @@ function createWorkoutChart(ctx) {
             }]
         },
         options: {
+            ...sharedChartOptions,
             interaction: {
                 mode: "nearest",
                 intersect: false

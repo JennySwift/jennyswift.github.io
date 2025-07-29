@@ -21,6 +21,11 @@ const chartProps = {
     chartAreaBackgroundColour: "rgba(100, 100, 100, 0.4)"
 };
 
+const sharedChartOptions = {
+    //To stop the tooltip content getting cut off
+  clip: false
+};
+
 //const highlightChartArea = {
 //  id: 'highlightChartArea',
 //  beforeDraw(chart, args, options) {
