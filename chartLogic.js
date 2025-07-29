@@ -8,6 +8,7 @@
 let bgChart;
 let foodChart;
 let bolusChart;
+let workoutChart;
 let glucoseReadings = [];
 let foodLogs = [];
 let notes = [];
@@ -22,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const foodCtx = document.getElementById("foodChart").getContext("2d");
     const basalCtx = document.getElementById("basalChart").getContext("2d");
     const bolusCtx = document.getElementById("bolusChart").getContext("2d");
+    const workoutCtx = document.getElementById("workoutChart").getContext("2d");
     const selectedDateInput = document.getElementById("selectedDate");
     
     fetch("https://dl.dropboxusercontent.com/scl/fi/0udoq3x6gkchstkq2hqxg/glucoseData.json?rlkey=vllvwb6wlx2el12c9aqijw37p")
@@ -43,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         foodChart = createFoodChart(foodCtx);
         basalChart = createBasalChart(basalCtx);
         bolusChart = createBolusChart(bolusCtx);
+        workoutChart = createWorkoutChart(workoutCtx);
 
         updateChartForDate(today);
 
@@ -53,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function updateVerticalLines(timestamp) {
-    const charts = [bgChart, foodChart, bolusChart, basalChart];
+    const charts = [bgChart, foodChart, bolusChart, basalChart, workoutChart];
 
     charts.forEach(chart => {
         if (
@@ -231,6 +234,8 @@ function updateChartForDate(date) {
     bolusChart.options.scales.x.max = endOfDay;
     bolusChart.update();
     
+    updateWorkoutChartForDate(startOfDay, endOfDay);
+    
     
     const basalDataForDay = buildBasalDataForDay(startOfDay, endOfDay);
     
@@ -238,6 +243,50 @@ function updateChartForDate(date) {
     
     basalChart.update();
 }
+
+function updateWorkoutChartForDate(startOfDay, endOfDay) {
+    const workoutsForDay = workouts.filter(w =>
+        w.start >= startOfDay && w.start < endOfDay
+    );
+
+    const avgHRs = workoutsForDay.map(w => w.averageHeartRate).filter(Boolean);
+    const maxHR = Math.max(...avgHRs, 120); // fallback to 120
+
+    const workoutDataset = createWorkoutDatasetForWorkoutChart(startOfDay, endOfDay);
+
+    workoutChart.data.datasets = [workoutDataset];
+
+    workoutChart.options.scales.x.min = startOfDay;
+    workoutChart.options.scales.x.max = endOfDay;
+    workoutChart.options.scales.y.min = 0;
+    workoutChart.options.scales.y.max = Math.ceil(maxHR + 10);
+
+    workoutChart.update();
+}
+
+//function updateWorkoutChartForDate(startOfDay, endOfDay) {
+//    // Filter workouts in range
+//    const workoutsForDay = workouts.filter(w =>
+//        w.start >= startOfDay && w.start < endOfDay
+//    );
+//
+//    // Calculate Y-axis scale
+//    const avgHRs = workoutsForDay.map(w => w.averageHeartRate).filter(Boolean);
+//    const maxHR = Math.max(...avgHRs, 120); // fallback to 120
+//
+//    // Assign dataset
+//    workoutChart.data.datasets = [
+//        createWorkoutDatasetForWorkoutChart(startOfDay, endOfDay)
+//    ];
+//
+//    // Set X and Y scale bounds
+//    workoutChart.options.scales.x.min = startOfDay;
+//    workoutChart.options.scales.x.max = endOfDay;
+//    workoutChart.options.scales.y.min = 0;
+//    workoutChart.options.scales.y.max = Math.ceil(maxHR + 10);
+//
+//    workoutChart.update();
+//}
 
 function logChartAreas() {
   console.log("📏 chartArea widths:");

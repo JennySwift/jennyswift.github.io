@@ -49,7 +49,7 @@ function parseJSONData(data) {
         distance: w.distance,
         activeCalories: w.activeCalories,
         maxHeartRate: w.maxHeartRate,
-        endTime: w.endTime,
+        endTime: new Date(w.endTime),
         source: w.source,
         elapsedTime: w.elapsedTime,
         averageHeartRate: w.averageHeartRate,
@@ -80,6 +80,123 @@ function parseJSONData(data) {
         tags: b.tags || []
     })) || [];
 }
+
+function createWorkoutDatasetForWorkoutChart(startOfDay, endOfDay) {
+    const workoutsForDay = workouts.filter(w =>
+        w.start >= startOfDay && w.start < endOfDay &&
+        w.endTime && w.averageHeartRate
+    );
+
+    console.log("Workouts for day from createWorkoutDatasetForWorkoutChart:", workoutsForDay);
+
+    const data = [];
+
+    for (const w of workoutsForDay) {
+        const avgHR = Math.round(w.averageHeartRate);
+        data.push(
+            {
+                x: w.start,
+                y: avgHR,
+                segmentStart: w.start,
+                segmentEnd: w.endTime,
+                name: w.name,
+                type: w.type,
+                notes: w.notes,
+                source: w.source,
+                tags: w.tags || []
+            },
+            {
+                x: w.endTime,
+                y: avgHR,
+                segmentStart: w.start,
+                segmentEnd: w.endTime,
+                name: w.name,
+                type: w.type,
+                notes: w.notes,
+                source: w.source,
+                tags: w.tags || []
+            }
+        );
+    }
+
+    console.log("[createWorkoutDatasetForWorkoutChart] Final data array:", data);
+
+    return {
+        label: "Workout",
+        type: "line",
+        data: data,
+        stepped: "before",
+        borderColor: "red",
+        backgroundColor: "green",
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: true,
+        parsing: false
+    };
+}
+
+//function createWorkoutDatasetForWorkoutChart(startOfDay, endOfDay) {
+//    const workoutsForDay = workouts.filter(w =>
+//        w.start >= startOfDay && w.start < endOfDay &&
+//        w.endTime && w.averageHeartRate
+//    );
+//    
+//    console.log("Workouts for day from create workout dataset for workout chart:", workoutsForDay);
+//
+////    const data = [];
+//    
+//    const data = [
+//        { x: new Date().setHours(8, 0, 0, 0), y: 150 },
+//        { x: new Date().setHours(9, 0, 0, 0), y: 150 }
+//    ]
+//    
+//    console.log("⏱ startOfDay:", startOfDay, typeof startOfDay);
+//    console.log("🧠 First workout.start:", workouts[0]?.start, typeof workouts[0]?.start);
+//
+//    for (const w of workoutsForDay) {
+//        const avgHR = Math.round(w.averageHeartRate);
+////        data.push(
+////            {
+////                x: w.start,
+////                y: avgHR,
+////                segmentStart: w.start,
+////                segmentEnd: w.endTime,
+////                name: w.name,
+////                type: w.type,
+////                notes: w.notes,
+////                source: w.source,
+////                tags: w.tags || []
+////            },
+////            {
+////                x: w.endTime,
+////                y: avgHR,
+////                segmentStart: w.start,
+////                segmentEnd: w.endTime,
+////                name: w.name,
+////                type: w.type,
+////                notes: w.notes,
+////                source: w.source,
+////                tags: w.tags || []
+////            }
+////        );
+//    }
+//
+//    console.log("[createWorkoutDatasetForWorkoutChart] Data:", data);
+//    
+//    // ⚠️ SANITY CHECK: Force a visible red test line at 8–9am
+//    return {
+//        label: "Workout",
+//        type: "line",
+//        data: data,
+//        stepped: "before",
+//        borderColor: "red",
+//        backgroundColor: "green",
+//        borderWidth: 2,
+//        pointRadius: 0,
+//        fill: true,
+//        parsing: false
+//    };
+//}
 
 
 

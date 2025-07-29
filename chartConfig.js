@@ -16,6 +16,8 @@ const chartProps = {
     basalBackgroundZoneColor: "rgba(0, 255, 0, 0.4)",
     foodBackgroundColor: "#ffa726",
     foodBorderColor: "#ef6c00",
+    workoutBackgroundColor: "red",
+    workoutBorderColor: "#red",
     chartAreaBackgroundColour: "rgba(100, 100, 100, 0.4)"
 };
 

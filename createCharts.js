@@ -5,6 +5,113 @@
 //  Created by Jenny Swift on 20/7/2025.
 //
 
+function createWorkoutChart(ctx) {
+    return new Chart(ctx, {
+        type: "line",
+        data: {
+            datasets: [{
+                data: [], // {x: start, y: avgHR, segmentStart, segmentEnd}
+                stepped: "before",
+                borderWidth: 2,
+                borderColor: chartProps.workoutBorderColor,
+                backgroundColor: chartProps.workoutBackgroundColor,
+                pointRadius: 0,
+                fill: true
+            }]
+        },
+        options: {
+            interaction: {
+                mode: "nearest",
+                intersect: false
+            },
+            hover: {
+                mode: "nearest",
+                intersect: false
+            },
+            parsing: false,
+            scales: {
+                x: {
+                    type: "time",
+                    time: {
+                        unit: "hour",
+                        displayFormats: { hour: "h:mm a" }
+                    },
+                    min: new Date().setHours(0, 0, 0, 0),
+                    max: new Date().setHours(24, 0, 0, 0),
+                    ticks: reusableXTicks,
+                    grid: reusableXGrid
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: "Avg Heart Rate (bpm)"
+                    },
+                    ticks: {
+                        font: { size: 14 },
+                        padding: 8
+                    },
+                    grace: '5%',
+                    grid: reusableYGrid
+                }
+            },
+            plugins: {
+                annotation: {
+                    annotations: {
+                        dynamicLine: getDynamicLineAnnotation()
+                    }
+                },
+                datalabels: {
+                    display: false
+                },
+                chartAreaBackground: {
+                    color: chartProps.chartAreaBackgroundColour
+                },
+                tooltip: {
+                    ...sharedTooltipStyle,
+                    callbacks: {
+                        title: function (context) {
+                            const point = context[0].raw;
+                            const start = point.segmentStart ? new Date(point.segmentStart) : null;
+                            const end = point.segmentEnd ? new Date(point.segmentEnd) : null;
+
+                            const formatTime = (d) => d.toLocaleTimeString([], {
+                                hour: "numeric", minute: "2-digit", hour12: true
+                            }).toLowerCase().replace(' ', '');
+
+                            const name = point.name || "Unnamed workout";
+                            const avgHR = point.y ? `❤️ ${point.y.toFixed(0)} bpm` : "";
+                            const durationMins = (start && end)
+                                ? `🕓 ${Math.round((end - start) / 60000)} min`
+                                : "";
+                            const timeStr = (start && end)
+                                ? `🕒 ${formatTime(start)} → ${formatTime(end)}`
+                                : "";
+                            const calories = point.activeCalories
+                                ? `🔥 ${Math.round(point.activeCalories)} kcal`
+                                : "";
+
+                            return [
+                                name,
+                                avgHR,
+                                durationMins,
+                                timeStr,
+                                calories
+                            ].filter(Boolean); // remove empty lines
+                        },
+                        label: function () {
+                            return ""; // move everything into title so label is blank
+                        }
+                    }
+                },
+                legend: { display: false }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
 function createBolusChart(ctx) {
     return new Chart(ctx, {
         type: "bar",

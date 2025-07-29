@@ -74,6 +74,7 @@ function setUpVerticalLineMouseTracking() {
     attachChartMousemoveSync(foodChart, "foodChart");
     attachChartMousemoveSync(bolusChart, "bolusChart");
     attachChartMousemoveSync(basalChart, "basalChart");
+    attachChartMousemoveSync(workoutChart, "workoutChart");
 }
 
 function attachChartMousemoveSync(chartInstance, chartElementId) {
