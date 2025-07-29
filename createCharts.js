@@ -12,9 +12,9 @@ function createWorkoutChart(ctx) {
             datasets: [{
                 data: [], // {x: start, y: avgHR, segmentStart, segmentEnd}
                 stepped: "before",
-                borderWidth: 2,
-                borderColor: chartProps.workoutBorderColor,
-                backgroundColor: chartProps.workoutBackgroundColor,
+//                borderWidth: 0,
+//                borderColor: chartProps.workoutBorderColor,
+//                backgroundColor: chartProps.workoutBackgroundColor,
                 pointRadius: 0,
                 fill: true
             }]

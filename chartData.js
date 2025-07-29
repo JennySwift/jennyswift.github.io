@@ -90,9 +90,22 @@ function createWorkoutDatasetForWorkoutChart(startOfDay, endOfDay) {
     console.log("Workouts for day from createWorkoutDatasetForWorkoutChart:", workoutsForDay);
 
     const data = [];
+    let lastEnd = null;
 
     for (const w of workoutsForDay) {
+        if (!w.start || !w.endTime || !w.averageHeartRate) continue;
+
         const avgHR = Math.round(w.averageHeartRate);
+
+        // Insert a gap if needed
+        if (lastEnd && w.start > lastEnd) {
+            data.push(
+                { x: lastEnd, y: null },
+                { x: w.start, y: null }
+            );
+        }
+
+        // Add workout segment
         data.push(
             {
                 x: w.start,
@@ -103,6 +116,7 @@ function createWorkoutDatasetForWorkoutChart(startOfDay, endOfDay) {
                 type: w.type,
                 notes: w.notes,
                 source: w.source,
+                activeCalories: w.activeCalories,
                 tags: w.tags || []
             },
             {
@@ -114,11 +128,13 @@ function createWorkoutDatasetForWorkoutChart(startOfDay, endOfDay) {
                 type: w.type,
                 notes: w.notes,
                 source: w.source,
+                activeCalories: w.activeCalories,
                 tags: w.tags || []
             }
         );
-    }
 
+        lastEnd = w.endTime;
+    }
     console.log("[createWorkoutDatasetForWorkoutChart] Final data array:", data);
 
     return {
@@ -126,9 +142,9 @@ function createWorkoutDatasetForWorkoutChart(startOfDay, endOfDay) {
         type: "line",
         data: data,
         stepped: "before",
-        borderColor: "red",
+//        borderColor: "red",
         backgroundColor: "green",
-        borderWidth: 2,
+        borderWidth: 0,
         pointRadius: 0,
         fill: true,
         parsing: false
