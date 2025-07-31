@@ -67,6 +67,34 @@ function setupEventListeners() {
     setUpVerticalLineMouseTracking();
     
     setUpHideTooltip()
+    
+    setUpAllNotesTab()
+
+}
+
+function setUpAllNotesTab() {
+    document.getElementById("noteSearchInput")?.addEventListener("input", () => {
+        showAllNotes();
+    });
+    
+    const allNotesSearch = document.getElementById("all-notes-search");
+
+    document.querySelectorAll(".tab-button").forEach(button => {
+        button.addEventListener("click", () => {
+            const selectedTab = button.getAttribute("data-tab");
+
+            // Show or hide the search field based on selected tab
+            if (selectedTab === "all-notes") {
+                allNotesSearch.style.display = "block";
+                showAllNotes(); // Refresh with latest search filter
+            } else {
+                allNotesSearch.style.display = "none";
+            }
+        });
+    });
+
+    // Initially hide the search bar
+    allNotesSearch.style.display = "none";
 }
 
 function setUpVerticalLineMouseTracking() {

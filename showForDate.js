@@ -7,23 +7,35 @@
 
 function showAllNotes() {
     const container = document.getElementById("all-notes");
+    const searchInput = document.getElementById("noteSearchInput");
     container.innerHTML = "";
 
-    if (notes.length === 0) {
+    if (!notes || notes.length === 0) {
         container.textContent = "No notes found.";
         return;
     }
 
-    // Sort notes newest to oldest
-    const sortedNotes = [...notes].sort((a, b) => b.timestamp - a.timestamp);
+    const query = (searchInput?.value || "").toLowerCase();
 
-    sortedNotes.forEach(note => {
+    const filteredNotes = [...notes]
+        .filter(note =>
+            note.text.toLowerCase().includes(query) ||
+            (note.tags || []).some(tag => tag.toLowerCase().includes(query))
+        )
+        .sort((a, b) => b.timestamp - a.timestamp);
+
+    if (filteredNotes.length === 0) {
+        container.textContent = "No matching notes found.";
+        return;
+    }
+
+    filteredNotes.forEach(note => {
         const div = document.createElement("div");
         div.classList.add("note-log-block");
         div.style.cursor = "pointer";
 
         const timestamp = new Date(note.timestamp);
-        const time = formatDateTime(timestamp); // e.g. "21 July, 7:14am"
+        const time = formatDateTime(timestamp);
         const tags = note.tags?.map(tag => `<span class="note-tag">${tag}</span>`).join(" ") ?? "";
 
         const bodyDiv = document.createElement("div");
