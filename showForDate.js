@@ -23,8 +23,15 @@ function showAllNotes() {
         const title = note.title?.toLowerCase() || ""; // in future when you add it
 
         if (query.startsWith("#")) {
-            const tagQuery = query.slice(1);
-            return tags.includes(tagQuery);
+            const tagOrNumber = query.slice(1);
+            
+            // Check if it's a number (note number search)
+            if (!isNaN(tagOrNumber)) {
+                return note.noteNumber === Number(tagOrNumber);
+            }
+
+            // Otherwise, treat it as a tag
+            return tags.includes(tagOrNumber);
         }
 
         if (query.startsWith("*")) {
@@ -62,7 +69,7 @@ function showAllNotes() {
             titleHtml = `<div class="note-title"><strong>${note.title}</strong></div>`;
         }
 
-        const textHtml = `<div>${time}: ${note.text.replace(/\n/g, "<br>")}</div>`;
+        const textHtml = `<div><strong>#${note.noteNumber}</strong> — ${time}: ${note.text.replace(/\n/g, "<br>")}</div>`;
         bodyDiv.innerHTML = titleHtml + textHtml;
 
         const tagsDiv = document.createElement("div");

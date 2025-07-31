@@ -24,6 +24,7 @@ function parseJSONData(data) {
 
     notes = data.notes?.map((n) => ({
         timestamp: new Date(n.startTime),
+        noteNumber: n.noteNumber,
         text: n.text,
         tags: n.tags || [],
     })) || [];
