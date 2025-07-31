@@ -15,14 +15,30 @@ function showAllNotes() {
         return;
     }
 
-    const query = (searchInput?.value || "").toLowerCase();
+    const query = (searchInput?.value || "").trim().toLowerCase();
 
-    const filteredNotes = [...notes]
-        .filter(note =>
-            note.text.toLowerCase().includes(query) ||
-            (note.tags || []).some(tag => tag.toLowerCase().includes(query))
-        )
-        .sort((a, b) => b.timestamp - a.timestamp);
+    const filteredNotes = [...notes].filter(note => {
+        const text = note.text?.toLowerCase() || "";
+        const tags = (note.tags || []).map(t => t.toLowerCase());
+        const title = note.title?.toLowerCase() || ""; // in future when you add it
+
+        if (query.startsWith("#")) {
+            const tagQuery = query.slice(1);
+            return tags.includes(tagQuery);
+        }
+
+        if (query.startsWith("*")) {
+            const titleQuery = query.slice(1);
+            return title.includes(titleQuery);
+        }
+
+        // Default: search all
+        return (
+            text.includes(query) ||
+            tags.some(tag => tag.includes(query)) ||
+            title.includes(query)
+        );
+    }).sort((a, b) => b.timestamp - a.timestamp);
 
     if (filteredNotes.length === 0) {
         container.textContent = "No matching notes found.";
@@ -40,7 +56,14 @@ function showAllNotes() {
 
         const bodyDiv = document.createElement("div");
         bodyDiv.classList.add("note-log-body");
-        bodyDiv.innerHTML = `<strong>${time}</strong>: ${note.text.replace(/\n/g, "<br>")}`;
+
+        let titleHtml = "";
+        if (note.title) {
+            titleHtml = `<div class="note-title"><strong>${note.title}</strong></div>`;
+        }
+
+        const textHtml = `<div>${time}: ${note.text.replace(/\n/g, "<br>")}</div>`;
+        bodyDiv.innerHTML = titleHtml + textHtml;
 
         const tagsDiv = document.createElement("div");
         tagsDiv.classList.add("note-tags");
