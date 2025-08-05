@@ -5,6 +5,52 @@
 //  Created by Jenny Swift on 16/7/2025.
 //
 
+function getSydneyStartOfToday() {
+    const sydneyTime = new Date(new Date().toLocaleString("en-US", {
+        timeZone: "Australia/Sydney"
+    }));
+    sydneyTime.setHours(0, 0, 0, 0);
+    return sydneyTime;
+}
+
+function formatDateForInput(date) {
+    const sydney = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return sydney.toISOString().split("T")[0];
+}
+
+
+let sydneyCallCount = 0;
+
+function parseAsSydneyDate(dateStr) {
+    sydneyCallCount++;
+    if (sydneyCallCount % 100 === 0) {
+        console.log(`[parseAsSydneyDate] called ${sydneyCallCount} times`);
+    }
+
+    return new Date(new Date(dateStr).toLocaleString("en-US", {
+        timeZone: "Australia/Sydney"
+    }));
+}
+
+function formatDateInSydney(date) {
+    return date.toLocaleDateString("en-AU", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        timeZone: "Australia/Sydney"
+    });
+}
+
+function formatTimeInSydney(date) {
+    return date.toLocaleTimeString("en-AU", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: "Australia/Sydney"
+    });
+}
+
 function formatMinutesPerKm(value) {
     const minutes = Math.floor(value);
     const seconds = Math.round((value - minutes) * 60);
@@ -40,12 +86,12 @@ function formatMinutesAsHM(minutes) {
 }
 
 function getStartAndEndOfDay(date) {
-    const startOfDay = new Date(date);
+    const startOfDay = parseAsSydneyDate(date);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
-    
+
     return { startOfDay, endOfDay };
 }
 
@@ -56,8 +102,8 @@ function isSameDay(date1, date2) {
 }
 
 function formatTimeFromString(dateStr) {
-    const date = new Date(dateStr);
-    return formatTime12hCompact(date)
+    const date = parseAsSydneyDate(dateStr);
+    return formatTime12hCompact(date);
 }
 
 function formatTime12hCompact(date) {
@@ -69,18 +115,17 @@ function formatTime12hCompact(date) {
 }
 
 function formatDateTime(dateStr) {
-    const d = new Date(dateStr);
+    const d = parseAsSydneyDate(dateStr);
     const day = d.getDate();
-    const month = d.toLocaleString("en-AU", { month: "long" }); // e.g. "July"
-    
-    // Get time parts
+    const month = d.toLocaleString("en-AU", { month: "long", timeZone: "Australia/Sydney" });
+
     let hours = d.getHours();
     const minutes = d.getMinutes().toString().padStart(2, "0");
     const ampm = hours >= 12 ? "pm" : "am";
     hours = hours % 12 || 12;
-    
+
     const time = `${hours}:${minutes}${ampm}`;
-    
+
     return `${day} ${month}, ${time}`;
 }
 
@@ -97,9 +142,7 @@ function parseFlexibleTime(input, baseDate) {
     if (meridian === "pm" && hours < 12) hours += 12;
     if (meridian === "am" && hours === 12) hours = 0;
 
-    const result = new Date(baseDate);
+    const result = parseAsSydneyDate(baseDate);
     result.setHours(hours, minutes, 0, 0);
     return result;
 }
-
-

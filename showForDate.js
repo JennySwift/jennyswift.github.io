@@ -57,7 +57,7 @@ function showAllNotes() {
         div.classList.add("note-log-block");
         div.style.cursor = "pointer";
 
-        const timestamp = new Date(note.timestamp);
+        const timestamp = parseAsSydneyDate(note.timestamp);
         const time = formatDateTime(timestamp);
         const tags = note.tags?.map(tag => `<span class="note-tag">${tag}</span>`).join(" ") ?? "";
 
@@ -88,9 +88,9 @@ function showAllNotes() {
 }
 
 function showNotesForDate(date) {
-    const startOfDay = new Date(date);
+    const startOfDay = parseAsSydneyDate(date);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
     
@@ -113,7 +113,7 @@ function showNotesForDate(date) {
         div.classList.add("note-log-block");
         div.style.cursor = "pointer";
         div.addEventListener("click", () => {
-            jumpToTime(new Date(note.timestamp));
+            jumpToTime(parseAsSydneyDate(note.timestamp));
             highlightElement(div);
         });
         
@@ -136,7 +136,7 @@ function showNotesForDate(date) {
 }
 
 function updateFoodChartForDate(date) {
-    const startOfDay = new Date(date);
+    const startOfDay = parseAsSydneyDate(date);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
@@ -164,9 +164,9 @@ function updateFoodChartForDate(date) {
 }
 
 function showFoodLogsForDate(date) {
-    const startOfDay = new Date(date);
+    const startOfDay = parseAsSydneyDate(date);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
     
@@ -205,7 +205,7 @@ function showFoodLogsForDate(date) {
         div.style.cursor = "pointer";
         
         div.addEventListener("click", () => {
-            handleLogClick(new Date(log.timestamp));
+            handleLogClick(parseAsSydneyDate(log.timestamp));
             highlightElement(div);
         });
         
@@ -215,9 +215,9 @@ function showFoodLogsForDate(date) {
 }
 
 function showWorkoutsForDate(date) {
-    const startOfDay = new Date(date);
+    const startOfDay = parseAsSydneyDate(date);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
     
@@ -269,7 +269,7 @@ function showWorkoutsForDate(date) {
         
         div.style.cursor = "pointer";
         div.addEventListener("click", () => {
-            jumpToTime(new Date(w.start));
+            jumpToTime(parseAsSydneyDate(w.start));
             highlightElement(div);
         });
         
@@ -278,9 +278,9 @@ function showWorkoutsForDate(date) {
 }
 
 function showFastsForDate(date) {
-    const startOfDay = new Date(date);
+    const startOfDay = parseAsSydneyDate(date);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
     
@@ -288,8 +288,8 @@ function showFastsForDate(date) {
     container.innerHTML = "";
     
     const fastsForDay = fasts.filter(f => {
-        const start = new Date(f.startTime);
-        const end = f.endTime ? new Date(f.endTime) : null;
+        const start = parseAsSydneyDate(f.startTime);
+        const end = f.endTime ? parseAsSydneyDate(f.endTime) : null;
         
         return (
                 (start >= startOfDay && start < endOfDay) || // started today
@@ -343,9 +343,9 @@ function showFastsForDate(date) {
 }
 
 function showBolusesForDate(date) {
-    const startOfDay = new Date(date);
+    const startOfDay = parseAsSydneyDate(date);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
     
@@ -381,7 +381,7 @@ function showBolusesForDate(date) {
         div.innerHTML = `<strong>${time}</strong>: 💉 ${amount}U ${extra}`;
         div.style.cursor = "pointer";
         div.addEventListener("click", () => {
-            jumpToTime(new Date(bolus.timestamp));
+            jumpToTime(parseAsSydneyDate(bolus.timestamp));
             highlightElement(div);
         });
         container.appendChild(div);

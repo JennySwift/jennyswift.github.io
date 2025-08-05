@@ -7,12 +7,12 @@
 
 function parseJSONData(data) {
     glucoseReadings = data.glucoseReadings.map((r) => ({
-        timestamp: new Date(r.timestamp),
+        timestamp: parseAsSydneyDate(r.timestamp),
         value: r.value,
     }));
 
     foodLogs = data.foodLogs?.map((f) => ({
-        timestamp: new Date(f.timestamp),
+        timestamp: parseAsSydneyDate(f.timestamp),
         foodName: f.foodName,
         netCarbs: f.netCarbs,
         calories: f.calories,
@@ -23,15 +23,15 @@ function parseJSONData(data) {
     })) || [];
 
     notes = data.notes?.map((n) => ({
-        timestamp: new Date(n.startTime),
+        timestamp: parseAsSydneyDate(n.startTime),
         noteNumber: n.noteNumber,
         text: n.text,
         tags: n.tags || [],
     })) || [];
-
+    
     fasts = data.fasts?.map((f) => {
-        const startTime = new Date(f.startTime);
-        const endTime = f.endTime ? new Date(f.endTime) : null;
+        const startTime = parseAsSydneyDate(f.startTime);
+        const endTime = f.endTime ? parseAsSydneyDate(f.endTime) : null;
         const duration = endTime ? (endTime - startTime) / 1000 : null; // in seconds
 
         return {
@@ -41,16 +41,16 @@ function parseJSONData(data) {
             notes: f.notes
         };
     }) || [];
-
+    
     workouts = data.workouts?.map((w) => ({
-        start: new Date(w.startTime),
+        start: parseAsSydneyDate(w.startTime),
         name: w.name,
         type: w.type,
         duration: w.duration,
         distance: w.distance,
         activeCalories: w.activeCalories,
         maxHeartRate: w.maxHeartRate,
-        endTime: new Date(w.endTime),
+        endTime: parseAsSydneyDate(w.endTime),
         source: w.source,
         elapsedTime: w.elapsedTime,
         averageHeartRate: w.averageHeartRate,
@@ -61,8 +61,8 @@ function parseJSONData(data) {
     })) || [];
 
     basalEntries = data.basalEntries?.map(b => ({
-        startTime: new Date(b.startTime),
-        endTime: b.endTime ? new Date(b.endTime) : null,
+        startTime: parseAsSydneyDate(b.startTime),
+        endTime: b.endTime ? parseAsSydneyDate(b.endTime) : null,
         rate: b.rate,
         mode: b.mode,
         notes: b.notes
@@ -71,7 +71,7 @@ function parseJSONData(data) {
     console.log("Basal entries:", basalEntries);
 
     bolusDoses = data.bolusDoses?.map((b) => ({
-        timestamp: new Date(b.timestamp),
+        timestamp: parseAsSydneyDate(b.timestamp),
         amount: b.amount,
         duration: b.duration,
         type: b.type,

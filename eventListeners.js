@@ -54,6 +54,7 @@ function setupEventListeners() {
     const selectedDateInput = document.getElementById("selectedDate");
 
     selectedDateInput.addEventListener("change", () => {
+        console.log("[change] input changed");
         const selected = selectedDateInput.valueAsDate;
         updateChartForDate(selected);
     });

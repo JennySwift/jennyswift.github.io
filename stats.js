@@ -52,7 +52,7 @@ function updateStats(startOfDay, endOfDay) {
 }
 
 function calculateTimeInRangesForDay(glucoseReadings, selectedDate) {
-    const startOfDay = new Date(selectedDate);
+    const startOfDay = parseAsSydneyDate(selectedDate);
     startOfDay.setHours(0, 0, 0, 0);
 
     const endOfDay = new Date(startOfDay);
@@ -239,17 +239,17 @@ function calculateTotalBolusForDay(startOfDay, endOfDay) {
 function calculateTotalBasalForDay(startOfDay, endOfDay) {
     const dayEntries = basalEntries
         .filter(entry =>
-            entry.startTime < endOfDay && // starts before end of day
-            (entry.endTime === undefined || entry.endTime > startOfDay) // ends after day starts
+            entry.startTime < endOfDay &&
+            (entry.endTime === undefined || entry.endTime > startOfDay)
         )
-        .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+        .sort((a, b) => a.startTime - b.startTime); // ✅ use parsed Date objects
 
     let totalUnits = 0;
 
     for (const entry of dayEntries) {
-        const start = new Date(Math.max(new Date(entry.startTime), startOfDay));
+        const start = new Date(Math.max(entry.startTime, startOfDay)); // ✅ no re-parsing
         const end = entry.endTime
-            ? new Date(Math.min(new Date(entry.endTime), endOfDay))
+            ? new Date(Math.min(entry.endTime, endOfDay)) // ✅ no re-parsing
             : endOfDay;
 
         const durationMinutes = (end - start) / (1000 * 60);

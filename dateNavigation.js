@@ -6,20 +6,17 @@
 //
 
 function handleNoteClick(timestamp) {
-    const dateOnly = new Date(timestamp);
+    const dateOnly = parseAsSydneyDate(timestamp);
     dateOnly.setHours(0, 0, 0, 0);
 
-    // Update the selectedDate input
     const dateInput = document.getElementById("selectedDate");
     if (dateInput) {
         dateInput.valueAsDate = dateOnly;
     }
 
-    // Update the chart + summary + logs
     updateChartForDate(dateOnly);
 
-    // Jump to the exact note time on the graph
-    jumpToTime(new Date(timestamp));
+    jumpToTime(parseAsSydneyDate(timestamp));
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -29,7 +26,7 @@ function showNearestTooltip(chart, parsedTime, maxDiffMs = 2 * 60 * 1000) {
     let closestDiff = Infinity;
 
     for (let i = 0; i < dataset.length; i++) {
-        const pointTime = new Date(dataset[i].x);
+        const pointTime = parseAsSydneyDate(dataset[i].x);
         const diff = Math.abs(pointTime - parsedTime);
         if (diff < closestDiff) {
             closestDiff = diff;
@@ -80,16 +77,16 @@ function jumpToTime(inputTime) {
 
 document.getElementById("prevDate").addEventListener("click", () => {
     const selected = document.getElementById("selectedDate");
-    const date = new Date(selected.value);
+    const date = parseAsSydneyDate(selected.value);
     date.setDate(date.getDate() - 1);
     selected.value = date.toISOString().split("T")[0];
     updateChartForDate(date);
-//    showNotesForDate(date);
+    // showNotesForDate(date);
 });
 
 document.getElementById("nextDate").addEventListener("click", () => {
     const selected = document.getElementById("selectedDate");
-    const date = new Date(selected.value);
+    const date = parseAsSydneyDate(selected.value);
     date.setDate(date.getDate() + 1);
     selected.value = date.toISOString().split("T")[0];
     updateChartForDate(date);
@@ -98,13 +95,11 @@ document.getElementById("nextDate").addEventListener("click", () => {
 
 function highlightIfToday(date) {
     const input = document.getElementById("selectedDate");
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const selected = new Date(date);
+
+    const today = getSydneyStartOfToday();
+    const selected = parseAsSydneyDate(date);
     selected.setHours(0, 0, 0, 0);
-    
+
     if (selected.getTime() === today.getTime()) {
         input.classList.add("today");
     } else {
@@ -114,12 +109,10 @@ function highlightIfToday(date) {
 
 function updateForwardButtonState(date) {
     const forwardButton = document.getElementById("nextDate");
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const selected = new Date(date);
+
+    const today = getSydneyStartOfToday();
+    const selected = parseAsSydneyDate(date);
     selected.setHours(0, 0, 0, 0);
-    
+
     forwardButton.disabled = selected.getTime() === today.getTime();
 }

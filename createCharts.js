@@ -37,8 +37,8 @@ function createWorkoutChart(ctx) {
                         unit: "hour",
                         displayFormats: { hour: "h:mm a" }
                     },
-                    min: new Date().setHours(0, 0, 0, 0),
-                    max: new Date().setHours(24, 0, 0, 0),
+                    min: getSydneyStartOfToday(),
+                    max: new Date(getSydneyStartOfToday().getTime() + 24 * 60 * 60 * 1000),
                     ticks: reusableXTicks,
                     grid: reusableXGrid
                 },
@@ -73,12 +73,10 @@ function createWorkoutChart(ctx) {
                     callbacks: {
                         title: function (context) {
                             const point = context[0].raw;
-                            const start = point.segmentStart ? new Date(point.segmentStart) : null;
-                            const end = point.segmentEnd ? new Date(point.segmentEnd) : null;
+                            const start = point.segmentStart ? parseAsSydneyDate(point.segmentStart) : null;
+                            const end = point.segmentEnd ? parseAsSydneyDate(point.segmentEnd) : null;
 
-                            const formatTime = (d) => d.toLocaleTimeString([], {
-                                hour: "numeric", minute: "2-digit", hour12: true
-                            }).toLowerCase().replace(' ', '');
+                            const formatTime = formatTimeInSydney;
 
                             const name = point.name || "Unnamed workout";
                             const avgHR = point.y ? `❤️ ${point.y.toFixed(0)} bpm` : "";
@@ -131,8 +129,9 @@ function createBolusChart(ctx) {
                         displayFormats: { hour: "h:mm a" }
                     },
 //                    title: { display: true, text: "Time" },
-                    min: new Date().setHours(0, 0, 0, 0),
-                    max: new Date().setHours(24, 0, 0, 0),
+                    min: getSydneyStartOfToday(),
+                    max: new Date(getSydneyStartOfToday().getTime() + 24 * 60 * 60 * 1000),
+                    
                     ticks: reusableXTicks,
                     grid: reusableXGrid
                 },
@@ -218,8 +217,9 @@ function createBasalChart(ctx) {
                         unit: "hour",
                         displayFormats: { hour: "h:mm a" }
                     },
-                    min: new Date().setHours(0, 0, 0, 0),
-                    max: new Date().setHours(24, 0, 0, 0),
+                    
+                    min: getSydneyStartOfToday(),
+                    max: new Date(getSydneyStartOfToday().getTime() + 24 * 60 * 60 * 1000),
                     ticks: reusableXTicks,
                     grid: reusableXGrid,
 //                    title: {
@@ -261,8 +261,8 @@ function createBasalChart(ctx) {
                     callbacks: {
                         title: function (context) {
                             const point = context[0].raw;
-                            const start = point.segmentStart ? new Date(point.segmentStart) : null;
-                            const end = point.segmentEnd ? new Date(point.segmentEnd) : null;
+                            const start = point.segmentStart ? parseAsSydneyDate(point.segmentStart) : null;
+                            const end = point.segmentEnd ? parseAsSydneyDate(point.segmentEnd) : null;
                             
                             const formatTime = (d) => d.toLocaleTimeString([], {
                                 hour: "numeric", minute: "2-digit", hour12: true
@@ -489,8 +489,8 @@ function createFoodChart(ctx) {
                         displayFormats: { hour: "h:mm a" }
                     },
                     title: { display: true, text: "Time" },
-                    min: new Date().setHours(0, 0, 0, 0),
-                    max: new Date().setHours(24, 0, 0, 0),
+                    min: getSydneyStartOfToday(),
+                    max: new Date(getSydneyStartOfToday().getTime() + 24 * 60 * 60 * 1000),
                     ticks: reusableXTicks,
                     grid: reusableXGrid
                 },

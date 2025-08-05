@@ -34,12 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         //        console.log("✅ Food Logs:", foodLogs);
         //
-        const now = new Date();
-        const today = new Date(now);
-        today.setHours(0, 0, 0, 0);
-        selectedDateInput.value = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
-        .toISOString()
-        .split("T")[0];
+        
+        const today = getSydneyStartOfToday();
+        selectedDateInput.value = formatDateForInput(today);
         
         bgChart = createBGChart(ctx);
         foodChart = createFoodChart(foodCtx);
@@ -71,18 +68,23 @@ function updateVerticalLines(timestamp) {
 }
 
 function handleLogClick(timestamp) {
-    jumpToTime(new Date(timestamp));
-    
+    const sydneyTime = parseAsSydneyDate(timestamp);
+    jumpToTime(sydneyTime);
+
     // Highlight matching point in BG chart
     const bgDataset = bgChart.data.datasets[0].data;
-    const bgIndex = bgDataset.findIndex(p => Math.abs(new Date(p.x) - timestamp) < 2 * 60 * 1000);
+    const bgIndex = bgDataset.findIndex(p =>
+        Math.abs(parseAsSydneyDate(p.x) - sydneyTime) < 2 * 60 * 1000
+    );
     if (bgIndex !== -1) {
         highlightChartPoint(bgChart, 0, bgIndex);
     }
-    
+
     // Highlight matching point in Food chart
     const foodDataset = foodChart.data.datasets[0].data;
-    const foodIndex = foodDataset.findIndex(p => Math.abs(new Date(p.x) - timestamp) < 2 * 60 * 1000);
+    const foodIndex = foodDataset.findIndex(p =>
+        Math.abs(parseAsSydneyDate(p.x) - sydneyTime) < 2 * 60 * 1000
+    );
     if (foodIndex !== -1) {
         highlightChartPoint(foodChart, 0, foodIndex);
     }
@@ -101,12 +103,7 @@ function scaleHeartRateToBG(hr) {
 
 function updateDateHeading(date) {
     const heading = document.getElementById("dateHeading");
-    heading.textContent = date.toLocaleDateString("en-AU", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-    });
+    heading.textContent = formatDateInSydney(date);
 }
 
 
@@ -122,7 +119,7 @@ function buildBasalDataForDay(startOfDay, endOfDay) {
             (entry.startTime >= startOfDay && entry.startTime < endOfDay) ||
             (entry.endTime && entry.endTime > startOfDay && entry.endTime <= endOfDay)
             )
-    .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    .sort((a, b) => a.startTime - b.startTime);
     
     let lastEnd = startOfDay;
     
@@ -146,12 +143,6 @@ function buildBasalDataForDay(startOfDay, endOfDay) {
                 }
             );
         }
-//        if (entry.startTime > lastEnd) {
-//            basalDataForDay.push(
-//                                 { x: lastEnd, y: 0 },
-//                                 { x: entry.startTime, y: 0 }
-//                                 );
-//        }
         
         // Push the actual segment
         basalDataForDay.push(
@@ -192,8 +183,15 @@ function showInfoForDate(date) {
     updateFoodChartForDate(date);
 }
 
+let updateCount = 0;
 //For BG chart
 function updateChartForDate(date) {
+    console.trace("[updateChartForDate] trace");
+    updateCount++;
+        if (updateCount % 100 === 0) {
+            console.log(`[updateChartForDate] called ${updateCount} times`);
+        }
+    
     showInfoForDate(date)
     
     const { startOfDay, endOfDay } = getStartAndEndOfDay(date);
@@ -212,16 +210,9 @@ function updateChartForDate(date) {
     const glucoseDataset = createGlucoseDataset(glucoseReadingsForDay);
     const noteDataset = createNoteDataset(bgChart.options.scales.y.min);
     
-//    const workoutsForDay = workouts.filter(w =>
-//        w.start >= startOfDay && w.start < endOfDay
-//    );
-//    const workoutDataset = createWorkoutDataset(workoutsForDay);
-    
     bgChart.data.datasets = [
         glucoseDataset,
         noteDataset
-//        bolusDataset,
-//        workoutDataset
     ];
     console.log("[updateChart] Final dataset being used:", bgChart.data.datasets);
     

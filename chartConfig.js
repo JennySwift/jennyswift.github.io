@@ -103,32 +103,24 @@ const sharedTooltipStyle = {
     displayColors: false
 };
 
+
 const bolusChartTooltipCallbacks = {
     title: (context) => {
         const timestamp = context[0].parsed.x;
-        return new Date(timestamp).toLocaleTimeString([], {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true
-        }).toLowerCase();
+        const sydneyDate = parseAsSydneyDate(timestamp);
+        return formatTimeInSydney(sydneyDate).toLowerCase();
     },
     label: (context) => {
         const point = context.raw;
-        
-        return [
-                `💉 ${point.y.toFixed(2)}U bolus`
-        ];
+        return [`💉 ${point.y.toFixed(2)}U bolus`];
     }
 };
 
 const foodChartTooltipCallbacks = {
     title: (context) => {
         const timestamp = context[0].parsed.x;
-        return new Date(timestamp).toLocaleTimeString([], {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true
-        }).toLowerCase();
+        const sydneyDate = parseAsSydneyDate(timestamp);
+        return formatTimeInSydney(sydneyDate).toLowerCase();
     },
     label: (context) => {
         const point = context.raw;
@@ -145,11 +137,8 @@ const tooltipCallbacks = {
     //This is the heading in the tooltip
     title: (context) => {
         const timestamp = context[0].parsed.x;
-        return new Date(timestamp).toLocaleTimeString([], {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true
-        }).toLowerCase();
+        const sydneyDate = parseAsSydneyDate(timestamp);
+        return formatTimeInSydney(sydneyDate).toLowerCase();
     },
     label: (context) => {
         const dataset = context.dataset;
