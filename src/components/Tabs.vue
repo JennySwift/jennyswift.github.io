@@ -1,7 +1,7 @@
 <script setup>
     import { ref, computed } from 'vue'
     import AllNotes from './AllNotes.vue'
-    import { formatDateTime, formatTime12hCompact, parseAsSydneyDate, getStartAndEndOfDay, isSameDay, formatTimeFromString } from '../helpers/dateHelpers'
+    import { formatDateTime, formatTime12hCompact, parseAsSydneyDate, getStartAndEndOfDay, isSameDay, formatTimeFromString, minutesOverlapWithinDay, formatHM, minutesBetweenOrEndOfDay} from '../helpers/dateHelpers'
     import { formatMinutesPerKm, formatKmPerHour, formatDistance } from '../helpers/workoutHelpers'
 
     const props = defineProps({
@@ -115,6 +115,24 @@
             })
     })
 
+    const basalEntriesForDay = computed(() => {
+        if (!props.selectedDate) return []
+        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
+
+        return props.basalEntries
+            .filter(e => {
+                const s = e.startTime instanceof Date ? e.startTime : parseAsSydneyDate(e.startTime)
+                const end = e.endTime ? (e.endTime instanceof Date ? e.endTime : parseAsSydneyDate(e.endTime)) : null
+                // include any entry that overlaps the selected day (rate 0 included)
+                return s < endOfDay && (!end || end > startOfDay)
+            })
+            .sort((a, b) => {
+                const ta = (a.startTime instanceof Date ? a.startTime : parseAsSydneyDate(a.startTime)).getTime()
+                const tb = (b.startTime instanceof Date ? b.startTime : parseAsSydneyDate(b.startTime)).getTime()
+                return ta - tb
+            })
+    })
+
 </script>
 
 <template>
@@ -125,6 +143,7 @@
             <button class="tab-button" :class="{ active: activeTab === 'bolus' }" @click="setTab('bolus')">💉 Bolus</button>
             <button class="tab-button" :class="{ active: activeTab === 'fasts' }" @click="setTab('fasts')">⏳ Fasts</button>
             <button class="tab-button" :class="{ active: activeTab === 'workouts' }" @click="setTab('workouts')">🏃‍♀️ Workouts</button>
+            <button class="tab-button" :class="{ active: activeTab === 'basal' }" @click="setTab('basal')">💧 Basal</button>
             <button class="tab-button" :class="{ active: activeTab === 'all-notes' }" @click="setTab('all-notes')">📝 All Notes</button>
         </div>
 
@@ -285,6 +304,37 @@
                         </div>
 
                         <div v-if="w.notes"><strong>Notes:</strong> {{ w.notes }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" :class="{ 'active-tab': activeTab === 'basal' }">
+            <div class="daily-section">
+                <div v-if="basalEntriesForDay.length === 0">No basal entries for this day.</div>
+                <div v-else>
+                    <div
+                            v-for="b in basalEntriesForDay"
+                            :key="(b.startTime?.getTime?.() ?? b.startTime) + '-' + (b.endTime?.getTime?.() ?? 'ongoing') + '-' + (b.rate ?? '')"
+                            class="log-block"
+                            role="button"
+                            tabindex="0"
+                            @click="emit('note-click', (b.startTime instanceof Date ? b.startTime : parseAsSydneyDate(b.startTime)))"
+                    >
+                        <div>
+                            <strong>{{ formatTimeFromString(b.startTime) }}</strong>
+                            —
+                            <strong>{{ b.endTime ? formatTimeFromString(b.endTime) : 'Ongoing' }}</strong>
+                        </div>
+
+                        <!-- Duration of this entry (not clipped to day) -->
+                        <div><strong>Duration:</strong> {{ formatHM(minutesBetweenOrEndOfDay(b.startTime, b.endTime, selectedDate)) }}</div>
+
+                        <div class="log-details">
+                            <span>💧 Rate: {{ b.rate }} U/hr</span>
+                            <span v-if="b.mode">• Mode: {{ b.mode }}</span>
+                            <span v-if="b.notes">• {{ b.notes }}</span>
+                        </div>
                     </div>
                 </div>
             </div>

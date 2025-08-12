@@ -121,3 +121,34 @@ export function parseFlexibleTime(input, baseDate) {
     result.setHours(hours, minutes, 0, 0);
     return result;
 }
+
+export function minutesOverlapWithinDay(start, end, day) {
+    const { startOfDay, endOfDay } = getStartAndEndOfDay(day)
+
+    const s = start instanceof Date ? start : parseAsSydneyDate(start)
+    const e = end ? (end instanceof Date ? end : parseAsSydneyDate(end)) : null
+
+    const segStart = s < startOfDay ? startOfDay : s
+    const segEnd = e ? (e > endOfDay ? endOfDay : e) : endOfDay
+
+    const ms = Math.max(0, segEnd - segStart)
+    return Math.round(ms / 60000) // minutes
+}
+
+// Format minutes as "Hh Mm" (e.g., 1h 05m or 12m)
+export function formatHM(totalMinutes) {
+    const m = Math.max(0, Math.round(totalMinutes || 0))
+    const h = Math.floor(m / 60)
+    const rem = m % 60
+    return h > 0 ? `${h}h ${rem}m` : `${rem}m`
+}
+
+// Minutes between start and end; if end is missing, use the end of the selected day
+export function minutesBetweenOrEndOfDay(start, end, dayForFallback) {
+    const s = start instanceof Date ? start : parseAsSydneyDate(start)
+    const e = end
+        ? (end instanceof Date ? end : parseAsSydneyDate(end))
+        : getStartAndEndOfDay(dayForFallback).endOfDay
+    const ms = Math.max(0, e - s)
+    return Math.round(ms / 60000)
+}
