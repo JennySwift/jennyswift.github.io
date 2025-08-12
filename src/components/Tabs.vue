@@ -1,7 +1,7 @@
 <script setup>
     import { ref, computed } from 'vue'
     import AllNotes from './AllNotes.vue'
-    import { formatDateTime, formatTime12hCompact, parseAsSydneyDate, getStartAndEndOfDay } from '../helpers/dateHelpers'
+    import { formatDateTime, formatTime12hCompact, parseAsSydneyDate, getStartAndEndOfDay, isSameDay } from '../helpers/dateHelpers'
 
     const props = defineProps({
         notes:           { type: Array, default: () => [] },
@@ -21,6 +21,26 @@
     function setTab(name) {
         activeTab.value = name
     }
+
+    const fastsForDay = computed(() => {
+        if (!props.selectedDate) return []
+        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
+        return props.fasts
+            .filter(f => {
+                const start = f.startTime instanceof Date ? f.startTime : parseAsSydneyDate(f.startTime)
+                const end = f.endTime ? (f.endTime instanceof Date ? f.endTime : parseAsSydneyDate(f.endTime)) : null
+                return (
+                    (start >= startOfDay && start < endOfDay) ||            // started today
+                    (end && end >= startOfDay && end < endOfDay) ||         // ended today
+                    (start < startOfDay && (!end || end > endOfDay))        // spans whole day
+                )
+            })
+            .sort((a, b) => {
+                const sa = (a.startTime instanceof Date ? a.startTime : parseAsSydneyDate(a.startTime)).getTime()
+                const sb = (b.startTime instanceof Date ? b.startTime : parseAsSydneyDate(b.startTime)).getTime()
+                return sa - sb
+            })
+    })
 
     const bolusesForDay = computed(() => {
         if (!props.selectedDate) return []
@@ -174,7 +194,42 @@
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'fasts' }">
-            <div class="daily-section">Fasts go here.</div>
+            <div class="daily-section">
+                <div v-if="fastsForDay.length === 0">No fasts for this day.</div>
+                <div v-else>
+                    <div
+                            v-for="f in fastsForDay"
+                            :key="(f.startTime?.getTime?.() ?? f.startTime) + '-' + (f.endTime?.getTime?.() ?? 'ongoing')"
+                            class="fast-block"
+                    >
+                        <!-- Label -->
+                        <div class="fast-label">
+                            {{
+                            isSameDay(f.startTime, selectedDate) && f.endTime && isSameDay(f.endTime, selectedDate) ? 'Started and Ended' :
+                            isSameDay(f.startTime, selectedDate) ? 'Started fast:' :
+                            (f.endTime && isSameDay(f.endTime, selectedDate)) ? 'Ended fast:' :
+                            'Continued'
+                            }}
+                        </div>
+
+                        <!-- Duration -->
+                        <div v-if="f.duration">
+                            <strong>Duration:</strong>
+                            {{
+                            Math.floor(f.duration / 3600) + 'h ' +
+                            Math.floor((f.duration % 3600) / 60) + 'm'
+                            }}
+                        </div>
+
+                        <!-- Start / End -->
+                        <div><strong>Start:</strong> {{ formatDateTime(f.startTime) }}</div>
+                        <div><strong>End:</strong> {{ f.endTime ? formatDateTime(f.endTime) : 'Ongoing' }}</div>
+
+                        <!-- Notes -->
+                        <div v-if="f.notes" class="fast-notes">📝 {{ f.notes }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'workouts' }">
