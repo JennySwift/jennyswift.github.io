@@ -1,6 +1,6 @@
 <script setup>
     import { ref, computed } from 'vue'
-    import { parseAsSydneyDate, formatDateTime } from '../helpers/dateHelpers'
+    import { parseAsSydneyDate, formatDateTime } from '../../helpers/dateHelpers'
 
     // Props: pass your notes array in later from App.vue (next step)
     const props = defineProps({

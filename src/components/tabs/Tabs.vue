@@ -1,8 +1,9 @@
 <script setup>
     import { ref, computed } from 'vue'
-    import AllNotes from './AllNotes.vue'
-    import { formatDateTime, formatTime12hCompact, parseAsSydneyDate, getStartAndEndOfDay, isSameDay, formatTimeFromString, minutesOverlapWithinDay, formatHM, minutesBetweenOrEndOfDay} from '../helpers/dateHelpers'
-    import { formatMinutesPerKm, formatKmPerHour, formatDistance } from '../helpers/workoutHelpers'
+    import AllNotesTab from './AllNotesTab.vue'
+    import NotesTab from './NotesTab.vue'
+    import { formatDateTime, formatTime12hCompact, parseAsSydneyDate, getStartAndEndOfDay, isSameDay, formatTimeFromString, minutesOverlapWithinDay, formatHM, minutesBetweenOrEndOfDay} from '../../helpers/dateHelpers'
+    import { formatMinutesPerKm, formatKmPerHour, formatDistance } from '../../helpers/workoutHelpers'
 
     const props = defineProps({
         notes:           { type: Array, default: () => [] },
@@ -149,31 +150,11 @@
 
         <!-- Containers -->
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'notes' }">
-            <div class="daily-section">
-                <div v-if="notesForDay.length === 0">No notes for this day.</div>
-                <div v-else>
-                    <div
-                            v-for="n in notesForDay"
-                            :key="(n.timestamp?.getTime?.() ?? n.timestamp) + '-' + (n.noteNumber ?? '')"
-                            class="note-log-block"
-                            role="button"
-                            tabindex="0"
-                            @click="onDailyNoteClick(n, $event)"
-                    >
-                        <div class="note-log-body">
-                            <div v-if="n.title" class="note-title"><strong>{{ n.title }}</strong></div>
-                            <div>
-                                <strong>#{{ n.noteNumber }}</strong> — {{ formatTime12hCompact(n.timestamp) }}:
-                                <span v-html="(n.text || '').replace(/\n/g, '<br>')"></span>
-                            </div>
-                        </div>
-
-                        <div v-if="n.tags?.length" class="note-tags">
-                            <span v-for="tag in n.tags" :key="tag" class="note-tag">{{ tag }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <NotesTab
+                    :notes="notes"
+                    :selected-date="selectedDate"
+                    @note-click="ts => emit('note-click', ts)"
+            />
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'foodLogs' }">
@@ -343,7 +324,7 @@
         <!-- All Notes with real data + search -->
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'all-notes' }">
             <div class="daily-section">
-                <AllNotes :notes="notes" @note-click="ts => emit('note-click', ts)" />
+                <AllNotesTab :notes="notes" @note-click="ts => emit('note-click', ts)" />
             </div>
         </div>
     </section>

@@ -2,7 +2,7 @@
     import { ref, onMounted } from 'vue'
     import DateHeader from './components/DateHeader.vue'
     import BgChart from './components/BgChart.vue'
-    import Tabs from './components/Tabs.vue'
+    import Tabs from './components/tabs/Tabs.vue'
     import { parseAsSydneyDate, getSydneyStartOfToday } from './helpers/dateHelpers'
     import { fetchDashboardData } from './helpers/dataService'
 
