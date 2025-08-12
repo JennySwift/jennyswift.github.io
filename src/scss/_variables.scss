@@ -1,0 +1,12 @@
+// Design tokens (SCSS variables)
+$bg: #fffbe6;
+$fg: #111111;
+$brand: #007acc;
+$accent: #2d6cdf;
+$muted: #e5e7eb;
+
+// Runtime CSS vars (keeps your existing behavior)
+:root {
+  --bg: #fffbe6;
+  --fg: #111111;
+}

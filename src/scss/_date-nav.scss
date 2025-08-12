@@ -1,0 +1,33 @@
+
+/* Old IDs */
+#dateNavContainer {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+#dateNavContainer button {
+  font-size: 1.2rem; padding: 10px 16px; border-radius: 8px; border: none;
+  background-color: #007bff; color: white; cursor: pointer; transition: background-color 0.2s ease;
+}
+#dateNavContainer button:hover { background-color: #0056b3; }
+
+#selectedDate {
+  font-size: 1.1rem; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;
+}
+#selectedDate.today { border: 2px solid #28a745; background-color: #e6ffed; }
+
+/* New component classes in DateHeader.vue */
+.date-nav {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+.date-nav .nav-btn {
+  font-size: 1.2rem; padding: 10px 16px; border-radius: 8px; border: none;
+  background-color: #007bff; color: white; cursor: pointer; transition: background-color 0.2s ease;
+  &:hover { background-color: #0056b3; }
+}
+.date-nav .date-input {
+  font-size: 1.1rem; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;
+}
+
+/* Keep your heading look */
+.date-heading { font-size: 1.8rem; margin-top: 2rem; text-align: center; }
