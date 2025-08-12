@@ -1,5 +1,6 @@
 <script setup>
     import { onMounted, onBeforeUnmount, ref } from 'vue'
+    import { fetchDashboardData } from '../helpers/dataService'
 
     // Chart.js + plugins
     import {
@@ -34,15 +35,55 @@
     const canvasEl = ref(null)
     let chart // hold instance so we can destroy on unmount
 
-    onMounted(() => {
+    onMounted(async () => {
         const ctx = canvasEl.value.getContext('2d')
 
-        // Minimal working example data (replace with your real data next)
-        const now = Date.now()
-        const demo = Array.from({ length: 24 }, (_, i) => ({
-            x: now - (24 - i) * 60 * 60 * 1000,
-            y: 80 + Math.round(Math.sin(i / 3) * 20)
-        }))
+        // Load your real dashboard JSON
+        // Load your real dashboard JSON
+        let points = []
+        try {
+            const data = await fetchDashboardData()
+            const readings = Array.isArray(data?.glucoseReadings) ? data.glucoseReadings : []
+
+            console.log('[BgChart:onMounted] sample reading:', readings[0])
+
+            points = readings
+                .map(r => {
+                    // Timestamps we might see
+                    const t =
+                        r.timestamp ?? r.time ?? r.date ?? r.datetime ?? r.t ?? r.ts
+
+                            // Values we might see
+                            let y =
+                            r.mgdl ?? r.mg ?? r.value ?? r.bg ?? r.sgv ?? r.glucose
+
+                    // Handle nested shapes like { value: { mgdl: 123 } }
+                    if (y == null && r.value && typeof r.value === 'object') {
+                        y = r.value.mgdl ?? r.value.bg ?? r.value.v ?? null
+                    }
+
+                    if (!t || y == null) return null
+
+                    const x = typeof t === 'number' ? new Date(t) : new Date(t)
+                    return { x, y: Number(y) }
+                })
+                .filter(Boolean)
+                .sort((a, b) => a.x - b.x)
+
+            console.log('[BgChart:onMounted] mapped points:', points.length)
+        } catch (err) {
+            console.error('[BgChart:onMounted] fetch failed:', err)
+        }
+
+        // Fallback if nothing loaded (keeps UI working)
+        if (!points.length) {
+            const now = Date.now()
+            points = Array.from({ length: 24 }, (_, i) => ({
+                x: now - (24 - i) * 60 * 60 * 1000,
+                y: 80 + Math.round(Math.sin(i / 3) * 20)
+            }))
+            console.warn('[BgChart:onMounted] using demo data (0 real points)')
+        }
 
         chart = new Chart(ctx, {
             type: 'line',
@@ -50,7 +91,7 @@
                 datasets: [
                     {
                         label: 'BG',
-                        data: demo,
+                        data: points,
                         fill: false,
                         borderWidth: 2,
                         borderColor: '#2d6cdf',
@@ -67,14 +108,13 @@
                     x: {
                         type: 'time',
                         time: { unit: 'hour' },
-                        ticks: { maxRotation: 0 },
                         grid: { color: '#e5e7eb' },
-                        ticks: { color: '#111111', maxRotation: 0 },
+                        ticks: { color: '#111111', maxRotation: 0 }
                     },
                     y: {
-                        title: { display: true, text: 'mg/dL' },
+                        title: { display: true, text: 'BG' },
                         grid: { color: '#e5e7eb' },
-                        ticks: { color: '#111111' },
+                        ticks: { color: '#111111' }
                     }
                 },
                 plugins: {
