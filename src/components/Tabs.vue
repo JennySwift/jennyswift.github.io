@@ -22,6 +22,27 @@
         activeTab.value = name
     }
 
+    const bolusesForDay = computed(() => {
+        if (!props.selectedDate) return []
+        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
+        return props.bolusDoses
+            .filter(b => {
+                const t = b.timestamp instanceof Date ? b.timestamp : parseAsSydneyDate(b.timestamp)
+                return t >= startOfDay && t < endOfDay
+            })
+            .sort((a, b) => {
+                const ta = (a.timestamp instanceof Date ? a.timestamp : parseAsSydneyDate(a.timestamp)).getTime()
+                const tb = (b.timestamp instanceof Date ? b.timestamp : parseAsSydneyDate(b.timestamp)).getTime()
+                return ta - tb
+            })
+    })
+
+    function onBolusClick(b, evt) {
+        const ts = b.timestamp instanceof Date ? b.timestamp : parseAsSydneyDate(b.timestamp)
+        if (typeof highlightRow === 'function') highlightRow(evt?.currentTarget)
+        emit('note-click', ts)
+    }
+
     const notesForDay = computed(() => {
         if (!props.selectedDate) return []
         const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
@@ -132,7 +153,24 @@
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'bolus' }">
-            <div class="daily-section">Bolus entries go here.</div>
+            <div class="daily-section">
+                <div v-if="bolusesForDay.length === 0">No bolus doses for this day.</div>
+                <div v-else>
+                    <div
+                            v-for="b in bolusesForDay"
+                            :key="(b.timestamp?.getTime?.() ?? b.timestamp) + '-' + (b.amount ?? '')"
+                            class="bolus-block"
+                            role="button"
+                            tabindex="0"
+                            @click="onBolusClick(b, $event)"
+                    >
+                        <strong>{{ formatTime12hCompact(b.timestamp) }}</strong>:
+                        💉 {{ (Number(b.amount ?? 0)).toFixed(2) }}U
+                        <span v-if="b.carbRatioUsed"> · Ratio: 1:{{ b.carbRatioUsed }}</span>
+                        <span v-if="b.notes"> · {{ b.notes }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'fasts' }">
