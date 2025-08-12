@@ -3,6 +3,7 @@
     import DateHeader from './components/DateHeader.vue'
     import BgChart from './components/BgChart.vue'
     import Tabs from './components/tabs/Tabs.vue'
+    import StatsSummary from './components/StatsSummary.vue'
     import { parseAsSydneyDate, getSydneyStartOfToday } from './helpers/dateHelpers'
     import { fetchDashboardData } from './helpers/dataService'
 
@@ -122,6 +123,15 @@
   <main style="padding: 1rem;">
     <h1>Control Dashboard</h1>
     <DateHeader v-model:selectedDate="selectedDate" />
+
+    <StatsSummary
+            :selectedDate="selectedDate"
+            :glucoseReadings="glucoseReadings"
+            :foodLogs="foodLogs"
+            :bolusDoses="bolusDoses"
+            :basalEntries="basalEntries"
+    />
+    
     <BgChart />
     <Tabs
             :notes="notes"
