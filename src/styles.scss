@@ -1,0 +1,21 @@
+/* Global app styles */
+:root {
+  --bg: #ffffff;
+  --fg: #111111;
+  --accent: #2d6cdf;
+}
+
+html, body, #app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+main {
+  padding: 1rem;
+}
