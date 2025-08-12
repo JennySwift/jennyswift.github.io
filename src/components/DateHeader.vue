@@ -1,7 +1,17 @@
 <script setup>
     import {ref, computed} from 'vue'
     import { getSydneyStartOfToday, formatDateInSydney, formatDateForInput, parseAsSydneyDate } from '../helpers/dateHelpers'
-    const selectedDate = ref(getSydneyStartOfToday())
+
+    const props = defineProps({
+        selectedDate: { type: Date, default: () => getSydneyStartOfToday() }
+    })
+
+    const emit = defineEmits(['update:selectedDate'])
+
+    const selectedDate = computed({
+        get: () => props.selectedDate,
+        set: (d) => emit('update:selectedDate', d)
+    })
 
     const dateHeading = computed(() => formatDateInSydney(selectedDate.value))
 
