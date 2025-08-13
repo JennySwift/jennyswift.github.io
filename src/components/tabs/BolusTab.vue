@@ -1,6 +1,7 @@
 <script setup>
     import { computed } from 'vue'
-    import { parseAsSydneyDate, getStartAndEndOfDay, formatTime12hCompact } from '../../helpers/dateHelpers'
+    import { parseAsSydneyDate, getStartAndEndOfDay } from '../../helpers/dateHelpers'
+    import BolusRow from '../rows/BolusRow.vue'   // 👈 add this
 
     const props = defineProps({
         bolusDoses:  { type: Array, default: () => [] },
@@ -21,25 +22,18 @@
                 return ta - tb
             })
     })
-
 </script>
 
 <template>
     <div class="daily-section">
         <div v-if="bolusesForDay.length === 0">No bolus doses for this day.</div>
-        <div v-else>
-            <div
+
+        <template v-else>
+            <BolusRow
                     v-for="b in bolusesForDay"
                     :key="(b.timestamp?.getTime?.() ?? b.timestamp) + '-' + (b.amount ?? '')"
-                    class="bolus-block"
-                    role="button"
-                    tabindex="0"
-            >
-                <strong>{{ formatTime12hCompact(b.timestamp) }}</strong>:
-                💉 {{ (Number(b.amount ?? 0)).toFixed(2) }}U
-                <span v-if="b.carbRatioUsed"> · Ratio: 1:{{ b.carbRatioUsed }}</span>
-                <span v-if="b.notes"> · {{ b.notes }}</span>
-            </div>
-        </div>
+                    :dose="b"
+            />
+        </template>
     </div>
 </template>

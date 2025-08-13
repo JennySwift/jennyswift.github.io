@@ -1,5 +1,6 @@
 <script setup>
     import { computed } from 'vue'
+    import FoodLogRow from '../rows/FoodLogRow.vue'
     import { parseAsSydneyDate, getStartAndEndOfDay, formatTime12hCompact } from '../../helpers/dateHelpers'
 
     const props = defineProps({
@@ -28,28 +29,13 @@
     <div class="daily-section">
         <div v-if="foodLogsForDay.length === 0">No food logs.</div>
         <div v-else>
-            <div
+            <FoodLogRow
                     v-for="f in foodLogsForDay"
                     :key="(f.timestamp?.getTime?.() ?? f.timestamp) + '-' + (f.foodName || '')"
-                    class="log-block"
-                    role="button"
-                    tabindex="0"
-            >
-                <div class="log-title">
-                    <strong>{{ formatTime12hCompact(f.timestamp) }}</strong>:
-                    {{ f.foodName || 'Food' }}
-                </div>
-
-                <div class="log-details">
-                    <span v-if="f.quantity != null">⚖️ Grams/mL: {{ f.quantity }}</span>
-                    <span v-if="f.netCarbs != null">🍌 Net Carbs: {{ f.netCarbs }}g</span>
-                    <span v-if="f.totalCarbs != null">🍌 Total Carbs: {{ f.totalCarbs }}g</span>
-                    <span v-if="f.fat != null">🥑 Fat: {{ f.fat }}g</span>
-                    <span v-if="f.protein != null">🫘 Protein: {{ f.protein }}g</span>
-                    <span v-if="f.fibre != null">🌿 Fibre: {{ f.fibre }}g</span>
-                    <span v-if="f.calories != null">🔥 Calories: {{ f.calories }}</span>
-                </div>
-            </div>
+                    :log="f"
+            />
         </div>
+
+
     </div>
 </template>
