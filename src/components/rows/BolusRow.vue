@@ -37,46 +37,42 @@
 </template>
 
 <style scoped>
-    .bolus-row {
-        /*background: #f9fafb;*/
-        /*border: 1px solid #e5e7eb;*/
+    .bolus-row{
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        /* Use the per-item accent if provided by a parent, else bolus blue */
+        border-left: 4px solid var(--accent, var(--color-bolus));
         border-radius: 8px;
         padding: 8px 10px;
     }
 
-    .line {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-    }
-
-    .time {
-        color: #374151;
-        font-variant-numeric: tabular-nums;
-    }
-
-    .title {
-        font-weight: 600;
-        color: #111827;
-    }
-
-    .pill {
+    .bolus-row .pill{
         margin-left: auto;
-        border: 1px solid #dbeafe;
-        background: #eff6ff;
-        color: #1d4ed8;
+        /* Soft pill using the same accent color */
+        border: 1px solid color-mix(in srgb, var(--accent, var(--color-bolus)) 35%, white);
+        background: color-mix(in srgb, var(--accent, var(--color-bolus)) 12%, white);
+        color: var(--accent, var(--color-bolus));
         border-radius: 999px;
         padding: 2px 8px;
         font-size: 0.85rem;
         font-weight: 600;
     }
 
-    .meta {
-        margin-top: 4px;
-        color: #4b5563;
+    .line{
         display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        font-size: 0.92rem;
+        align-items: baseline;
+        gap: 8px;
+    }
+
+    .time{ color:#374151; font-variant-numeric: tabular-nums; }
+    .title{ font-weight:600; color:#111827; }
+
+    .meta{
+        margin-top:4px;
+        color:#4b5563;
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        font-size:.92rem;
     }
 </style>

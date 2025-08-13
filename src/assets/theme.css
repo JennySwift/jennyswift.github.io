@@ -1,0 +1,18 @@
+:root{
+    /* Type accents */
+    --color-food:    #10b981; /* emerald */
+    --color-bolus:   #2563eb; /* blue */
+    --color-note:    #f59e0b; /* amber */
+    --color-workout: #ef4444; /* red */
+    --color-fast: #777;
+
+    /* Neutrals */
+    --color-border:  #e5e7eb;
+    --color-bg:      #ffffff;
+}
+
+/* Optional helpers (soft bg/border derived from accent) */
+@supports (color-mix(in srgb, black 10%, white)) {
+    .soft-bg{ background: color-mix(in srgb, var(--accent) 12%, white); }
+    .soft-br{ border-color: color-mix(in srgb, var(--accent) 35%, white); }
+}

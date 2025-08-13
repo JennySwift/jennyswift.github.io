@@ -15,14 +15,14 @@
     })
 
     const TYPE_META = {
-        food:   { icon: '🥗', accent: '#10b981' },  // emerald
-        bolus:  { icon: '💉', accent: '#2563eb' },  // blue
-        note:   { icon: '📝', accent: '#f59e0b' },  // amber
-        workout:{ icon: '🏃‍♀️', accent: '#ef4444' } // red
+        food:    { icon: '🥗', cssVar: '--color-food' },
+        bolus:   { icon: '💉', cssVar: '--color-bolus' },
+        note:    { icon: '📝', cssVar: '--color-note' },
+        workout: { icon: '🏃‍♀️', cssVar: '--color-workout' }
     }
 
-    function typeIcon(t)  { return TYPE_META[t]?.icon ?? '•' }
-    function typeColor(t) { return TYPE_META[t]?.accent ?? '#6b7280' }
+    function typeIcon(t){ return TYPE_META[t]?.icon ?? '•' }
+    function typeAccentVar(t){ return `var(${TYPE_META[t]?.cssVar || '--color-border'})` }
 
     /** One flat, time-sorted list with a simple shape { type, ts, payload } */
     const feedItems = computed(() => {
@@ -70,7 +70,7 @@
                     v-for="(item, idx) in feedItems"
                     :key="item.type + '-' + item.ts.getTime() + '-' + idx"
                     class="feed-item"
-                    :style="{ '--accent': typeColor(item.type) }"
+                    :style="{ '--accent': typeAccentVar(item.type) }"
                     @click="jumpTo(item.ts)"
             >
                 <div class="type-badge" aria-hidden="true">{{ typeIcon(item.type) }}</div>
@@ -134,9 +134,11 @@
     }
 
     /* Let the child rows be visually “flat” so the wrapper styling shows */
+    .feed-item :deep(.food-row),
     .feed-item :deep(.log-block),
     .feed-item :deep(.bolus-row),
-    .feed-item :deep(.note-row) {
+    .feed-item :deep(.note-row),
+    .feed-item :deep(.workout-row) {
         background: transparent !important;
         border: 0 !important;
         padding: 0 !important;

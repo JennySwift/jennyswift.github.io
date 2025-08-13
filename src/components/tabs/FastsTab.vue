@@ -74,3 +74,31 @@
         </div>
     </div>
 </template>
+
+<style scoped>
+    .fast-block{
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        /* Use parent-provided --accent if present; otherwise fall back to --color-fast */
+        border-left: 4px solid var(--accent, var(--color-fast));
+        border-radius: 8px;
+        padding: 8px 10px;
+        transition: background-color .15s ease, border-color .15s ease;
+    }
+
+    .fast-block:hover{
+        background: rgba(0,0,0,0.03);
+        border-color: #d1d5db;
+    }
+
+    .fast-label{
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .fast-notes{
+        margin-top: 6px;
+        color: #374151;
+    }
+</style>

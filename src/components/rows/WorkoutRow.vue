@@ -40,11 +40,15 @@
 </template>
 
 <style scoped>
-    .log-block {
-        background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:8px 10px;
-    }
     .log-title { font-weight:600; color:#111827; margin-bottom:4px; }
     .time { color:#6b7280; font-weight:500; }
     .log-details { display:flex; flex-wrap:wrap; gap:10px; color:#374151; }
     .log-details > span strong { margin-right:4px; }
+    .log-block{
+        background:#f9fafb;
+        border:1px solid color-mix(in srgb, var(--color-workout) 20%, var(--color-border));
+        border-left:4px solid var(--color-workout);
+        border-radius:8px;
+        padding:8px 10px;
+    }
 </style>

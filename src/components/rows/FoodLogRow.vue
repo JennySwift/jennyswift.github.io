@@ -18,7 +18,7 @@
 
 <template>
     <div
-            class="log-block"
+            class="food-row"
             :role="asButton ? 'button' : undefined"
             :tabindex="asButton ? 0 : undefined"
     >
@@ -40,5 +40,25 @@
 </template>
 
 <style scoped>
-    /* Uses the same classes your tabs already use so styling stays consistent */
+    .food-row{
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 8px 10px;
+        border-left: 4px solid var(--accent, var(--color-food));
+    }
+
+    .log-title{
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .log-details{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        color: #374151;
+        font-size: 0.92rem;
+    }
 </style>

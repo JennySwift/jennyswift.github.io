@@ -45,14 +45,20 @@
 
 <style scoped>
     .note-row {
-        /*background:#f9fafb;*/
-        /*border:1px solid #e5e7eb;*/
         border-radius:8px;
         padding:8px 10px;
+        border-left: 4px solid var(--accent, var(--color-note));
     }
     .note-title { margin-bottom:4px; }
     .note-line { color:#111827; }
     .note-text { white-space:normal; }
     .note-tags { margin-top:6px; display:flex; gap:6px; flex-wrap:wrap; }
-    .note-tag { background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe; border-radius:999px; padding:2px 8px; font-size:.78rem; }
+    .note-tag{
+        background: color-mix(in srgb, var(--color-note) 12%, white);
+        /*color: var(--color-note);*/
+        border:1px solid color-mix(in srgb, var(--color-note) 35%, white);
+        border-radius:999px;
+        padding:2px 8px;
+        font-size:.78rem;
+    }
 </style>
