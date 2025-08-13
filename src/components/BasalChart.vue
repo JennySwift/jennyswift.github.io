@@ -4,7 +4,13 @@
 
     import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler } from 'chart.js'
     import 'chartjs-adapter-date-fns'
-    Chart.register(LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler)
+    import annotationPlugin from 'chartjs-plugin-annotation'
+
+    Chart.register(
+        LineController, LineElement, PointElement,
+        LinearScale, TimeScale, Tooltip, Legend, Filler,
+        annotationPlugin
+    )
 
     const props = defineProps({
         basalEntries: { type: Array, default: () => [] }, // [{ startTime, endTime|null, rate, ... }]
@@ -51,6 +57,16 @@
 
         return pts
     })
+
+    function handleVerticalLineUpdate(e) {
+        if (!chartInstance) return
+        const x = e?.detail?.x ?? null
+        const annos = chartInstance.options?.plugins?.annotation?.annotations
+        if (annos?.dynamicLine != null) {
+            annos.dynamicLine.value = x
+            chartInstance.update('none')
+        }
+    }
 
     // Y axis: start at 0, pad to the max rate seen that day
     function computeYBounds(pts) {
@@ -137,6 +153,19 @@
                             return [`Rate: ${rate} U/hr`, range].filter(Boolean)
                         }
                     }
+                },
+                annotation: {
+                    annotations: {
+                        dynamicLine: {
+                            type: 'line',
+                            scaleID: 'x',
+                            value: null, // start hidden
+                            borderColor: 'rgba(100, 100, 100, 0.85)',
+                            borderWidth: 2,
+                            display: ctx =>
+                                ctx.chart.options.plugins.annotation.annotations.dynamicLine.value !== null
+                        }
+                    }
                 }
             }
         }
@@ -173,8 +202,15 @@
         chartInstance.update('none')
     }
 
-    onMounted(createChart)
-    onBeforeUnmount(() => { chartInstance?.destroy(); chartInstance = null })
+    onMounted(() => {
+        createChart()
+        window.addEventListener('vertical-line:update', handleVerticalLineUpdate)
+    })
+    onBeforeUnmount(() => {
+        window.removeEventListener('vertical-line:update', handleVerticalLineUpdate)
+        chartInstance?.destroy()
+        chartInstance = null
+    })
     watch([() => props.selectedDate, pointsForDay], updateChart)
 </script>
 

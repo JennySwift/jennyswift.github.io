@@ -68,14 +68,19 @@
             maintainAspectRatio: false,
             interaction: { mode: 'nearest', intersect: false },
 
-            // ✅ Hover handler moved to root options
+            // ✅ Hover handler at the root of options
             onHover: (evt, _actives, chart) => {
                 const els = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: false }, false)
                 if (els.length) {
                     const { datasetIndex, index } = els[0]
                     verticalLineXValue = chart.data.datasets[datasetIndex].data[index].x
+
+                    // update this chart’s annotation
                     chart.options.plugins.annotation.annotations.dynamicLine.value = verticalLineXValue
                     chart.update('none')
+
+                    // notify other charts
+                    window.dispatchEvent(new CustomEvent('vertical-line:update', { detail: { x: verticalLineXValue } }))
                 }
             },
 
