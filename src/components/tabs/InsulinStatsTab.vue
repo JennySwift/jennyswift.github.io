@@ -53,21 +53,21 @@
 
     const netCarbsToBolus = computed(() => {
         const net = netCarbs.value, bol = totalBolus.value
-        return (net > 0 && bol > 0) ? `${(net / bol).toFixed(2)} g/U` : 'N/A'
+        return (net > 0 && bol > 0) ? `${(net / bol).toFixed(2)}` : 'N/A'
     })
     const netCarbsToTotal = computed(() => {
         const net = netCarbs.value, tot = totalInsulin.value
-        return (tot > 0) ? `${(net / tot).toFixed(2)} g/U` : 'N/A'
+        return (tot > 0) ? `${(net / tot).toFixed(2)}` : 'N/A'
     })
 </script>
 
 <template>
     <div class="stat-grid">
         <div class="card">💉 Bolus <strong>{{ totalBolus.toFixed(2) }}U</strong></div>
-        <div class="card">💧 Basal <strong>{{ totalBasal.toFixed(2) }}U</strong></div>
+        <div class="card">💉 Basal <strong>{{ totalBasal.toFixed(2) }}U</strong></div>
         <div class="card">🧪 Total Insulin <strong>{{ totalInsulin.toFixed(2) }}U</strong></div>
         <div class="card">➗ Net Carbs / Bolus <strong>{{ netCarbsToBolus }}</strong></div>
-        <div class="card">➗ Net Carbs / Total <strong>{{ netCarbsToTotal }}</strong></div>
+        <div class="card">➗ Net Carbs / Total Insulin <strong>{{ netCarbsToTotal }}</strong></div>
     </div>
 </template>
 
