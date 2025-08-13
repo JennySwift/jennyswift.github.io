@@ -1,5 +1,6 @@
 <script setup>
     import { ref, computed } from 'vue'
+    import CombinedTab from './CombinedTab.vue'
     import AllNotesTab from './AllNotesTab.vue'
     import NotesTab from './NotesTab.vue'
     import FastsTab from './FastsTab.vue'
@@ -27,7 +28,7 @@
 
     const emit = defineEmits(['note-click'])
 
-    const activeTab = ref('all-notes')
+    const activeTab = ref('combined')
 
     function setTab(name) {
         activeTab.value = name
@@ -38,6 +39,7 @@
 <template>
     <section class="tab-section">
         <div class="tab-bar">
+            <button class="tab-button" :class="{ active: activeTab === 'combined' }" @click="setTab('combined')">🧾 Combined</button>
             <button class="tab-button" :class="{ active: activeTab === 'notes' }" @click="setTab('notes')">📝 Notes</button>
             <button class="tab-button" :class="{ active: activeTab === 'foodLogs' }" @click="setTab('foodLogs')">🥗 Food</button>
             <button class="tab-button" :class="{ active: activeTab === 'bolus' }" @click="setTab('bolus')">💉 Bolus</button>
@@ -52,6 +54,16 @@
         </div>
 
         <!-- Containers -->
+        <div class="tab-content" :class="{ 'active-tab': activeTab === 'combined' }">
+            <CombinedTab
+                    :selected-date="selectedDate"
+                    :food-logs="foodLogs"
+                    :bolus-doses="bolusDoses"
+                    :notes="notes"
+                    :workouts="workouts"
+            />
+        </div>
+
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'notes' }">
             <NotesTab
                     :notes="notes"
