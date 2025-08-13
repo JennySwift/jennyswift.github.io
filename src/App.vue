@@ -131,7 +131,7 @@
             :bolusDoses="bolusDoses"
             :basalEntries="basalEntries"
     />
-    
+
     <BgChart />
     <Tabs
             :notes="notes"

@@ -3,6 +3,7 @@
     import AllNotesTab from './AllNotesTab.vue'
     import NotesTab from './NotesTab.vue'
     import FastsTab from './FastsTab.vue'
+    import GlucoseTab from './GlucoseTab.vue'
     import FoodLogsTab from './FoodLogsTab.vue'
     import WorkoutsTab from './WorkoutsTab.vue'
     import BolusTab from './BolusTab.vue'
@@ -39,7 +40,8 @@
             <button class="tab-button" :class="{ active: activeTab === 'bolus' }" @click="setTab('bolus')">💉 Bolus</button>
             <button class="tab-button" :class="{ active: activeTab === 'fasts' }" @click="setTab('fasts')">⏳ Fasts</button>
             <button class="tab-button" :class="{ active: activeTab === 'workouts' }" @click="setTab('workouts')">🏃‍♀️ Workouts</button>
-            <button class="tab-button" :class="{ active: activeTab === 'basal' }" @click="setTab('basal')">💧 Basal</button>
+            <button class="tab-button" :class="{ active: activeTab === 'basal' }" @click="setTab('basal')">💉 Basal</button>
+            <button class="tab-button" :class="{ active: activeTab === 'glucose' }" @click="setTab('glucose')">🩸 BG</button>
             <button class="tab-button" :class="{ active: activeTab === 'all-notes' }" @click="setTab('all-notes')">📝 All Notes</button>
         </div>
 
@@ -82,6 +84,13 @@
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'basal' }">
             <BasalTab
                     :basal-entries="basalEntries"
+                    :selected-date="selectedDate"
+            />
+        </div>
+
+        <div class="tab-content" :class="{ 'active-tab': activeTab === 'glucose' }">
+            <GlucoseTab
+                    :glucose-readings="glucoseReadings"
                     :selected-date="selectedDate"
             />
         </div>
