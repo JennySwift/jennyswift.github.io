@@ -132,7 +132,7 @@
             :basalEntries="basalEntries"
     />
 
-    <BgChart />
+    <BgChart :glucose-readings="glucoseReadings" :selected-date="selectedDate" />
     <Tabs
             :notes="notes"
             :food-logs="foodLogs"
