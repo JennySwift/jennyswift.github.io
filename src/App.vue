@@ -1,10 +1,11 @@
 <script setup>
-    import { ref, onMounted } from 'vue'
+    import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
     import DateHeader from './components/DateHeader.vue'
     import BgChart from './components/BgChart.vue'
     import BasalChart from './components/BasalChart.vue'
     import Tabs from './components/tabs/Tabs.vue'
-    import { parseAsSydneyDate, getSydneyStartOfToday } from './helpers/dateHelpers'
+    import Tooltip from './components/CustomTooltip.vue'
+    import { parseAsSydneyDate, getSydneyStartOfToday, formatTimeInSydney } from './helpers/dateHelpers'
     import { fetchDashboardData } from './helpers/dataService'
 
     const notes = ref([])
@@ -16,6 +17,73 @@
     const bolusDoses = ref([])
     const selectedDate = ref(getSydneyStartOfToday())
 
+    const stageRef = ref(null)
+    const tooltip = reactive({ visible:false, time:'', bg:null, basal:null, left: 12 })
+
+    function clamp(n, min, max) { return Math.max(min, Math.min(n, max)) }
+
+    function handleChartHover(e) {
+        const ts = e?.detail?.x ? new Date(e.detail.x) : null
+        const px = e?.detail?.px    // <-- relative X within the canvas (we'll send this from charts)
+
+        if (!ts) {
+            tooltip.visible = false
+            return
+        }
+
+        // position horizontally inside the stage wrapper
+        const stageRect = stageRef.value?.getBoundingClientRect()
+        if (stageRect && typeof px === 'number') {
+            const approxWidth = 180   // rough width of tooltip for clamping
+            const padding = 8
+            const centeredLeft = px - approxWidth / 2
+            tooltip.left = clamp(centeredLeft, padding, stageRect.width - approxWidth - padding)
+        }
+
+        tooltip.visible = true
+        tooltip.time = formatTimeInSydney(ts)
+        tooltip.bg = findBGAt(ts)
+        tooltip.basal = findBasalRateAt(ts)
+    }
+
+
+
+
+
+
+    // BG at time T = the most recent reading at or before T (not "nearest")
+    function findBGAt(when) {
+        if (!glucoseReadings.value.length || !when) return null
+        const target = when instanceof Date ? when : new Date(when)
+
+        let bestTs = null
+        let bestVal = null
+
+        for (const r of glucoseReadings.value) {
+            const ts = r.timestamp instanceof Date ? r.timestamp : parseAsSydneyDate(r.timestamp)
+            if (ts <= target && (bestTs === null || ts > bestTs)) {
+                bestTs = ts
+                bestVal = Number(r.value)
+            }
+        }
+        return bestVal
+    }
+
+    // Basal rate at time T = the segment whose [start, end) contains T
+    function findBasalRateAt(when) {
+        if (!basalEntries.value.length || !when) return null
+        const t = when instanceof Date ? when : new Date(when)
+
+        for (const e of basalEntries.value) {
+            const start = e.startTime instanceof Date ? e.startTime : parseAsSydneyDate(e.startTime)
+            const end   = e.endTime ? (e.endTime instanceof Date ? e.endTime : parseAsSydneyDate(e.endTime)) : null
+            if (start <= t && (end === null || t < end)) {
+                return Number(e.rate ?? 0)
+            }
+        }
+        return null
+    }
+
     function closeLastBasalEntryAtPumpUploadTime(data) {
         if (!data?.pumpUploadTime || basalEntries.value.length === 0) return
 
@@ -25,7 +93,13 @@
         }
     }
 
+    onBeforeUnmount(() => {
+        window.removeEventListener('chart-hover', handleChartHover)
+    })
+
     onMounted(async () => {
+        window.addEventListener('chart-hover', handleChartHover)
+
         try {
             const data = await fetchDashboardData()
 
@@ -134,8 +208,20 @@
   <main style="padding: 1rem;">
     <DateHeader v-model:selectedDate="selectedDate" />
 
-    <BgChart :glucose-readings="glucoseReadings" :selected-date="selectedDate" />
-    <BasalChart :basal-entries="basalEntries" :selected-date="selectedDate" />
+    <!-- stage wrapper so tooltip can't cover the header -->
+    <div ref="stageRef" class="chart-stage" style="position:relative; margin-top:.5rem;">
+      <Tooltip
+              :visible="tooltip.visible"
+              :time="tooltip.time"
+              :bg="tooltip.bg"
+              :basal="tooltip.basal"
+              :left="tooltip.left"
+              :top="8"
+      />
+      <BgChart :glucose-readings="glucoseReadings" :selected-date="selectedDate" />
+      <BasalChart :basal-entries="basalEntries" :selected-date="selectedDate" />
+    </div>
+
     <Tabs
             :notes="notes"
             :food-logs="foodLogs"

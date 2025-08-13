@@ -50,13 +50,13 @@
         }
     }
 
-    function handleVerticalLineUpdate(e) {
-        if (!chartInstance) return
-        const x = e?.detail?.x ?? null
-        const annos = chartInstance.options?.plugins?.annotation?.annotations
+    function handleChartHover(e) {
+        if (!chartInstance) return;
+        const x = e?.detail?.x ?? null;
+        const annos = chartInstance.options?.plugins?.annotation?.annotations;
         if (annos?.dynamicLine != null) {
-            annos.dynamicLine.value = x
-            chartInstance.update('none')
+            annos.dynamicLine.value = x;
+            chartInstance.update('none');
         }
     }
 
@@ -83,16 +83,39 @@
                 const els = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: false }, false)
                 if (els.length) {
                     const { datasetIndex, index } = els[0]
-                    verticalLineXValue = chart.data.datasets[datasetIndex].data[index].x
+                    const xVal = chart.data.datasets[datasetIndex].data[index].x
 
-                    // update this chart’s annotation
-                    chart.options.plugins.annotation.annotations.dynamicLine.value = verticalLineXValue
+                    // update this chart’s line…
+                    chart.options.plugins.annotation.annotations.dynamicLine.value = xVal
                     chart.update('none')
 
-                    // notify other charts
-                    window.dispatchEvent(new CustomEvent('vertical-line:update', { detail: { x: verticalLineXValue } }))
+                    // compute X in canvas coordinates
+                    const canvasRect = chart.canvas.getBoundingClientRect()
+                    const clientX = evt?.native?.clientX ?? evt.clientX
+                    const px = clientX - canvasRect.left
+
+                    // broadcast
+                    window.dispatchEvent(new CustomEvent('chart-hover', {
+                        detail: { x: xVal, px, source: 'bg' }
+                    }))
                 }
             },
+            // onHover: (evt, _actives, chart) => {
+            //     const els = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: false }, false)
+            //     if (els.length) {
+            //         const { datasetIndex, index } = els[0]
+            //         verticalLineXValue = chart.data.datasets[datasetIndex].data[index].x
+            //
+            //         // update this chart’s annotation
+            //         chart.options.plugins.annotation.annotations.dynamicLine.value = verticalLineXValue
+            //         chart.update('none')
+            //
+            //         // notify other charts
+            //         window.dispatchEvent(new CustomEvent('chart-hover', {
+            //             detail: { x: verticalLineXValue, source: 'bg' }
+            //         }));
+            //     }
+            // },
 
             scales: {
                 x: {
@@ -184,14 +207,13 @@
     }
 
     onMounted(() => {
-        createChart()
-        window.addEventListener('vertical-line:update', handleVerticalLineUpdate)
-    })
+        createChart();
+        window.addEventListener('chart-hover', handleChartHover);
+    });
     onBeforeUnmount(() => {
-        window.removeEventListener('vertical-line:update', handleVerticalLineUpdate)
-        chartInstance?.destroy()
-        chartInstance = null
-    })
+        window.removeEventListener('chart-hover', handleChartHover);
+        chartInstance?.destroy(); chartInstance = null;
+    });
 
     // Re-render whenever the date or day’s points change
     watch([() => props.selectedDate, readingsForDay], updateChart)

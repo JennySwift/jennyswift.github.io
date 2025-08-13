@@ -23,7 +23,7 @@ let sydneyCallCount = 0;
 export function parseAsSydneyDate(dateStr) {
     sydneyCallCount++;
     if (sydneyCallCount % 100 === 0) {
-        console.log(`[parseAsSydneyDate] called ${sydneyCallCount} times`);
+        // console.log(`[parseAsSydneyDate] called ${sydneyCallCount} times`);
     }
 
     return new Date(new Date(dateStr).toLocaleString("en-US", {

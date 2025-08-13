@@ -58,7 +58,7 @@
         return pts
     })
 
-    function handleVerticalLineUpdate(e) {
+    function handleChartHover(e) {
         if (!chartInstance) return
         const x = e?.detail?.x ?? null
         const annos = chartInstance.options?.plugins?.annotation?.annotations
@@ -97,18 +97,26 @@
             maintainAspectRatio: false,
             interaction: { mode: 'nearest', intersect: false },
             // Broadcast the hovered X to other charts (and update own line)
+            // inside onHover in BgChart.vue
             onHover: (evt, _actives, chart) => {
                 const els = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: false }, false)
                 if (els.length) {
                     const { datasetIndex, index } = els[0]
-                    const x = chart.data.datasets[datasetIndex].data[index].x
+                    const xVal = chart.data.datasets[datasetIndex].data[index].x
 
-                    // update this chart’s line
-                    chart.options.plugins.annotation.annotations.dynamicLine.value = x
+                    // update this chart’s line…
+                    chart.options.plugins.annotation.annotations.dynamicLine.value = xVal
                     chart.update('none')
 
-                    // notify others (e.g., BG)
-                    window.dispatchEvent(new CustomEvent('vertical-line:update', { detail: { x } }))
+                    // compute X in canvas coordinates
+                    const canvasRect = chart.canvas.getBoundingClientRect()
+                    const clientX = evt?.native?.clientX ?? evt.clientX
+                    const px = clientX - canvasRect.left
+
+                    // broadcast
+                    window.dispatchEvent(new CustomEvent('chart-hover', {
+                        detail: { x: xVal, px, source: 'basal' }
+                    }))
                 }
             },
             scales: {
@@ -218,14 +226,13 @@
     }
 
     onMounted(() => {
-        createChart()
-        window.addEventListener('vertical-line:update', handleVerticalLineUpdate)
-    })
+        createChart();
+        window.addEventListener('chart-hover', handleChartHover);
+    });
     onBeforeUnmount(() => {
-        window.removeEventListener('vertical-line:update', handleVerticalLineUpdate)
-        chartInstance?.destroy()
-        chartInstance = null
-    })
+        window.removeEventListener('chart-hover', handleChartHover);
+        chartInstance?.destroy(); chartInstance = null;
+    });
     watch([() => props.selectedDate, pointsForDay], updateChart)
 </script>
 
