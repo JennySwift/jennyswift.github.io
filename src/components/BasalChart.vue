@@ -95,7 +95,7 @@
                     beginAtZero: true,
                     grid: { color: '#eee', lineWidth: 1 },
                     ticks: { stepSize: 0.5 }, // adjust if you prefer whole numbers
-                    title: { display: true, text: 'U/hr' },
+                    title: { display: true, text: 'Basal Rate' },
                 }
             },
             plugins: {
