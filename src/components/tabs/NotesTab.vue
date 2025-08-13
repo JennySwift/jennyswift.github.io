@@ -1,12 +1,12 @@
 <script setup>
     import { computed } from 'vue'
-    import { parseAsSydneyDate, getStartAndEndOfDay, formatTime12hCompact } from '../../helpers/dateHelpers'
+    import { parseAsSydneyDate, getStartAndEndOfDay } from '../../helpers/dateHelpers'
+    import NoteRow from '../rows/NoteRow.vue'
 
     const props = defineProps({
         notes:        { type: Array, default: () => [] },
         selectedDate: { type: Date,  required: true }
     })
-
     const emit = defineEmits(['note-click'])
 
     const notesForDay = computed(() => {
@@ -23,38 +23,18 @@
                 return ta - tb
             })
     })
-
-    function onDailyNoteClick(n, evt) {
-        const ts = n.timestamp instanceof Date ? n.timestamp : parseAsSydneyDate(n.timestamp)
-        // optional: highlightRow(evt?.currentTarget)
-        emit('note-click', ts)
-    }
 </script>
 
 <template>
     <div class="daily-section">
         <div v-if="notesForDay.length === 0">No notes for this day.</div>
         <div v-else>
-            <div
+            <NoteRow
                     v-for="n in notesForDay"
                     :key="(n.timestamp?.getTime?.() ?? n.timestamp) + '-' + (n.noteNumber ?? '')"
-                    class="note-log-block"
-                    role="button"
-                    tabindex="0"
-                    @click="onDailyNoteClick(n, $event)"
-            >
-                <div class="note-log-body">
-                    <div v-if="n.title" class="note-title"><strong>{{ n.title }}</strong></div>
-                    <div>
-                        <strong>#{{ n.noteNumber }}</strong> — {{ formatTime12hCompact(n.timestamp) }}:
-                        <span v-html="(n.text || '').replace(/\n/g, '<br>')"></span>
-                    </div>
-                </div>
-
-                <div v-if="n.tags?.length" class="note-tags">
-                    <span v-for="tag in n.tags" :key="tag" class="note-tag">{{ tag }}</span>
-                </div>
-            </div>
+                    :note="n"
+                    @note-click="ts => emit('note-click', ts)"
+            />
         </div>
     </div>
 </template>
