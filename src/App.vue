@@ -18,16 +18,25 @@
     const selectedDate = ref(getSydneyStartOfToday())
 
     const stageRef = ref(null)
-    const tooltip = reactive({ visible:false, time:'', bg:null, basal:null, left: 12 })
+    const tooltip = reactive({ visible:false, time:'', bg:null, basal:null, left: 12, locked:false })
 
     function clamp(n, min, max) { return Math.max(min, Math.min(n, max)) }
 
     function handleChartHover(e) {
-        const ts = e?.detail?.x ? new Date(e.detail.x) : null
-        const px = e?.detail?.px    // <-- relative X within the canvas (we'll send this from charts)
+        const { x, px, source, hide } = e?.detail ?? {}
+
+        if (hide) {
+            tooltip.visible = false
+            tooltip.locked = false
+            return
+        }
+
+        const ts = x ? new Date(x) : null
 
         if (!ts) {
-            tooltip.visible = false
+            if (!tooltip.locked) {
+                tooltip.visible = false
+            }
             return
         }
 
@@ -40,11 +49,36 @@
             tooltip.left = clamp(centeredLeft, padding, stageRect.width - approxWidth - padding)
         }
 
+        tooltip.locked = (source === 'combined')
         tooltip.visible = true
         tooltip.time = formatTimeInSydney(ts)
         tooltip.bg = findBGAt(ts)
         tooltip.basal = findBasalRateAt(ts)
     }
+
+    // function handleChartHover(e) {
+    //     const ts = e?.detail?.x ? new Date(e.detail.x) : null
+    //     const px = e?.detail?.px    // <-- relative X within the canvas (we'll send this from charts)
+    //
+    //     if (!ts) {
+    //         tooltip.visible = false
+    //         return
+    //     }
+    //
+    //     // position horizontally inside the stage wrapper
+    //     const stageRect = stageRef.value?.getBoundingClientRect()
+    //     if (stageRect && typeof px === 'number') {
+    //         const approxWidth = 180   // rough width of tooltip for clamping
+    //         const padding = 8
+    //         const centeredLeft = px - approxWidth / 2
+    //         tooltip.left = clamp(centeredLeft, padding, stageRect.width - approxWidth - padding)
+    //     }
+    //
+    //     tooltip.visible = true
+    //     tooltip.time = formatTimeInSydney(ts)
+    //     tooltip.bg = findBGAt(ts)
+    //     tooltip.basal = findBasalRateAt(ts)
+    // }
 
 
 

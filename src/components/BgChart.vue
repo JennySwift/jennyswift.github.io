@@ -50,6 +50,12 @@
         }
     }
 
+    function handleMouseLeave() {
+        window.dispatchEvent(new CustomEvent('chart-hover', {
+            detail: { hide: true, source: 'bg' }
+        }))
+    }
+
     function handleChartHover(e) {
         if (!chartInstance) return;
         const x = e?.detail?.x ?? null;
@@ -208,13 +214,16 @@
     }
 
     onMounted(() => {
-        createChart();
-        window.addEventListener('chart-hover', handleChartHover);
-    });
+        createChart()
+        window.addEventListener('chart-hover', handleChartHover)
+        canvasRef.value?.addEventListener('mouseleave', handleMouseLeave)
+    })
+
     onBeforeUnmount(() => {
-        window.removeEventListener('chart-hover', handleChartHover);
-        chartInstance?.destroy(); chartInstance = null;
-    });
+        window.removeEventListener('chart-hover', handleChartHover)
+        canvasRef.value?.removeEventListener('mouseleave', handleMouseLeave)
+        chartInstance?.destroy(); chartInstance = null
+    })
 
     // Re-render whenever the date or day’s points change
     watch([() => props.selectedDate, readingsForDay], updateChart)
