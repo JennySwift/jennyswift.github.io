@@ -48,20 +48,16 @@
         }
     }
 
-    // Reasonable y‑axis bounds (show zones clearly but adapt to data)
+    //
     function computeYBounds(points) {
-        if (!points.length) return { min: 2, max: 12 }
+        if (!points.length) return { min: 4, max: 10 }
         const values = points.map(p => p.y)
-        const vMin = Math.min(...values)
-        const vMax = Math.max(...values)
-        // pad a bit
-        let min = Math.floor(Math.min(4, vMin) - 1)
-        let max = Math.ceil(Math.max(10, vMax) + 1)
-        // don’t let it get silly
-        min = Math.max(0, min)
-        max = Math.min(30, Math.max(12, max))
-        if (min >= max) { min = 2; max = 12 }
-        return { min, max }
+        const rawMin = Math.floor(Math.min(...values))
+        const rawMax = Math.ceil(Math.max(...values))
+        return {
+            min: Math.min(4, rawMin),  // go lower if readings dip below 4, else 4
+            max: Math.max(10, rawMax), // go higher if readings exceed 10, else 10
+        }
     }
 
     function buildOptions(xRange, yBounds) {
