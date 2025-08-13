@@ -45,8 +45,8 @@
 
 <style scoped>
     .note-row {
-        background:#f9fafb;
-        border:1px solid #e5e7eb;
+        /*background:#f9fafb;*/
+        /*border:1px solid #e5e7eb;*/
         border-radius:8px;
         padding:8px 10px;
     }
