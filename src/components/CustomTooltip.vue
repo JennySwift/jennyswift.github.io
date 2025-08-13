@@ -41,6 +41,8 @@
         box-shadow: 0 4px 14px rgba(0,0,0,.25);
         pointer-events: none;
         z-index: 5;
+        /* lift it up from wherever JS sets top */
+        transform: translateY(-80px);
     }
     .row { display:flex; gap:8px; }
     .row + .row { margin-top: 4px; }
