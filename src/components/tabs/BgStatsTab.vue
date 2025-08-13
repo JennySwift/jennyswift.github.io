@@ -14,7 +14,8 @@
             .filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay)
             .sort((a, b) => a.timestamp - b.timestamp)
 
-        let tBelow4 = 0, t4to6 = 0, tAbove8 = 0, tAbove10 = 0, covered = 0
+        let tBelow4 = 0, t4to6 = 0, t4to10 = 0, tAbove8 = 0, tAbove10 = 0, covered = 0
+
         for (let i = 0; i < readings.length; i++) {
             const cur = readings[i], next = readings[i+1]
             const start = cur.timestamp
@@ -24,28 +25,68 @@
             const v = cur.value
             if (v < 4) tBelow4 += mins
             if (v >= 4 && v <= 6) t4to6 += mins
+            if (v >= 4 && v <= 10) t4to10 += mins
             if (v > 8) tAbove8 += mins
             if (v > 10) tAbove10 += mins
         }
+
+        const denom = Math.max(covered, 1) // avoid divide-by-zero
+        
         return {
             timeBelow4: tBelow4,
             timeBetween4and6: t4to6,
+            timeBetween4and10: t4to10,
             timeAbove8: tAbove8,
             timeAbove10: tAbove10,
             totalCoveredMinutes: covered,
-            uncoveredMinutes: Math.max(0, 1440 - covered)
+            uncoveredMinutes: Math.max(0, 1440 - covered),
+
+            // Percentages based on covered time (matches Dexcom-style reporting)
+            pct4to6: (t4to6 / denom) * 100,
+            pct4to10: (t4to10 / denom) * 100,
         }
     })
 </script>
 
 <template>
     <div class="bg-grid">
-        <div class="row red"><span>⏱ BG &gt; 10</span><strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove10) }}</strong></div>
-        <div class="row amber"><span>⏱ BG &gt; 8</span><strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove8) }}</strong></div>
-        <div class="row green"><span>⏱ BG 4–6</span><strong>{{ formatMinutesAsHM(glucoseSummary.timeBetween4and6) }}</strong></div>
-        <div class="row red"><span>⏱ BG &lt; 4</span><strong>{{ formatMinutesAsHM(glucoseSummary.timeBelow4) }}</strong></div>
-        <div class="foot">Time not covered in the calculations: <strong>{{ formatMinutesAsHM(glucoseSummary.uncoveredMinutes) }}</strong></div>
+        <div class="row red">
+            <span>⏱ BG &gt; 10</span>
+            <strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove10) }}</strong>
+        </div>
+
+        <div class="row amber">
+            <span>⏱ BG &gt; 8</span>
+            <strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove8) }}</strong>
+        </div>
+
+        <div class="row green">
+            <span>⏱ BG 4–6</span>
+            <div class="right">
+                <span class="chip chip-green">{{ glucoseSummary.pct4to6.toFixed(1) }}%</span>
+                <strong>{{ formatMinutesAsHM(glucoseSummary.timeBetween4and6) }}</strong>
+            </div>
+        </div>
+
+        <div class="row green">
+            <span>⏱ BG 4–10</span>
+            <div class="right">
+                <span class="chip chip-green">{{ glucoseSummary.pct4to10.toFixed(1) }}%</span>
+                <strong>{{ formatMinutesAsHM(glucoseSummary.timeBetween4and10) }}</strong>
+            </div>
+        </div>
+
+        <div class="row red">
+            <span>⏱ BG &lt; 4</span>
+            <strong>{{ formatMinutesAsHM(glucoseSummary.timeBelow4) }}</strong>
+        </div>
+
+        <div class="foot">
+            Time not covered in the calculations:
+            <strong>{{ formatMinutesAsHM(glucoseSummary.uncoveredMinutes) }}</strong>
+        </div>
     </div>
+
 </template>
 
 <style scoped>
@@ -55,4 +96,21 @@
     .row.amber { border-left:4px solid #f59e0b; }
     .row.green { border-left:4px solid #10b981; }
     .foot { color:#374151; font-size:.9rem; }
+    .right { display: flex; align-items: center; gap: 8px; }
+
+    .chip {
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: .85rem;
+        font-weight: 600;
+        border: 1px solid #d1fae5;       /* light green border */
+        background: #ecfdf5;              /* very light green bg */
+        color: #065f46;                   /* deep green text */
+    }
+
+    .chip-green {
+        border-color: #bbf7d0;            /* alt green */
+        background: #f0fdf4;
+        color: #166534;
+    }
 </style>
