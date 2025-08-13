@@ -17,6 +17,15 @@
     const bolusDoses = ref([])
     const selectedDate = ref(getSydneyStartOfToday())
 
+    function closeLastBasalEntryAtPumpUploadTime(data) {
+        if (!data?.pumpUploadTime || basalEntries.value.length === 0) return
+
+        const lastEntry = basalEntries.value[basalEntries.value.length - 1]
+        if (!lastEntry.endTime) {
+            lastEntry.endTime = parseAsSydneyDate(data.pumpUploadTime)
+        }
+    }
+
     onMounted(async () => {
         try {
             const data = await fetchDashboardData()
@@ -90,6 +99,8 @@
                     notes: b.notes,
                 }))
                 : []
+
+            closeLastBasalEntryAtPumpUploadTime(data)
 
             bolusDoses.value = Array.isArray(data?.bolusDoses)
                 ? data.bolusDoses.map(b => ({
