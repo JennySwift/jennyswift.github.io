@@ -90,7 +90,7 @@
                             type: 'box',
                             yMin: 4,
                             yMax: 6,
-                            backgroundColor: 'rgba(100, 149, 237, 0.5)', 
+                            backgroundColor: 'rgba(100, 149, 237, 0.5)',
                             borderWidth: 0,
                         },
                     }

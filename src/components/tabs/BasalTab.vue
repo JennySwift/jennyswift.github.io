@@ -8,6 +8,25 @@
         formatHM
     } from '../../helpers/dateHelpers'
 
+    import { onMounted } from 'vue'
+
+    function logBasalDebug() {
+        console.log('[Basal Debug] Total entries:', props.basalEntries.length)
+
+        const nullEndEntries = props.basalEntries.filter(e => !e.endTime)
+        console.log('[Basal Debug] Entries with null endTime:', nullEndEntries.length)
+
+        props.basalEntries.forEach((e, i) => {
+            console.log(
+                `#${i} start: ${e.startTime}, end: ${e.endTime ?? 'null'}, rate: ${e.rate}`
+            )
+        })
+    }
+
+    onMounted(() => {
+        logBasalDebug()
+    })
+
     const props = defineProps({
         basalEntries: { type: Array, default: () => [] },
         selectedDate: { type: Date,  required: true }

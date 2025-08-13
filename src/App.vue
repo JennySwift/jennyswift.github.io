@@ -2,6 +2,7 @@
     import { ref, onMounted } from 'vue'
     import DateHeader from './components/DateHeader.vue'
     import BgChart from './components/BgChart.vue'
+    import BasalChart from './components/BasalChart.vue'
     import Tabs from './components/tabs/Tabs.vue'
     import StatsSummary from './components/StatsSummary.vue'
     import { parseAsSydneyDate, getSydneyStartOfToday } from './helpers/dateHelpers'
@@ -133,6 +134,7 @@
     />
 
     <BgChart :glucose-readings="glucoseReadings" :selected-date="selectedDate" />
+    <BasalChart :basal-entries="basalEntries" :selected-date="selectedDate" />
     <Tabs
             :notes="notes"
             :food-logs="foodLogs"
