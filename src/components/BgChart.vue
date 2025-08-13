@@ -90,7 +90,7 @@
                             type: 'box',
                             yMin: 4,
                             yMax: 6,
-                            backgroundColor: 'rgba(0, 128, 255, 0.12)', // light, readable tint
+                            backgroundColor: 'rgba(100, 149, 237, 0.5)', 
                             borderWidth: 0,
                         },
                     }
