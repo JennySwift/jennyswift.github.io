@@ -20,7 +20,11 @@
             aria-live="polite"
     >
         <div class="row"><strong>{{ time }}</strong></div>
-        <div class="row">BG: <span>{{ bg != null ? bg.toFixed(2) + ' mmol/L' : '—' }}</span></div>
+        <div class="row">
+            BG: <span>{{ bg != null ? bg.toFixed(2) + ' mmol/L' : '—' }}
+            ({{ (bg * 18).toFixed(2) }} mg/dL)
+        </span>
+        </div>
         <div class="row">Basal: <span>{{ basal != null ? basal.toFixed(3) + ' U/hr' : '—' }}</span></div>
     </div>
 </template>
