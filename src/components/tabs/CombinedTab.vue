@@ -3,7 +3,7 @@
     import FoodLogRow from '../rows/FoodLogRow.vue'
     import BolusRow from '../rows/BolusRow.vue'
     import NoteRow from '../rows/NoteRow.vue'
-    // import WorkoutRow from '../rows/WorkoutRow.vue'
+    import WorkoutRow from '../rows/WorkoutRow.vue'
     import { getStartAndEndOfDay, parseAsSydneyDate } from '../../helpers/dateHelpers'
 
     const props = defineProps({
@@ -56,8 +56,7 @@
                 <FoodLogRow  v-if="item.type === 'food'"    :log="item.payload" />
                 <BolusRow v-else-if="item.type === 'bolus'" :dose="item.payload" />
                 <NoteRow    v-else-if="item.type === 'note'"  :note="item.payload" />
-                <!--<NoteRow     v-else-if="item.type === 'note'"    :note="item.payload" />-->
-                <!--<WorkoutRow  v-else-if="item.type === 'workout'" :workout="item.payload" />-->
+                <WorkoutRow v-else-if="item.type === 'workout'" :workout="item.payload" />
             </div>
         </div>
     </div>
