@@ -139,44 +139,45 @@
             },
             plugins: {
                 legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        title(items) {
-                            const p = items?.[0]?.raw
-                            const t = p?._segStart
-                            if (!t) return ''
-                            const sydneyDate = parseAsSydneyDate(t)
-                            return sydneyDate.toLocaleTimeString('en-AU', {
-                                hour: 'numeric',
-                                minute: '2-digit',
-                                hour12: true,
-                                timeZone: 'Australia/Sydney'
-                            })
-                        },
-                        label(ctx) {
-                            const p = ctx.raw
-                            const start = p?._segStart ? parseAsSydneyDate(p._segStart) : null
-                            const end   = p?._segEnd   ? parseAsSydneyDate(p._segEnd)   : null
-                            const rate  = p?._rate != null ? Number(p._rate).toFixed(3) : ctx.parsed?.y?.toFixed?.(3)
-
-                            const range = (start && end)
-                                ? `${start.toLocaleTimeString('en-AU', {
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                    hour12: true,
-                                    timeZone: 'Australia/Sydney'
-                                })} → ${end.toLocaleTimeString('en-AU', {
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                    hour12: true,
-                                    timeZone: 'Australia/Sydney'
-                                })}`
-                                : ''
-
-                            return [`Rate: ${rate} U/hr`, range].filter(Boolean)
-                        }
-                    }
-                },
+                tooltip: { enabled: false },
+                // tooltip: {
+                //     callbacks: {
+                //         title(items) {
+                //             const p = items?.[0]?.raw
+                //             const t = p?._segStart
+                //             if (!t) return ''
+                //             const sydneyDate = parseAsSydneyDate(t)
+                //             return sydneyDate.toLocaleTimeString('en-AU', {
+                //                 hour: 'numeric',
+                //                 minute: '2-digit',
+                //                 hour12: true,
+                //                 timeZone: 'Australia/Sydney'
+                //             })
+                //         },
+                //         label(ctx) {
+                //             const p = ctx.raw
+                //             const start = p?._segStart ? parseAsSydneyDate(p._segStart) : null
+                //             const end   = p?._segEnd   ? parseAsSydneyDate(p._segEnd)   : null
+                //             const rate  = p?._rate != null ? Number(p._rate).toFixed(3) : ctx.parsed?.y?.toFixed?.(3)
+                //
+                //             const range = (start && end)
+                //                 ? `${start.toLocaleTimeString('en-AU', {
+                //                     hour: 'numeric',
+                //                     minute: '2-digit',
+                //                     hour12: true,
+                //                     timeZone: 'Australia/Sydney'
+                //                 })} → ${end.toLocaleTimeString('en-AU', {
+                //                     hour: 'numeric',
+                //                     minute: '2-digit',
+                //                     hour12: true,
+                //                     timeZone: 'Australia/Sydney'
+                //                 })}`
+                //                 : ''
+                //
+                //             return [`Rate: ${rate} U/hr`, range].filter(Boolean)
+                //         }
+                //     }
+                // },
                 annotation: {
                     annotations: {
                         dynamicLine: {

@@ -137,18 +137,19 @@
 
             plugins: {
                 legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        title(items) {
-                            const v = items?.[0]?.parsed?.x
-                            return v ? new Date(v).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''
-                        },
-                        label(ctx) {
-                            const y = ctx.parsed?.y
-                            return y != null ? `BG: ${Number(y).toFixed(2)} mmol/L` : ''
-                        }
-                    }
-                },
+                tooltip: { enabled: false },
+                // tooltip: {
+                //     callbacks: {
+                //         title(items) {
+                //             const v = items?.[0]?.parsed?.x
+                //             return v ? new Date(v).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''
+                //         },
+                //         label(ctx) {
+                //             const y = ctx.parsed?.y
+                //             return y != null ? `BG: ${Number(y).toFixed(2)} mmol/L` : ''
+                //         }
+                //     }
+                // },
                 // ✅ merged annotation config into one object
                 annotation: {
                     annotations: {
