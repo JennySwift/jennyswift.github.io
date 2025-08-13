@@ -96,6 +96,21 @@
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: 'nearest', intersect: false },
+            // Broadcast the hovered X to other charts (and update own line)
+            onHover: (evt, _actives, chart) => {
+                const els = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: false }, false)
+                if (els.length) {
+                    const { datasetIndex, index } = els[0]
+                    const x = chart.data.datasets[datasetIndex].data[index].x
+
+                    // update this chart’s line
+                    chart.options.plugins.annotation.annotations.dynamicLine.value = x
+                    chart.update('none')
+
+                    // notify others (e.g., BG)
+                    window.dispatchEvent(new CustomEvent('vertical-line:update', { detail: { x } }))
+                }
+            },
             scales: {
                 x: {
                     type: 'time',

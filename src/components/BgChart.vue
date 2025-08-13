@@ -50,6 +50,16 @@
         }
     }
 
+    function handleVerticalLineUpdate(e) {
+        if (!chartInstance) return
+        const x = e?.detail?.x ?? null
+        const annos = chartInstance.options?.plugins?.annotation?.annotations
+        if (annos?.dynamicLine != null) {
+            annos.dynamicLine.value = x
+            chartInstance.update('none')
+        }
+    }
+
     //
     function computeYBounds(points) {
         if (!points.length) return { min: 4, max: 10 }
@@ -173,12 +183,14 @@
         chartInstance.update('none')
     }
 
-    onMounted(createChart)
+    onMounted(() => {
+        createChart()
+        window.addEventListener('vertical-line:update', handleVerticalLineUpdate)
+    })
     onBeforeUnmount(() => {
-        if (chartInstance) {
-            chartInstance.destroy()
-            chartInstance = null
-        }
+        window.removeEventListener('vertical-line:update', handleVerticalLineUpdate)
+        chartInstance?.destroy()
+        chartInstance = null
     })
 
     // Re-render whenever the date or day’s points change
