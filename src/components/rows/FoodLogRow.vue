@@ -28,11 +28,11 @@
         </div>
 
         <div class="log-details">
-            <span v-if="log.quantity != null">⚖️ Grams/mL: {{ log.quantity }}</span>
+            <span v-if="log.quantity != null">⚖️ Grams (or mLs): {{ log.quantity }}</span>
             <span v-if="log.netCarbs != null">🍌 Net Carbs: {{ log.netCarbs }}g</span>
             <span v-if="log.totalCarbs != null">🍌 Total Carbs: {{ log.totalCarbs }}g</span>
             <span v-if="log.fat != null">🥑 Fat: {{ log.fat }}g</span>
-            <span v-if="log.protein != null">🫘 Protein: {{ log.protein }}g</span>
+            <!--<span v-if="log.protein != null">🫘 Protein: {{ log.protein }}g</span>-->
             <span v-if="log.fibre != null">🌿 Fibre: {{ log.fibre }}g</span>
             <span v-if="log.calories != null">🔥 Calories: {{ log.calories }}</span>
         </div>

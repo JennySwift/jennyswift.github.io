@@ -28,7 +28,7 @@
         </div>
 
         <div class="meta">
-            <span v-if="dose?.source">Source: {{ dose.source }}</span>
+            <span v-if="dose?.amount">{{ dose.amount }} units</span>
             <span v-if="dose?.carbRatioUsed">Ratio: 1:{{ dose.carbRatioUsed }}</span>
             <span v-if="dose?.duration">Duration: {{ dose.duration }}s</span>
             <span v-if="dose?.notes">• {{ dose.notes }}</span>
