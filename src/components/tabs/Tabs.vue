@@ -8,6 +8,9 @@
     import WorkoutsTab from './WorkoutsTab.vue'
     import BolusTab from './BolusTab.vue'
     import BasalTab from './BasalTab.vue'
+    import InsulinStatsTab from './InsulinStatsTab.vue'
+    import NutritionStatsTab from './NutritionStatsTab.vue'
+    import BgStatsTab from './BgStatsTab.vue'
     import { formatDateTime, formatTime12hCompact, parseAsSydneyDate, getStartAndEndOfDay, isSameDay, formatTimeFromString, minutesOverlapWithinDay, formatHM, minutesBetweenOrEndOfDay} from '../../helpers/dateHelpers'
     import { formatMinutesPerKm, formatKmPerHour, formatDistance } from '../../helpers/workoutHelpers'
 
@@ -43,6 +46,9 @@
             <button class="tab-button" :class="{ active: activeTab === 'basal' }" @click="setTab('basal')">💉 Basal</button>
             <button class="tab-button" :class="{ active: activeTab === 'glucose' }" @click="setTab('glucose')">🩸 BG</button>
             <button class="tab-button" :class="{ active: activeTab === 'all-notes' }" @click="setTab('all-notes')">📝 All Notes</button>
+            <button class="tab-button" :class="{ active: activeTab === 'insulin-stats' }" @click="setTab('insulin-stats')">📊 Insulin Stats</button>
+            <button class="tab-button" :class="{ active: activeTab === 'nutrition-stats' }" @click="setTab('nutrition-stats')">🥗 Nutrition Stats</button>
+            <button class="tab-button" :class="{ active: activeTab === 'bg-stats' }" @click="setTab('bg-stats')">📈 BG Stats</button>
         </div>
 
         <!-- Containers -->
@@ -103,6 +109,29 @@
                         @note-click="ts => emit('note-click', ts)"
                 />
             </div>
+        </div>
+
+        <div class="tab-content" :class="{ 'active-tab': activeTab === 'insulin-stats' }">
+            <InsulinStatsTab
+                    :selected-date="selectedDate"
+                    :bolus-doses="bolusDoses"
+                    :basal-entries="basalEntries"
+                    :food-logs="foodLogs"
+            />
+        </div>
+
+        <div class="tab-content" :class="{ 'active-tab': activeTab === 'nutrition-stats' }">
+            <NutritionStatsTab
+                    :selected-date="selectedDate"
+                    :food-logs="foodLogs"
+            />
+        </div>
+
+        <div class="tab-content" :class="{ 'active-tab': activeTab === 'bg-stats' }">
+            <BgStatsTab
+                    :selected-date="selectedDate"
+                    :glucose-readings="glucoseReadings"
+            />
         </div>
     </section>
 </template>

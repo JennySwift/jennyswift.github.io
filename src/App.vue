@@ -4,7 +4,6 @@
     import BgChart from './components/BgChart.vue'
     import BasalChart from './components/BasalChart.vue'
     import Tabs from './components/tabs/Tabs.vue'
-    import StatsSummary from './components/StatsSummary.vue'
     import { parseAsSydneyDate, getSydneyStartOfToday } from './helpers/dateHelpers'
     import { fetchDashboardData } from './helpers/dataService'
 
@@ -133,16 +132,7 @@
 
 <template>
   <main style="padding: 1rem;">
-    <h1>Control Dashboard</h1>
     <DateHeader v-model:selectedDate="selectedDate" />
-
-    <StatsSummary
-            :selectedDate="selectedDate"
-            :glucoseReadings="glucoseReadings"
-            :foodLogs="foodLogs"
-            :bolusDoses="bolusDoses"
-            :basalEntries="basalEntries"
-    />
 
     <BgChart :glucose-readings="glucoseReadings" :selected-date="selectedDate" />
     <BasalChart :basal-entries="basalEntries" :selected-date="selectedDate" />

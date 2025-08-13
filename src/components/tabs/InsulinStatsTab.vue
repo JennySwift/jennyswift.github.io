@@ -1,0 +1,77 @@
+<script setup>
+    import { computed } from 'vue'
+    import { getStartAndEndOfDay, parseAsSydneyDate } from '../../helpers/dateHelpers'
+
+    const props = defineProps({
+        selectedDate:  { type: Date, required: true },
+        bolusDoses:    { type: Array, default: () => [] },
+        basalEntries:  { type: Array, default: () => [] },
+        foodLogs:      { type: Array, default: () => [] }, // for ratios
+    })
+
+    // Total bolus within the day
+    const totalBolus = computed(() => {
+        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
+        return props.bolusDoses
+            .map(b => ({ ...b, timestamp: b.timestamp instanceof Date ? b.timestamp : parseAsSydneyDate(b.timestamp) }))
+            .filter(b => b.timestamp >= startOfDay && b.timestamp < endOfDay)
+            .reduce((acc, b) => acc + Number(b.amount ?? 0), 0)
+    })
+
+    // Total basal overlapping the day (rate * hours overlapped)
+    const totalBasal = computed(() => {
+        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
+        const entries = props.basalEntries
+            .map(e => ({
+                startTime: e.startTime instanceof Date ? e.startTime : parseAsSydneyDate(e.startTime),
+                endTime:   e.endTime   ? (e.endTime   instanceof Date ? e.endTime : parseAsSydneyDate(e.endTime)) : null,
+                rate: Number(e.rate ?? 0)
+            }))
+            .filter(e => e.startTime < endOfDay && (!e.endTime || e.endTime > startOfDay))
+            .sort((a, b) => a.startTime - b.startTime)
+
+        let units = 0
+        for (const e of entries) {
+            const s = new Date(Math.max(e.startTime.getTime(), startOfDay.getTime()))
+            const eend = new Date(Math.min((e.endTime ?? endOfDay).getTime(), endOfDay.getTime()))
+            const minutes = (eend - s) / 60000
+            if (minutes > 0) units += e.rate * (minutes / 60)
+        }
+        return units
+    })
+
+    const totalInsulin = computed(() => totalBolus.value + totalBasal.value)
+
+    // Ratios that are handy here
+    const netCarbs = computed(() => {
+        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
+        return props.foodLogs
+            .map(f => ({ ...f, timestamp: f.timestamp instanceof Date ? f.timestamp : parseAsSydneyDate(f.timestamp) }))
+            .filter(f => f.timestamp >= startOfDay && f.timestamp < endOfDay)
+            .reduce((acc, it) => acc + Number(it?.netCarbs ?? 0), 0)
+    })
+
+    const netCarbsToBolus = computed(() => {
+        const net = netCarbs.value, bol = totalBolus.value
+        return (net > 0 && bol > 0) ? `${(net / bol).toFixed(2)} g/U` : 'N/A'
+    })
+    const netCarbsToTotal = computed(() => {
+        const net = netCarbs.value, tot = totalInsulin.value
+        return (tot > 0) ? `${(net / tot).toFixed(2)} g/U` : 'N/A'
+    })
+</script>
+
+<template>
+    <div class="stat-grid">
+        <div class="card">💉 Bolus <strong>{{ totalBolus.toFixed(2) }}U</strong></div>
+        <div class="card">💧 Basal <strong>{{ totalBasal.toFixed(2) }}U</strong></div>
+        <div class="card">🧪 Total Insulin <strong>{{ totalInsulin.toFixed(2) }}U</strong></div>
+        <div class="card">➗ Net Carbs / Bolus <strong>{{ netCarbsToBolus }}</strong></div>
+        <div class="card">➗ Net Carbs / Total <strong>{{ netCarbsToTotal }}</strong></div>
+    </div>
+</template>
+
+<style scoped>
+    .stat-grid { display:grid; gap:.5rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .card { background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; padding:.75rem .9rem; }
+</style>
