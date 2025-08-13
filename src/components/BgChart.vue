@@ -18,6 +18,8 @@
     const canvasRef = ref(null)
     let chartInstance = null
 
+    let verticalLineXValue = null
+
     // Filter + sort the day’s readings
     const readingsForDay = computed(() => {
         if (!props.selectedDate) return []
@@ -65,6 +67,18 @@
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: 'nearest', intersect: false },
+
+            // ✅ Hover handler moved to root options
+            onHover: (evt, _actives, chart) => {
+                const els = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: false }, false)
+                if (els.length) {
+                    const { datasetIndex, index } = els[0]
+                    verticalLineXValue = chart.data.datasets[datasetIndex].data[index].x
+                    chart.options.plugins.annotation.annotations.dynamicLine.value = verticalLineXValue
+                    chart.update('none')
+                }
+            },
+
             scales: {
                 x: {
                     type: 'time',
@@ -82,8 +96,22 @@
                     title: { display: true, text: 'mmol/L' },
                 }
             },
+
             plugins: {
                 legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title(items) {
+                            const v = items?.[0]?.parsed?.x
+                            return v ? new Date(v).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''
+                        },
+                        label(ctx) {
+                            const y = ctx.parsed?.y
+                            return y != null ? `BG: ${Number(y).toFixed(2)} mmol/L` : ''
+                        }
+                    }
+                },
+                // ✅ merged annotation config into one object
                 annotation: {
                     annotations: {
                         inRangeBand: {
@@ -93,18 +121,13 @@
                             backgroundColor: 'rgba(100, 149, 237, 0.5)',
                             borderWidth: 0,
                         },
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        title(items) {
-                            // Show the time only
-                            const v = items?.[0]?.parsed?.x
-                            return v ? new Date(v).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''
-                        },
-                        label(ctx) {
-                            const y = ctx.parsed?.y
-                            return y != null ? `BG: ${Number(y).toFixed(2)} mmol/L` : ''
+                        dynamicLine: {
+                            type: 'line',
+                            scaleID: 'x',
+                            value: verticalLineXValue,
+                            borderColor: 'rgba(100, 100, 100, 0.85)',
+                            borderWidth: 2,
+                            display: ctx => ctx.chart.options.plugins.annotation.annotations.dynamicLine.value !== null
                         }
                     }
                 }
