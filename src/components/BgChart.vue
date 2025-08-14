@@ -30,7 +30,10 @@
                 return t >= startOfDay && t < endOfDay
             })
             .map(r => ({
-                x: r.timestamp instanceof Date ? r.timestamp : parseAsSydneyDate(r.timestamp),
+                x: (typeof r.timestamp === 'string'
+                    ? Date.parse(/Z|[+\-]\d{2}:?\d{2}$/.test(r.timestamp) ? r.timestamp : `${r.timestamp}Z`)
+                    : (r.timestamp instanceof Date ? r.timestamp.getTime() : Number(r.timestamp))),
+                // x: r.timestamp instanceof Date ? r.timestamp : parseAsSydneyDate(r.timestamp),
                 y: Number(r.value)
             }))
             .sort((a, b) => a.x - b.x)
@@ -106,22 +109,6 @@
                     }))
                 }
             },
-            // onHover: (evt, _actives, chart) => {
-            //     const els = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: false }, false)
-            //     if (els.length) {
-            //         const { datasetIndex, index } = els[0]
-            //         verticalLineXValue = chart.data.datasets[datasetIndex].data[index].x
-            //
-            //         // update this chart’s annotation
-            //         chart.options.plugins.annotation.annotations.dynamicLine.value = verticalLineXValue
-            //         chart.update('none')
-            //
-            //         // notify other charts
-            //         window.dispatchEvent(new CustomEvent('chart-hover', {
-            //             detail: { x: verticalLineXValue, source: 'bg' }
-            //         }));
-            //     }
-            // },
 
             scales: {
                 x: {

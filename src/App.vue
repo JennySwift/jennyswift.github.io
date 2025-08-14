@@ -7,6 +7,7 @@
     import Tooltip from './components/CustomTooltip.vue'
     import { parseAsSydneyDate, getSydneyStartOfToday, formatTimeInSydney } from './helpers/dateHelpers'
     import { fetchDashboardData } from './helpers/dataService'
+    import { DateTime } from 'luxon';
 
     const notes = ref([])
     const glucoseReadings = ref([])
@@ -25,13 +26,16 @@
     function handleChartHover(e) {
         const { x, px, source, hide } = e?.detail ?? {}
 
+            console.log('[handleChartHover] x value:', x, 'type:', typeof x);
+
         if (hide) {
             tooltip.visible = false
             tooltip.locked = false
             return
         }
 
-        const ts = x ? new Date(x) : null
+        const ts = x != null ? new Date(x) : null
+        // const ts = x ? new Date(x) : null
 
         if (!ts) {
             if (!tooltip.locked) {
@@ -51,38 +55,11 @@
 
         tooltip.locked = (source === 'combined')
         tooltip.visible = true
-        tooltip.time = formatTimeInSydney(ts)
+        tooltip.time = DateTime.fromMillis(Number(x)).setZone('Australia/Sydney').toFormat('h:mma')
+        // tooltip.time = formatTimeInSydney(ts)
         tooltip.bg = findBGAt(ts)
         tooltip.basal = findBasalRateAt(ts)
     }
-
-    // function handleChartHover(e) {
-    //     const ts = e?.detail?.x ? new Date(e.detail.x) : null
-    //     const px = e?.detail?.px    // <-- relative X within the canvas (we'll send this from charts)
-    //
-    //     if (!ts) {
-    //         tooltip.visible = false
-    //         return
-    //     }
-    //
-    //     // position horizontally inside the stage wrapper
-    //     const stageRect = stageRef.value?.getBoundingClientRect()
-    //     if (stageRect && typeof px === 'number') {
-    //         const approxWidth = 180   // rough width of tooltip for clamping
-    //         const padding = 8
-    //         const centeredLeft = px - approxWidth / 2
-    //         tooltip.left = clamp(centeredLeft, padding, stageRect.width - approxWidth - padding)
-    //     }
-    //
-    //     tooltip.visible = true
-    //     tooltip.time = formatTimeInSydney(ts)
-    //     tooltip.bg = findBGAt(ts)
-    //     tooltip.basal = findBasalRateAt(ts)
-    // }
-
-
-
-
 
 
     // BG at time T = the most recent reading at or before T (not "nearest")
@@ -139,7 +116,8 @@
 
             glucoseReadings.value = Array.isArray(data?.glucoseReadings)
                 ? data.glucoseReadings.map(r => ({
-                    timestamp: parseAsSydneyDate(r.timestamp),
+                    timestamp: r.timestamp,
+                    // timestamp: parseAsSydneyDate(r.timestamp),
                     value: r.value,
                 }))
                 : []

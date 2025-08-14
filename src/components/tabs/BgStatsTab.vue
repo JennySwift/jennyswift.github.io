@@ -31,7 +31,7 @@
         }
 
         const denom = Math.max(covered, 1) // avoid divide-by-zero
-        
+
         return {
             timeBelow4: tBelow4,
             timeBetween4and6: t4to6,

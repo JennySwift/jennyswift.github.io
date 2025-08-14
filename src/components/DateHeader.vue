@@ -1,6 +1,7 @@
 <script setup>
     import {ref, computed} from 'vue'
     import { getSydneyStartOfToday, formatDateInSydney, formatDateForInput, parseAsSydneyDate } from '../helpers/dateHelpers'
+    import { DateTime } from 'luxon'
 
     const props = defineProps({
         selectedDate: { type: Date, default: () => getSydneyStartOfToday() }
@@ -18,23 +19,22 @@
     const dateInputValue = computed(() => formatDateForInput(selectedDate.value))
 
     function prevDate() {
-        const base = parseAsSydneyDate(formatDateForInput(selectedDate.value))
-        base.setDate(base.getDate() - 1)
-        const iso = base.toISOString().split('T')[0]
-        selectedDate.value = parseAsSydneyDate(iso)
+        const s = DateTime.fromJSDate(selectedDate.value).setZone('Australia/Sydney');
+        selectedDate.value = s.minus({ days: 1 }).startOf('day').toJSDate();
     }
 
     function nextDate() {
-        const base = parseAsSydneyDate(formatDateForInput(selectedDate.value))
-        base.setDate(base.getDate() + 1)
-        const iso = base.toISOString().split('T')[0]
-        selectedDate.value = parseAsSydneyDate(iso)
+        const s = DateTime.fromJSDate(selectedDate.value).setZone('Australia/Sydney');
+        selectedDate.value = s.plus({ days: 1 }).startOf('day').toJSDate();
     }
 
     function onDateInput(e) {
-        const v = e.target.value
-        if (!v) return
-        selectedDate.value = parseAsSydneyDate(v)
+        const v = e.target.value;
+        if (!v) return;
+        selectedDate.value = DateTime
+            .fromISO(v, { zone: 'Australia/Sydney' })
+            .startOf('day')
+            .toJSDate();
     }
 
 </script>
