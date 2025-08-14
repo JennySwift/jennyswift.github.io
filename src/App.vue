@@ -38,6 +38,38 @@
 
     function clamp(n, min, max) { return Math.max(min, Math.min(n, max)) }
 
+    function goToTimestamp(at, source = 'any') {
+        // [goToTimestamp] normalize input → Luxon DateTime at Sydney wall-clock
+        let dt
+        if (at instanceof Date) dt = DateTime.fromJSDate(at)
+        else if (typeof at === 'number') dt = DateTime.fromMillis(at)
+        else if (typeof at === 'string')
+            dt = /Z|[+\-]\d{2}:?\d{2}$/.test(at)
+                ? DateTime.fromISO(at)
+                : DateTime.fromISO(at, { zone: 'Australia/Sydney' })
+        else return
+
+        const sydney = dt.setZone('Australia/Sydney')
+
+        // Move the daily view
+        selectedDate.value = sydney.startOf('day').toJSDate()
+
+        // Move the hover/vertical line
+        const x = sydney.toMillis()
+        window.dispatchEvent(new CustomEvent('chart-hover', {
+            detail: { x, px: null, source } // ← pass source through
+        }))
+
+        console.log('[goToTimestamp] jumped to', sydney.toISO(), 'source:', source)
+    }
+
+    // keep a single reference so removeEventListener works
+    const onJumptoTime = (e) => {
+        const at = e?.detail?.at
+        const source = e?.detail?.source ?? 'any'
+            goToTimestamp(at, source)
+    }
+
     function handleChartHover(e) {
         const { x, px, source, hide } = e?.detail ?? {}
 
@@ -119,10 +151,12 @@
     }
 
     onBeforeUnmount(() => {
+        window.removeEventListener('jump-to-time', onJumptoTime)
         window.removeEventListener('chart-hover', handleChartHover)
     })
 
     onMounted(async () => {
+        window.addEventListener('jump-to-time', onJumptoTime)
         window.addEventListener('chart-hover', handleChartHover)
 
         try {

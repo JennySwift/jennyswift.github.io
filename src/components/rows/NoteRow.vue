@@ -6,17 +6,12 @@
         note: { type: Object, required: true }
     })
 
-    const emit = defineEmits(['note-click'])
-
     const ts = computed(() =>
         props.note.timestamp instanceof Date
             ? props.note.timestamp
             : parseAsSydneyDate(props.note.timestamp)
     )
 
-    function onClick(e) {
-        emit('note-click', ts.value)
-    }
 </script>
 
 <template>

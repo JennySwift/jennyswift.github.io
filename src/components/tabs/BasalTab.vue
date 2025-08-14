@@ -9,6 +9,7 @@
     } from '../../helpers/dateHelpers'
 
     import { onMounted } from 'vue'
+    import { jumpToTime } from '../../helpers/jumpToTime'
 
     function logBasalDebug() {
         console.log('[Basal Debug] Total entries:', props.basalEntries.length)
@@ -31,8 +32,6 @@
         basalEntries: { type: Array, default: () => [] },
         selectedDate: { type: Date,  required: true }
     })
-
-    const emit = defineEmits(['note-click'])
 
     const basalEntriesForDay = computed(() => {
         if (!props.selectedDate) return []
@@ -65,6 +64,7 @@
                     class="log-block"
                     role="button"
                     tabindex="0"
+                    @click="jumpToTime(b.startTime, 'basal')"
 
             >
                 <div>

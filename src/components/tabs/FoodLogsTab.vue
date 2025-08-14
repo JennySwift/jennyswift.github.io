@@ -2,6 +2,7 @@
     import { computed } from 'vue'
     import FoodLogRow from '../rows/FoodLogRow.vue'
     import { parseAsSydneyDate, getStartAndEndOfDay } from '../../helpers/dateHelpers'
+    import { jumpToTime } from '../../helpers/jumpToTime'
 
     const props = defineProps({
         foodLogs:     { type: Array, default: () => [] },
@@ -33,6 +34,7 @@
                     v-for="f in foodLogsForDay"
                     :key="(f.timestamp?.getTime?.() ?? f.timestamp) + '-' + (f.foodName || '')"
                     :log="f"
+                    @click="jumpToTime(f.timestamp, 'foodLogs')"
             />
         </div>
 

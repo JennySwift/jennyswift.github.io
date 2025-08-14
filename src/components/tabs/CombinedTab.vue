@@ -5,6 +5,7 @@
     import NoteRow from '../rows/NoteRow.vue'
     import WorkoutRow from '../rows/WorkoutRow.vue'
     import { getStartAndEndOfDay, parseAsSydneyDate } from '../../helpers/dateHelpers'
+    import { jumpToTime } from '../../helpers/jumpToTime'
 
     const props = defineProps({
         selectedDate: { type: Date, required: true },
@@ -53,12 +54,12 @@
         return [...foods, ...boluses, ...noteItems, ...workouts].sort((a, b) => a.ts - b.ts)
     })
 
-    function jumpTo(ts) {
-        // Charts will set their vertical line, and App.vue will update the tooltip.
-        window.dispatchEvent(new CustomEvent('chart-hover', {
-            detail: { x: ts, source: 'combined' }
-        }))
-    }
+    // function jumpTo(ts) {
+    //     // Charts will set their vertical line, and App.vue will update the tooltip.
+    //     window.dispatchEvent(new CustomEvent('chart-hover', {
+    //         detail: { x: ts, source: 'combined' }
+    //     }))
+    // }
 </script>
 
 <template>
@@ -71,7 +72,7 @@
                     :key="item.type + '-' + item.ts.getTime() + '-' + idx"
                     class="feed-item"
                     :style="{ '--accent': typeAccentVar(item.type) }"
-                    @click="jumpTo(item.ts)"
+                    @click="jumpToTime(item.ts, 'combined')"
             >
                 <div class="type-badge" aria-hidden="true">{{ typeIcon(item.type) }}</div>
                 <div class="content">

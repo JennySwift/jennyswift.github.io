@@ -6,6 +6,7 @@
         getStartAndEndOfDay,
         formatTimeInSydney
     } from '../../helpers/dateHelpers'
+    import { jumpToTime } from '../../helpers/jumpToTime'
 
     const props = defineProps({
         glucoseReadings: { type: Array, default: () => [] }, // [{ timestamp, value }]
@@ -48,6 +49,7 @@
                     :key="r.ts.getTime() + '-' + r.value"
                     class="glucose-row"
                     :class="rangeClass(r.value)"
+                    @click="jumpToTime(r.ts, 'bg')"
                     :aria-label="`BG ${Number(r.value).toFixed(2)} at ${formatTimeInSydney(r.ts)}`"
             >
                 <span class="time">{{ formatTimeInSydney(r.ts) }}</span>

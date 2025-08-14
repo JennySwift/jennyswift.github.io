@@ -2,6 +2,7 @@
     import { computed } from 'vue'
     import { parseAsSydneyDate, getStartAndEndOfDay } from '../../helpers/dateHelpers'
     import NoteRow from '../rows/NoteRow.vue'
+    import { jumpToTime } from '../../helpers/jumpToTime'
 
     const props = defineProps({
         notes:        { type: Array, default: () => [] },
@@ -33,7 +34,7 @@
                     v-for="n in notesForDay"
                     :key="(n.timestamp?.getTime?.() ?? n.timestamp) + '-' + (n.noteNumber ?? '')"
                     :note="n"
-                    @note-click="ts => emit('note-click', ts)"
+                    @click="jumpToTime(n.timestamp, 'notes')"
             />
         </div>
     </div>

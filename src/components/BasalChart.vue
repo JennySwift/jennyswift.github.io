@@ -3,7 +3,8 @@
     import { parseAsSydneyDate, getStartAndEndOfDay } from '../helpers/dateHelpers'
 
     import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler } from 'chart.js'
-    import 'chartjs-adapter-date-fns'
+    import { DateTime } from 'luxon'
+    import 'chartjs-adapter-luxon'
     import annotationPlugin from 'chartjs-plugin-annotation'
 
     Chart.register(
@@ -129,7 +130,16 @@
                 x: {
                     type: 'time',
                     time: { unit: 'hour', displayFormats: { hour: 'h:mm a' } },
-                    ticks: { source: 'auto', autoSkip: false, maxTicksLimit: 12 },
+                    ticks: {
+                        source: 'auto',
+                        autoSkip: false,
+                        maxTicksLimit: 12,
+                        callback: (val) =>
+                            DateTime.fromMillis(Number(val))
+                                .setZone('Australia/Sydney')
+                                .toFormat('h a')
+                    },
+                    // ticks: { source: 'auto', autoSkip: false, maxTicksLimit: 12 },
                     grid: { color: '#ddd', lineWidth: 1 },
                     min: xRange?.min,
                     max: xRange?.max,
@@ -206,13 +216,14 @@
         const ctx = canvasRef.value.getContext('2d')
 
         const pts = pointsForDay.value
-        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
+        const dayStartMs = DateTime.fromJSDate(props.selectedDate).setZone('Australia/Sydney').startOf('day').toMillis()
+        const dayEndMs = dayStartMs + 86_400_000
         const yBounds = computeYBounds(pts)
 
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: { datasets: [createDataset(pts)] },
-            options: buildOptions({ min: startOfDay, max: endOfDay }, yBounds),
+            options: buildOptions({ min: dayStartMs, max: dayEndMs }, yBounds),
         })
     }
 
@@ -220,12 +231,13 @@
         if (!chartInstance) return
 
         const pts = pointsForDay.value
-        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
+        const dayStartMs = DateTime.fromJSDate(props.selectedDate).setZone('Australia/Sydney').startOf('day').toMillis()
+        const dayEndMs = dayStartMs + 86_400_000
         const yBounds = computeYBounds(pts)
 
         chartInstance.data.datasets = [createDataset(pts)]
-        chartInstance.options.scales.x.min = startOfDay
-        chartInstance.options.scales.x.max = endOfDay
+        chartInstance.options.scales.x.min = dayStartMs
+        chartInstance.options.scales.x.max = dayEndMs
         chartInstance.options.scales.y.min = yBounds.min
         chartInstance.options.scales.y.max = yBounds.max
 

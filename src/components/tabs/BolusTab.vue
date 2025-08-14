@@ -1,7 +1,8 @@
 <script setup>
     import { computed } from 'vue'
     import { parseAsSydneyDate, getStartAndEndOfDay } from '../../helpers/dateHelpers'
-    import BolusRow from '../rows/BolusRow.vue'   // 👈 add this
+    import BolusRow from '../rows/BolusRow.vue'
+    import { jumpToTime } from '../../helpers/jumpToTime'
 
     const props = defineProps({
         bolusDoses:  { type: Array, default: () => [] },
@@ -33,6 +34,7 @@
                     v-for="b in bolusesForDay"
                     :key="(b.timestamp?.getTime?.() ?? b.timestamp) + '-' + (b.amount ?? '')"
                     :dose="b"
+                    @click="jumpToTime(b.timestamp, 'bolus')"
             />
         </template>
     </div>

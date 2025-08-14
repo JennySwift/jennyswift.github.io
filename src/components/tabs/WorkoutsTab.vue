@@ -3,13 +3,12 @@
     import WorkoutRow from '../rows/WorkoutRow.vue'
     import { parseAsSydneyDate, getStartAndEndOfDay, formatTimeFromString } from '../../helpers/dateHelpers'
     import { formatMinutesPerKm, formatKmPerHour, formatDistance } from '../../helpers/workoutHelpers'
+    import { jumpToTime } from '../../helpers/jumpToTime'
 
     const props = defineProps({
         workouts:     { type: Array, default: () => [] },
         selectedDate: { type: Date,  required: true }
     })
-
-    const emit = defineEmits(['note-click'])
 
     const workoutsForDay = computed(() => {
         if (!props.selectedDate) return []
@@ -26,10 +25,6 @@
             })
     })
 
-    function onWorkoutClick(w) {
-        const ts = w.start instanceof Date ? w.start : parseAsSydneyDate(w.start)
-        emit('note-click', ts)
-    }
 </script>
 
 <template>
@@ -40,7 +35,7 @@
                     v-for="w in workoutsForDay"
                     :key="(w.start?.getTime?.() ?? w.start) + '-' + (w.name || '')"
                     :workout="w"
-                    @workout-click="$emit('note-click', w.start)" />
+                    @click="jumpToTime(w.start, 'workout')" />
 
         </div>
     </div>

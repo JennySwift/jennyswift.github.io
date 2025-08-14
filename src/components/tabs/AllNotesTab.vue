@@ -1,6 +1,8 @@
 <script setup>
     import { ref, computed } from 'vue'
     import { parseAsSydneyDate, formatDateTime } from '../../helpers/dateHelpers'
+    import { jumpToTime } from '../../helpers/jumpToTime'
+
 
     // Props: pass your notes array in later from App.vue (next step)
     const props = defineProps({
@@ -54,8 +56,7 @@
     })
 
     function onNoteClick(note) {
-        const ts = typeof note.timestamp === 'number' ? new Date(note.timestamp) : parseAsSydneyDate(note.timestamp)
-        emit('note-click', ts)
+        jumpToTime(note.timestamp, 'all-notes')
     }
 </script>
 
