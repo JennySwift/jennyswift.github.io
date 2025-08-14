@@ -79,8 +79,8 @@
             </HelpTooltip>
         </div>
 
-        <div v-if="filteredNotes.length === 0" class="empty">No matching notes found.</div>
-
+        <!--<div v-if="filteredNotes.length === 0" class="empty">No matching notes found.</div>-->
+        <TransitionGroup name="list" tag="div" class="notes-list">
         <div
                 v-for="note in filteredNotes"
                 :key="note.id ?? note.noteNumber ?? (note.timestamp + '-' + (note.text || '').slice(0,10))"
@@ -102,10 +102,30 @@
                 <span v-for="tag in note.tags" :key="tag" class="note-tag">{{ tag }}</span>
             </div>
         </div>
+        </TransitionGroup>
     </section>
 </template>
 
 <style scoped lang="scss">
+    /* transition classes must be top-level so Vue can add them to items */
+    .list-enter-from,
+    .list-leave-to {
+        opacity: 0;
+    }
+
+    .list-enter-active,
+    .list-leave-active {
+        transition: opacity .5s ease;
+    }
+
+    .list-move {
+        transition: transform .5s ease;
+    }
+
+    /* keep the list area from collapsing during filter edits */
+    .notes-list {
+        min-height: 800px;
+    }
     .all-notes {
         .search {
             margin: 1rem 0;
@@ -157,5 +177,6 @@
                 background: #fff;
             }
         }
+
     }
 </style>
