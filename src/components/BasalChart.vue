@@ -52,8 +52,8 @@
             const rate     = Number(e.rate ?? 0)
 
             // Two points per segment for a stepped line
-            pts.push({ x: segStart, y: rate, _segStart: segStart, _segEnd: segEnd, _rate: rate })
-            pts.push({ x: segEnd,   y: rate, _segStart: segStart, _segEnd: segEnd, _rate: rate })
+            pts.push({ x: segStart.getTime(), y: rate, _segStart: segStart.getTime(), _segEnd: segEnd.getTime(), _rate: rate })
+            pts.push({ x: segEnd.getTime(),   y: rate, _segStart: segStart.getTime(), _segEnd: segEnd.getTime(), _rate: rate })
         }
 
         return pts
