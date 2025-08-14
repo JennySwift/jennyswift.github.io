@@ -12,7 +12,7 @@
     import InsulinStatsTab from './InsulinStatsTab.vue'
     import NutritionStatsTab from './NutritionStatsTab.vue'
     import BgStatsTab from './BgStatsTab.vue'
-    import { formatDateTime, formatTime12hCompact, parseAsSydneyDate, getStartAndEndOfDay, isSameDay, formatTimeFromString, minutesOverlapWithinDay, formatHM, minutesBetweenOrEndOfDay} from '../../helpers/dateHelpers'
+    import { formatDateTime, parseAsSydneyDate, getStartAndEndOfDay, isSameDay, formatTimeFromString, minutesOverlapWithinDay, formatHM, minutesBetweenOrEndOfDay} from '../../helpers/dateHelpers'
     import { formatMinutesPerKm, formatKmPerHour, formatDistance } from '../../helpers/workoutHelpers'
 
     const props = defineProps({

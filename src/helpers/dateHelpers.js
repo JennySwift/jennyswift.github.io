@@ -1,141 +1,129 @@
-// Sydney-aware date helpers
+import { DateTime } from 'luxon'
 
+// Midnight *today* in Australia/Sydney (JS Date)
 export function getSydneyStartOfToday() {
-    const sydneyTime = new Date(new Date().toLocaleString("en-US", {
-        timeZone: "Australia/Sydney"
-    }));
-    sydneyTime.setHours(0, 0, 0, 0);
-    return sydneyTime;
+    return DateTime.local().setZone('Australia/Sydney').startOf('day').toJSDate()
 }
 
+// YYYY-MM-DD for <input type="date">, in Australia/Sydney
 export function formatDateForInput(date) {
-    // Produce YYYY-MM-DD *in Australia/Sydney*, regardless of viewer location
-    return new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Australia/Sydney',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    }).format(date); // en-CA => "YYYY-MM-DD"
+    return DateTime.fromJSDate(asJSDate(date))
+        .setZone('Australia/Sydney')
+        .toFormat('yyyy-LL-dd')
 }
 
-let sydneyCallCount = 0;
-
-export function parseAsSydneyDate(dateStr) {
-    sydneyCallCount++;
-    if (sydneyCallCount % 100 === 0) {
-        // console.log(`[parseAsSydneyDate] called ${sydneyCallCount} times`);
+// Interpret a value “as Sydney local time” when it’s an unzoned string.
+// If the string has a timezone (Z or ±HH:MM), we respect it.
+// If it's a JS Date or epoch ms, we keep the instant.
+export function parseAsSydneyDate(value) {
+    if (value instanceof Date) return value
+    if (typeof value === 'number') return new Date(value)
+    if (typeof value === 'string') {
+        const hasTZ = /Z|[+\-]\d{2}:?\d{2}$/.test(value)
+        const dt = hasTZ
+            ? DateTime.fromISO(value) // use embedded zone/offset
+            : DateTime.fromISO(value, { zone: 'Australia/Sydney' }) // treat as Sydney local
+        return dt.toJSDate()
     }
-
-    return new Date(new Date(dateStr).toLocaleString("en-US", {
-        timeZone: "Australia/Sydney"
-    }));
+    return null
 }
 
+// “Wednesday, 6 August 2025” in Australia/Sydney
 export function formatDateInSydney(date) {
-    return date.toLocaleDateString("en-AU", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        timeZone: "Australia/Sydney"
-    });
+    return DateTime.fromJSDate(asJSDate(date))
+        .setZone('Australia/Sydney')
+        .toFormat('cccc d LLLL yyyy')
 }
 
+// “3:07pm” in Australia/Sydney
 export function formatTimeInSydney(date) {
-    return date.toLocaleTimeString("en-AU", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-        timeZone: "Australia/Sydney"
-    });
+    return DateTime.fromJSDate(asJSDate(date))
+        .setZone('Australia/Sydney')
+        .toFormat('h:mma')
+        .toLowerCase()
 }
+
+// Start (inclusive) and End (exclusive) of the Sydney day containing `date`
+export function getStartAndEndOfDay(date) {
+    const s = DateTime.fromJSDate(asJSDate(date)).setZone('Australia/Sydney').startOf('day')
+    const e = s.plus({ days: 1 })
+    return { startOfDay: s.toJSDate(), endOfDay: e.toJSDate() }
+}
+
+// Same calendar day in Sydney?
+export function isSameDay(date1, date2) {
+    const d1 = DateTime.fromJSDate(asJSDate(date1)).setZone('Australia/Sydney')
+    const d2 = DateTime.fromJSDate(asJSDate(date2)).setZone('Australia/Sydney')
+    return d1.hasSame(d2, 'day')
+}
+
+// “3:07pm” from a string timestamp, shown in Sydney
+export function formatTimeFromString(dateStr) {
+    const dt = toInstant(dateStr).setZone('Australia/Sydney')
+    return dt.toFormat('h:mma').toLowerCase()
+}
+
+// “6 August, 3:07pm” from a string timestamp, shown in Sydney
+export function formatDateTime(dateStr) {
+    const d = toInstant(dateStr).setZone('Australia/Sydney')
+    return `${d.toFormat('d LLL')}, ${d.toFormat('h:mma').toLowerCase()}`
+}
+
+// Parse “9”, “9:30”, “9pm”, “9:30pm”, apply to the Sydney date of `baseDate`
+export function parseFlexibleTime(input, baseDate) {
+    if (!baseDate || typeof input !== 'string') return null
+    const m = input.trim().match(/^\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*$/i)
+    if (!m) return null
+
+    let hours = parseInt(m[1], 10)
+    const minutes = parseInt(m[2] ?? '0', 10)
+    const meridian = (m[3] || '').toLowerCase()
+
+    if (meridian === 'pm' && hours < 12) hours += 12
+    if (meridian === 'am' && hours === 12) hours = 0
+
+    const day = DateTime.fromJSDate(asJSDate(baseDate)).setZone('Australia/Sydney').startOf('day')
+    return day.set({ hour: hours, minute: minutes, second: 0, millisecond: 0 }).toJSDate()
+}
+
+// Minutes overlap between [start, end?) and the Sydney day containing `day`
+export function minutesOverlapWithinDay(start, end, day) {
+    const dayStart = DateTime.fromJSDate(asJSDate(day)).setZone('Australia/Sydney').startOf('day')
+    const dayEnd = dayStart.plus({ days: 1 })
+
+    const s = toInstant(start)
+    const e = end ? toInstant(end) : dayEnd
+
+    const segStart = s < dayStart ? dayStart : s
+    const segEnd = e > dayEnd ? dayEnd : e
+
+    const ms = Math.max(0, segEnd.toMillis() - segStart.toMillis())
+    return Math.round(ms / 60000)
+}
+
+// Minutes between start and end; if end missing, use end of Sydney day of `dayForFallback`
+export function minutesBetweenOrEndOfDay(start, end, dayForFallback) {
+    const s = toInstant(start)
+    const e = end
+        ? toInstant(end)
+        : DateTime.fromJSDate(asJSDate(dayForFallback)).setZone('Australia/Sydney').startOf('day').plus({ days: 1 })
+    const ms = Math.max(0, e.toMillis() - s.toMillis())
+    return Math.round(ms / 60000)
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// no timezone dependency
+// ──────────────────────────────────────────────────────────────────────────────
 
 export function formatMinutesAsHM(minutes) {
-    const total = Math.round(minutes);
-    const h = Math.floor(total / 60);
-    const m = total % 60;
-
-    if (h > 0 && m > 0) return `${h}h${m}m`;
-    if (h > 0) return `${h}h`;
-    return `${m}m`;
+    const total = Math.round(minutes || 0)
+    const h = Math.floor(total / 60)
+    const m = total % 60
+    if (h > 0 && m > 0) return `${h}h${m}m`
+    if (h > 0) return `${h}h`
+    return `${m}m`
 }
 
-export function getStartAndEndOfDay(date) {
-    const startOfDay = parseAsSydneyDate(date);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(startOfDay);
-    endOfDay.setDate(endOfDay.getDate() + 1);
-
-    return { startOfDay, endOfDay };
-}
-
-export function isSameDay(date1, date2) {
-    return date1.getFullYear() === date2.getFullYear() &&
-        date1.getMonth() === date2.getMonth() &&
-        date1.getDate() === date2.getDate();
-}
-
-export function formatTimeFromString(dateStr) {
-    const date = parseAsSydneyDate(dateStr);
-    return formatTime12hCompact(date);
-}
-
-export function formatTime12hCompact(date) {
-    return date.toLocaleTimeString([], {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true
-    }).toLowerCase().replace(' ', '');
-}
-
-export function formatDateTime(dateStr) {
-    const d = parseAsSydneyDate(dateStr);
-    const day = d.getDate();
-    const month = d.toLocaleString("en-AU", { month: "long", timeZone: "Australia/Sydney" });
-
-    let hours = d.getHours();
-    const minutes = d.getMinutes().toString().padStart(2, "0");
-    const ampm = hours >= 12 ? "pm" : "am";
-    hours = hours % 12 || 12;
-
-    const time = `${hours}:${minutes}${ampm}`;
-
-    return `${day} ${month}, ${time}`;
-}
-
-export function parseFlexibleTime(input, baseDate) {
-    if (!baseDate) return null;
-
-    const timeParts = input.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
-    if (!timeParts) return null;
-
-    let hours = parseInt(timeParts[1]);
-    const minutes = parseInt(timeParts[2] ?? "0");
-    const meridian = timeParts[3]?.toLowerCase();
-
-    if (meridian === "pm" && hours < 12) hours += 12;
-    if (meridian === "am" && hours === 12) hours = 0;
-
-    const result = parseAsSydneyDate(baseDate);
-    result.setHours(hours, minutes, 0, 0);
-    return result;
-}
-
-export function minutesOverlapWithinDay(start, end, day) {
-    const { startOfDay, endOfDay } = getStartAndEndOfDay(day)
-
-    const s = start instanceof Date ? start : parseAsSydneyDate(start)
-    const e = end ? (end instanceof Date ? end : parseAsSydneyDate(end)) : null
-
-    const segStart = s < startOfDay ? startOfDay : s
-    const segEnd = e ? (e > endOfDay ? endOfDay : e) : endOfDay
-
-    const ms = Math.max(0, segEnd - segStart)
-    return Math.round(ms / 60000) // minutes
-}
-
-// Format minutes as "Hh Mm" (e.g., 1h 05m or 12m)
 export function formatHM(totalMinutes) {
     const m = Math.max(0, Math.round(totalMinutes || 0))
     const h = Math.floor(m / 60)
@@ -143,12 +131,34 @@ export function formatHM(totalMinutes) {
     return h > 0 ? `${h}h ${rem}m` : `${rem}m`
 }
 
-// Minutes between start and end; if end is missing, use the end of the selected day
-export function minutesBetweenOrEndOfDay(start, end, dayForFallback) {
-    const s = start instanceof Date ? start : parseAsSydneyDate(start)
-    const e = end
-        ? (end instanceof Date ? end : parseAsSydneyDate(end))
-        : getStartAndEndOfDay(dayForFallback).endOfDay
-    const ms = Math.max(0, e - s)
-    return Math.round(ms / 60000)
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Internal helpers (not exported)
+// ──────────────────────────────────────────────────────────────────────────────
+
+// Ensure we’re working with a JS Date (pass-through for Date, convert numbers)
+function asJSDate(v) {
+    if (v instanceof Date) return v
+    if (typeof v === 'number') return new Date(v)
+    if (typeof v === 'string') {
+        // Try ISO first; if not ISO, let Date parse as last resort
+        const iso = DateTime.fromISO(v)
+        return iso.isValid ? iso.toJSDate() : new Date(v)
+    }
+    return new Date(NaN)
+}
+
+// Parse any input to a Luxon DateTime representing the *instant in time*
+// - strings with TZ/offset are respected
+// - strings without TZ are assumed UTC (so epochs/ISO dates are stable)
+//   (We only treat unzoned strings as Sydney *when explicitly using parseAsSydneyDate*)
+function toInstant(v) {
+    if (v instanceof Date) return DateTime.fromJSDate(v)
+    if (typeof v === 'number') return DateTime.fromMillis(v)
+    if (typeof v === 'string') {
+        return /Z|[+\-]\d{2}:?\d{2}$/.test(v)
+            ? DateTime.fromISO(v)
+            : DateTime.fromISO(v, { zone: 'utc' })
+    }
+    return DateTime.invalid('Unknown input')
 }

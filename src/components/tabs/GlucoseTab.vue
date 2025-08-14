@@ -4,7 +4,7 @@
     import {
         parseAsSydneyDate,
         getStartAndEndOfDay,
-        formatTime12hCompact
+        formatTimeInSydney
     } from '../../helpers/dateHelpers'
 
     const props = defineProps({
@@ -48,9 +48,9 @@
                     :key="r.ts.getTime() + '-' + r.value"
                     class="glucose-row"
                     :class="rangeClass(r.value)"
-                    :aria-label="`BG ${Number(r.value).toFixed(2)} at ${formatTime12hCompact(r.ts)}`"
+                    :aria-label="`BG ${Number(r.value).toFixed(2)} at ${formatTimeInSydney(r.ts)}`"
             >
-                <span class="time">{{ formatTime12hCompact(r.ts) }}</span>
+                <span class="time">{{ formatTimeInSydney(r.ts) }}</span>
                 <span class="value">{{ Number(r.value).toFixed(2) }}</span>
                 <span class="unit">mmol/L</span>
             </div>

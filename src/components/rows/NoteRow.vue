@@ -1,6 +1,6 @@
 <script setup>
     import { computed } from 'vue'
-    import { parseAsSydneyDate, formatTime12hCompact } from '../../helpers/dateHelpers'
+    import { parseAsSydneyDate, formatTimeInSydney } from '../../helpers/dateHelpers'
 
     const props = defineProps({
         note: { type: Object, required: true }
@@ -29,7 +29,7 @@
             <div class="note-line">
                 <strong v-if="note.noteNumber">#{{ note.noteNumber }}</strong>
                 <span v-if="note.noteNumber"> — </span>
-                <strong>{{ formatTime12hCompact(ts) }}</strong>:
+                <strong>{{ formatTimeInSydney(ts) }}</strong>:
                 <span
                         class="note-text"
                         v-html="(note.text || '').replace(/\n/g, '<br>')"

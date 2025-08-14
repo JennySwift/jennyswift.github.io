@@ -1,11 +1,14 @@
 <script setup>
     import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
-    import { parseAsSydneyDate, getStartAndEndOfDay } from '../helpers/dateHelpers'
+    import { getStartAndEndOfDay } from '../helpers/dateHelpers'
+    import { DateTime } from 'luxon'
+    import 'chartjs-adapter-luxon'
 
     // Chart.js core + time adapter + annotation plugin
     import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler } from 'chart.js'
     import annotationPlugin from 'chartjs-plugin-annotation'
-    import 'chartjs-adapter-date-fns'
+
+
 
     // Register once (safe to call multiple times)
     Chart.register(LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler, annotationPlugin)
@@ -26,14 +29,21 @@
         const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
         return props.glucoseReadings
             .filter(r => {
-                const t = r.timestamp instanceof Date ? r.timestamp : parseAsSydneyDate(r.timestamp)
+                 const t = (typeof r.timestamp === 'string'
+                       ? (/Z|[+\-]\d{2}:?\d{2}$/.test(r.timestamp)
+                           ? DateTime.fromISO(r.timestamp)
+                           : DateTime.fromISO(r.timestamp, { zone: 'Australia/Sydney' }))
+                           .toJSDate()
+                       : (r.timestamp instanceof Date ? r.timestamp : new Date(Number(r.timestamp))))
                 return t >= startOfDay && t < endOfDay
             })
             .map(r => ({
-                x: (typeof r.timestamp === 'string'
-                    ? Date.parse(/Z|[+\-]\d{2}:?\d{2}$/.test(r.timestamp) ? r.timestamp : `${r.timestamp}Z`)
-                    : (r.timestamp instanceof Date ? r.timestamp.getTime() : Number(r.timestamp))),
-                // x: r.timestamp instanceof Date ? r.timestamp : parseAsSydneyDate(r.timestamp),
+                 x: (typeof r.timestamp === 'string'
+             ? (/Z|[+\-]\d{2}:?\d{2}$/.test(r.timestamp)
+                     ? DateTime.fromISO(r.timestamp)
+                     : DateTime.fromISO(r.timestamp, { zone: 'Australia/Sydney' }))
+                     .toMillis()
+             : (r.timestamp instanceof Date ? r.timestamp.getTime() : Number(r.timestamp))),
                 y: Number(r.value)
             }))
             .sort((a, b) => a.x - b.x)
@@ -113,12 +123,30 @@
             scales: {
                 x: {
                     type: 'time',
-                    time: { unit: 'hour', displayFormats: { hour: 'h:mm a' } },
-                    ticks: { source: 'auto', autoSkip: false, maxTicksLimit: 12 },
+                    time: { zone: 'Australia/Sydney', unit: 'hour', displayFormats: { hour: 'h:mm a' } },
+                    ticks: {
+                        source: 'auto',
+                        autoSkip: false,
+                        maxTicksLimit: 12,
+                        callback: (val) =>
+                            DateTime.fromMillis(Number(val))
+                                .setZone('Australia/Sydney')
+                                .toFormat('h a')
+                    },
+                    // ticks: { source: 'auto', autoSkip: false, maxTicksLimit: 12 },
                     grid: { color: '#ccc', lineWidth: 1 },
                     min: xRange?.min,
                     max: xRange?.max,
                 },
+                // x: {
+                //     type: 'time',
+                //     time: { unit: 'hour', displayFormats: { hour: 'h:mm a' } },
+                //     adapters: { date: { zone: 'Australia/Sydney' } },
+                //     ticks: { source: 'auto', autoSkip: false, maxTicksLimit: 12 },
+                //     grid: { color: '#ccc', lineWidth: 1 },
+                //     min: xRange?.min,
+                //     max: xRange?.max,
+                // },
                 y: {
                     min: yBounds.min,
                     max: yBounds.max,
@@ -172,28 +200,30 @@
         const ctx = canvasRef.value.getContext('2d')
 
         const points = readingsForDay.value
-        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
+        const dayStartMs = DateTime.fromJSDate(props.selectedDate).setZone('Australia/Sydney').startOf('day').toMillis()
+        const dayEndMs = dayStartMs + 86_400_000
         const yBounds = computeYBounds(points)
 
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: { datasets: [createGlucoseDataset(points)] },
-            options: buildOptions({ min: startOfDay, max: endOfDay }, yBounds),
+            options: buildOptions({ min: dayStartMs, max: dayEndMs }, yBounds),
         })
     }
 
     function updateChart() {
         if (!chartInstance) return
         const points = readingsForDay.value
-        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
+        const dayStartMs = DateTime.fromJSDate(props.selectedDate).setZone('Australia/Sydney').startOf('day').toMillis()
+        const dayEndMs = dayStartMs + 86_400_000
         const yBounds = computeYBounds(points)
 
         // update data
         chartInstance.data.datasets = [createGlucoseDataset(points)]
 
         // update scales
-        chartInstance.options.scales.x.min = startOfDay
-        chartInstance.options.scales.x.max = endOfDay
+        chartInstance.options.scales.x.min = dayStartMs
+        chartInstance.options.scales.x.max = dayEndMs
         chartInstance.options.scales.y.min = yBounds.min
         chartInstance.options.scales.y.max = yBounds.max
 

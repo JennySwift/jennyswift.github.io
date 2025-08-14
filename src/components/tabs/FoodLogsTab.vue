@@ -1,7 +1,7 @@
 <script setup>
     import { computed } from 'vue'
     import FoodLogRow from '../rows/FoodLogRow.vue'
-    import { parseAsSydneyDate, getStartAndEndOfDay, formatTime12hCompact } from '../../helpers/dateHelpers'
+    import { parseAsSydneyDate, getStartAndEndOfDay } from '../../helpers/dateHelpers'
 
     const props = defineProps({
         foodLogs:     { type: Array, default: () => [] },

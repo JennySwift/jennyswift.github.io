@@ -1,7 +1,7 @@
 <!-- src/components/rows/BolusRow.vue -->
 <script setup>
     import { computed } from 'vue'
-    import { parseAsSydneyDate, formatTime12hCompact } from '../../helpers/dateHelpers'
+    import { parseAsSydneyDate, formatTimeInSydney } from '../../helpers/dateHelpers'
 
     const props = defineProps({
         dose: { type: Object, required: true } // { timestamp, amount, carbRatioUsed?, notes?, source?, duration? }
@@ -22,7 +22,7 @@
 <template>
     <div class="bolus-row" role="button" tabindex="0">
         <div class="line">
-            <strong class="time">{{ formatTime12hCompact(ts) }}</strong>
+            <strong class="time">{{ formatTimeInSydney(ts) }}</strong>:
             <span class="title">Bolus</span>
             <span class="pill">{{ amountText }}U</span>
         </div>

@@ -1,7 +1,7 @@
 <!-- src/components/rows/FoodLogRow.vue -->
 <script setup>
     import { computed } from 'vue'
-    import { parseAsSydneyDate, formatTime12hCompact } from '../../helpers/dateHelpers'
+    import { parseAsSydneyDate, formatTimeInSydney } from '../../helpers/dateHelpers'
 
     const props = defineProps({
         log: { type: Object, required: true },   // { timestamp, foodName, quantity, netCarbs, totalCarbs, fat, protein, fibre, calories }
@@ -23,7 +23,7 @@
             :tabindex="asButton ? 0 : undefined"
     >
         <div class="log-title">
-            <strong>{{ formatTime12hCompact(ts) }}</strong>:
+            <strong>{{ formatTimeInSydney(ts) }}</strong>:
             {{ log.foodName || 'Food' }}
         </div>
 

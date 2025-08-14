@@ -5,7 +5,7 @@
     import BasalChart from './components/BasalChart.vue'
     import Tabs from './components/tabs/Tabs.vue'
     import Tooltip from './components/CustomTooltip.vue'
-    import { parseAsSydneyDate, getSydneyStartOfToday, formatTimeInSydney } from './helpers/dateHelpers'
+    import { getSydneyStartOfToday } from './helpers/dateHelpers'
     import { fetchDashboardData } from './helpers/dataService'
     import { DateTime } from 'luxon';
 
@@ -17,6 +17,21 @@
     const basalEntries = ref([])
     const bolusDoses = ref([])
     const selectedDate = ref(getSydneyStartOfToday())
+
+    // Treat ISO strings with an explicit offset/Z as that instant.
+    // Treat unzoned strings as Australia/Sydney local wall time.
+    // Numbers = epoch ms. Dates pass through.
+    const toSydneyJSDate = (v) => {
+        if (v instanceof Date) return v
+        if (typeof v === 'number') return new Date(v)
+        if (typeof v === 'string') {
+            const dt = /Z|[+\-]\d{2}:?\d{2}$/.test(v)
+                ? DateTime.fromISO(v)                             // has TZ → respect it
+                : DateTime.fromISO(v, { zone: 'Australia/Sydney' }) // no TZ → Sydney local
+            return dt.toJSDate()
+        }
+        return null
+    }
 
     const stageRef = ref(null)
     const tooltip = reactive({ visible:false, time:'', bg:null, basal:null, left: 12, locked:false })
@@ -35,7 +50,6 @@
         }
 
         const ts = x != null ? new Date(x) : null
-        // const ts = x ? new Date(x) : null
 
         if (!ts) {
             if (!tooltip.locked) {
@@ -71,7 +85,7 @@
         let bestVal = null
 
         for (const r of glucoseReadings.value) {
-            const ts = r.timestamp instanceof Date ? r.timestamp : parseAsSydneyDate(r.timestamp)
+            const ts = toSydneyJSDate(r.timestamp)
             if (ts <= target && (bestTs === null || ts > bestTs)) {
                 bestTs = ts
                 bestVal = Number(r.value)
@@ -86,8 +100,8 @@
         const t = when instanceof Date ? when : new Date(when)
 
         for (const e of basalEntries.value) {
-            const start = e.startTime instanceof Date ? e.startTime : parseAsSydneyDate(e.startTime)
-            const end   = e.endTime ? (e.endTime instanceof Date ? e.endTime : parseAsSydneyDate(e.endTime)) : null
+            const start = e.startTime instanceof Date ? e.startTime : toSydneyJSDate(e.startTime)
+            const end   = e.endTime ? (e.endTime instanceof Date ? e.endTime : toSydneyJSDate(e.endTime)) : null
             if (start <= t && (end === null || t < end)) {
                 return Number(e.rate ?? 0)
             }
@@ -100,7 +114,7 @@
 
         const lastEntry = basalEntries.value[basalEntries.value.length - 1]
         if (!lastEntry.endTime) {
-            lastEntry.endTime = parseAsSydneyDate(data.pumpUploadTime)
+            lastEntry.endTime = toSydneyJSDate(data.pumpUploadTime)
         }
     }
 
@@ -117,14 +131,13 @@
             glucoseReadings.value = Array.isArray(data?.glucoseReadings)
                 ? data.glucoseReadings.map(r => ({
                     timestamp: r.timestamp,
-                    // timestamp: parseAsSydneyDate(r.timestamp),
                     value: r.value,
                 }))
                 : []
 
             foodLogs.value = Array.isArray(data?.foodLogs)
                 ? data.foodLogs.map(f => ({
-                    timestamp: parseAsSydneyDate(f.timestamp),
+                    timestamp: toSydneyJSDate(f.timestamp),
                     foodName: f.foodName,
                     quantity: f.quantity,
                     netCarbs: f.netCarbs,
@@ -138,7 +151,7 @@
 
             notes.value = Array.isArray(data?.notes)
                 ? data.notes.map(n => ({
-                    timestamp: parseAsSydneyDate(n.startTime),
+                    timestamp: toSydneyJSDate(n.startTime),
                     noteNumber: n.noteNumber,
                     text: n.text,
                     tags: n.tags ?? [],
@@ -148,8 +161,8 @@
 
             fasts.value = Array.isArray(data?.fasts)
                 ? data.fasts.map(f => {
-                    const startTime = parseAsSydneyDate(f.startTime)
-                    const endTime = f.endTime ? parseAsSydneyDate(f.endTime) : null
+                    const startTime = toSydneyJSDate(f.startTime)
+                    const endTime = f.endTime ? toSydneyJSDate(f.endTime) : null
                     const duration = endTime ? (endTime - startTime) / 1000 : null // seconds
                     return { startTime, endTime, duration, notes: f.notes }
                 })
@@ -157,14 +170,14 @@
 
             workouts.value = Array.isArray(data?.workouts)
                 ? data.workouts.map(w => ({
-                    start: parseAsSydneyDate(w.startTime),
+                    start: toSydneyJSDate(w.startTime),
                     name: w.name,
                     type: w.type,
                     duration: w.duration,
                     distance: w.distance,
                     activeCalories: w.activeCalories,
                     maxHeartRate: w.maxHeartRate,
-                    endTime: parseAsSydneyDate(w.endTime),
+                    endTime: toSydneyJSDate(w.endTime),
                     source: w.source,
                     elapsedTime: w.elapsedTime,
                     averageHeartRate: w.averageHeartRate,
@@ -177,8 +190,8 @@
 
             basalEntries.value = Array.isArray(data?.basalEntries)
                 ? data.basalEntries.map(b => ({
-                    startTime: parseAsSydneyDate(b.startTime),
-                    endTime: b.endTime ? parseAsSydneyDate(b.endTime) : null,
+                    startTime: toSydneyJSDate(b.startTime),
+                    endTime: b.endTime ? toSydneyJSDate(b.endTime) : null,
                     rate: b.rate,
                     mode: b.mode,
                     notes: b.notes,
@@ -189,7 +202,7 @@
 
             bolusDoses.value = Array.isArray(data?.bolusDoses)
                 ? data.bolusDoses.map(b => ({
-                    timestamp: parseAsSydneyDate(b.timestamp),
+                    timestamp: toSydneyJSDate(b.timestamp),
                     amount: b.amount,
                     duration: b.duration,
                     type: b.type,

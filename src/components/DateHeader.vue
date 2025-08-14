@@ -16,7 +16,9 @@
 
     const dateHeading = computed(() => formatDateInSydney(selectedDate.value))
 
-    const dateInputValue = computed(() => formatDateForInput(selectedDate.value))
+    const dateInputValue = computed(() =>
+        DateTime.fromJSDate(selectedDate.value).setZone('Australia/Sydney').toFormat('yyyy-LL-dd')
+    )
 
     function prevDate() {
         const s = DateTime.fromJSDate(selectedDate.value).setZone('Australia/Sydney');
