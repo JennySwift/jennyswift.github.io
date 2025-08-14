@@ -2,6 +2,7 @@
     import { ref, computed } from 'vue'
     import { parseAsSydneyDate, formatDateTime } from '../../helpers/dateHelpers'
     import { jumpToTime } from '../../helpers/jumpToTime'
+    import HelpTooltip from '../../components/HelpTooltip.vue'
 
 
     // Props: pass your notes array in later from App.vue (next step)
@@ -66,9 +67,16 @@
             <input
                     v-model="query"
                     type="text"
-                    placeholder="Search notes…  (#tag, #123, *title, or text)"
+                    placeholder="Search notes…  (#tag, #1, *title, or text)"
             />
-            <span class="help-tip" title="To filter by tag, type '#tag'. For note number, '#123'. For title, '*keyword'.">?</span>
+            <HelpTooltip>
+                <div>
+                    <div>To filter by tag, prefix tag name with <code>#</code>.</div>
+                    <div>To filter by note number, prefix note number with <code>#</code>.</div>
+                    <div>Or you can just search the content by entering a word.</div>
+                    <!--<div>To filter by title: <code>*keyword</code>.</div>-->
+                </div>
+            </HelpTooltip>
         </div>
 
         <div v-if="filteredNotes.length === 0" class="empty">No matching notes found.</div>
