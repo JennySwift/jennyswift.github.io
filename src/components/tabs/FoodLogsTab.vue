@@ -35,6 +35,7 @@
                     :key="(f.timestamp?.getTime?.() ?? f.timestamp) + '-' + (f.foodName || '')"
                     :log="f"
                     @click="jumpToTime(f.timestamp, 'foodLogs')"
+                    class="clickable-row"
             />
         </div>
 

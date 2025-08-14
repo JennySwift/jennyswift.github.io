@@ -84,7 +84,7 @@
         <div
                 v-for="note in filteredNotes"
                 :key="note.id ?? note.noteNumber ?? (note.timestamp + '-' + (note.text || '').slice(0,10))"
-                class="note-log-block"
+                class="note-log-block clickable-row"
                 @click="onNoteClick(note)"
                 role="button"
                 tabindex="0"
@@ -156,7 +156,6 @@
         .note-log-block {
             padding: 0.6rem 0.8rem;
             border-bottom: 1px solid #e5e7eb;
-            cursor: pointer;
 
             &:hover { background: #f9fafb; }
         }

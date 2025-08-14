@@ -35,6 +35,7 @@
                     :key="(n.timestamp?.getTime?.() ?? n.timestamp) + '-' + (n.noteNumber ?? '')"
                     :note="n"
                     @click="jumpToTime(n.timestamp, 'notes')"
+                    class="clickable-row"
             />
         </div>
     </div>

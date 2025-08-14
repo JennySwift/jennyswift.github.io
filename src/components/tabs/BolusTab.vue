@@ -35,6 +35,7 @@
                     :key="(b.timestamp?.getTime?.() ?? b.timestamp) + '-' + (b.amount ?? '')"
                     :dose="b"
                     @click="jumpToTime(b.timestamp, 'bolus')"
+                    class="clickable-row"
             />
         </template>
     </div>

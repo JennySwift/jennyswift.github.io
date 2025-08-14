@@ -61,7 +61,7 @@
             <div
                     v-for="b in basalEntriesForDay"
                     :key="(b.startTime?.getTime?.() ?? b.startTime) + '-' + (b.endTime?.getTime?.() ?? 'ongoing') + '-' + (b.rate ?? '')"
-                    class="log-block"
+                    class="log-block clickable-row"
                     role="button"
                     tabindex="0"
                     @click="jumpToTime(b.startTime, 'basal')"

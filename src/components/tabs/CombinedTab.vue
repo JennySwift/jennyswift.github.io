@@ -70,7 +70,7 @@
             <div
                     v-for="(item, idx) in feedItems"
                     :key="item.type + '-' + item.ts.getTime() + '-' + idx"
-                    class="feed-item"
+                    class="feed-item clickable-row"
                     :style="{ '--accent': typeAccentVar(item.type) }"
                     @click="jumpToTime(item.ts, 'combined')"
             >
@@ -99,7 +99,6 @@
         align-items: start;
         gap: 10px;
 
-        cursor: pointer;
         border: 1px solid #e5e7eb;
         border-radius: 10px;
         padding: 10px 12px;

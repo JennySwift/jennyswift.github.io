@@ -47,7 +47,7 @@
             <div
                     v-for="r in readingsForDay"
                     :key="r.ts.getTime() + '-' + r.value"
-                    class="glucose-row"
+                    class="glucose-row clickable-row"
                     :class="rangeClass(r.value)"
                     @click="jumpToTime(r.ts, 'bg')"
                     :aria-label="`BG ${Number(r.value).toFixed(2)} at ${formatTimeInSydney(r.ts)}`"

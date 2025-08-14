@@ -35,7 +35,9 @@
                     v-for="w in workoutsForDay"
                     :key="(w.start?.getTime?.() ?? w.start) + '-' + (w.name || '')"
                     :workout="w"
-                    @click="jumpToTime(w.start, 'workout')" />
+                    @click="jumpToTime(w.start, 'workout')"
+                    class="clickable-row"
+            />
 
         </div>
     </div>
