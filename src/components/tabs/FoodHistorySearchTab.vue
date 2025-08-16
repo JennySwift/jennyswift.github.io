@@ -119,11 +119,11 @@
         <div v-if="!selectedFood" class="hint">Type to search, then pick a food to see its history.</div>
 
         <div v-if="selectedFood">
+            <h3 class="results-title">History for “{{ selectedFood }}”</h3>
+
             <div class="summary" v-if="matchingLogs.length">
                 <strong>Total consumed: {{ totalQuantity }}</strong> grams in <strong>{{ durationDays }}</strong> day<span v-if="durationDays !== 1">s</span>.
             </div>
-
-            <h3 class="results-title">History for “{{ selectedFood }}”</h3>
 
             <div v-if="matchingLogs.length === 0">No logs found.</div>
 
@@ -187,7 +187,7 @@
         transform: translateY(-50%);
         border: none;
         background: transparent;
-        font-size: 1.5rem;   
+        font-size: 1.5rem;
         line-height: 1;
         cursor: pointer;
         color: #666;
