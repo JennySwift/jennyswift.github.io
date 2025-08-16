@@ -12,6 +12,7 @@
     import InsulinStatsTab from './InsulinStatsTab.vue'
     import NutritionStatsTab from './NutritionStatsTab.vue'
     import BgStatsTab from './BgStatsTab.vue'
+    import FoodHistorySearchTab from './FoodHistorySearchTab.vue'
     import { formatDateTime, parseAsSydneyDate, getStartAndEndOfDay, isSameDay, formatTimeFromString, minutesOverlapWithinDay, formatHM, minutesBetweenOrEndOfDay} from '../../helpers/dateHelpers'
     import { formatMinutesPerKm, formatKmPerHour, formatDistance } from '../../helpers/workoutHelpers'
 
@@ -51,6 +52,7 @@
             <button class="tab-button" :class="{ active: activeTab === 'insulin-stats' }" @click="setTab('insulin-stats')">📊 Insulin Stats</button>
             <button class="tab-button" :class="{ active: activeTab === 'nutrition-stats' }" @click="setTab('nutrition-stats')">🥗 Nutrition Stats</button>
             <button class="tab-button" :class="{ active: activeTab === 'bg-stats' }" @click="setTab('bg-stats')">📈 BG Stats</button>
+            <button class="tab-button" :class="{ active: activeTab === 'food-history' }" @click="setTab('food-history')">🔎 Food History</button>
         </div>
 
         <!-- Containers -->
@@ -143,6 +145,12 @@
             <BgStatsTab
                     :selected-date="selectedDate"
                     :glucose-readings="glucoseReadings"
+            />
+        </div>
+
+        <div class="tab-content" :class="{ 'active-tab': activeTab === 'food-history' }">
+            <FoodHistorySearchTab
+                    :all-food-logs="foodLogs"
             />
         </div>
     </section>

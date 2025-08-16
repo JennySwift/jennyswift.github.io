@@ -18,7 +18,7 @@
 
 <template>
     <div
-            class="food-row"
+            class="food-row clickable-row"
             :role="asButton ? 'button' : undefined"
             :tabindex="asButton ? 0 : undefined"
     >
@@ -41,7 +41,7 @@
 
 <style scoped>
     .food-row{
-        background: var(--color-bg);
+        /*background: var(--color-bg);*/
         border: 1px solid var(--color-border);
         border-radius: 8px;
         padding: 8px 10px;

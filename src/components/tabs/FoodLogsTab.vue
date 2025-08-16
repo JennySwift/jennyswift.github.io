@@ -32,7 +32,7 @@
         <div v-else>
             <FoodLogRow
                     v-for="f in foodLogsForDay"
-                    :key="(f.timestamp?.getTime?.() ?? f.timestamp) + '-' + (f.foodName || '')"
+                    :key="f.id"
                     :log="f"
                     @click="jumpToTime(f.timestamp, 'foodLogs')"
                     class="clickable-row"

@@ -10,6 +10,7 @@
     import { DateTime } from 'luxon';
 
     const notes = ref([])
+    const foods = ref([])
     const glucoseReadings = ref([])
     const foodLogs = ref([])
     const fasts = ref([])
@@ -161,6 +162,13 @@
 
         try {
             const data = await fetchDashboardData()
+
+            foods.value = Array.isArray(data?.foods)
+                ? data.foods.map(f => ({
+                    id: f.id,
+                    name: f.name
+                }))
+                : []
 
             glucoseReadings.value = Array.isArray(data?.glucoseReadings)
                 ? data.glucoseReadings.map(r => ({
