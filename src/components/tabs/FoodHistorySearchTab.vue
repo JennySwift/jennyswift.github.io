@@ -3,6 +3,7 @@
     import { parseAsSydneyDate, formatHM } from '../../helpers/dateHelpers'
     import { jumpToTime } from '../../helpers/jumpToTime'
     import FoodLogRow from '../rows/FoodLogRow.vue'
+    import { DateTime } from 'luxon'
 
     const props = defineProps({
         allFoodLogs: { type: Array, default: () => [] },
@@ -34,6 +35,25 @@
         )
         const spanMs = Math.max(...times) - Math.min(...times) // elapsed time only
         return Math.max(1, Math.ceil(spanMs / DAY_MS))         // 0 → 1 day minimum
+    })
+
+    const groupedLogs = computed(() => {
+        const logs = matchingLogs.value
+        if (!logs.length) return []
+
+        const map = new Map()
+        for (const l of logs) {
+            const js = l.timestamp instanceof Date ? l.timestamp : parseAsSydneyDate(l.timestamp)
+            const dt = DateTime.fromJSDate(js, { zone: 'Australia/Sydney' })
+            const key = dt.toISODate() // e.g., "2025-08-16"
+            const label = dt.toFormat('EEE d LLL yyyy') // e.g., "Sat 16 Aug 2025"
+
+            if (!map.has(key)) map.set(key, { key, label, logs: [] })
+            map.get(key).logs.push(l)
+        }
+
+        // newest day first; logs within each group remain sorted by your existing sort
+        return Array.from(map.values()).sort((a, b) => b.key.localeCompare(a.key))
     })
 
     // Prefer string name on exported logs, but fall back to nested object if present.
@@ -128,12 +148,15 @@
             <div v-if="matchingLogs.length === 0">No logs found.</div>
 
             <div v-else class="logs">
-                <FoodLogRow
-                        v-for="log in matchingLogs"
-                        :key="log.id"
-                        :log="log"
-                        @click="onLogClick(log.timestamp)"
-                />
+                <template v-for="group in groupedLogs" :key="group.key">
+                    <h4 class="date-heading">{{ group.label }}</h4>
+                    <FoodLogRow
+                            v-for="log in group.logs"
+                            :key="log.id"
+                            :log="log"
+                            @click="onLogClick(log.timestamp)"
+                    />
+                </template>
             </div>
         </div>
     </div>
@@ -195,4 +218,10 @@
     }
 
     .clear-btn:hover { color: #000; }
+
+    .date-heading {
+        margin: 1rem 0 0.4rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
 </style>
