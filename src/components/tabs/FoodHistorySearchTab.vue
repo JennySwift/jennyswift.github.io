@@ -12,6 +12,15 @@
     const selectedFood = ref('')
     const showSuggestions = ref(false)
 
+    const inputEl = ref(null)
+    function clearSearch() {
+        search.value = ''
+        selectedFood.value = ''
+        showSuggestions.value = false
+        // return focus to the field
+        inputEl.value?.focus()
+    }
+
     const totalQuantity = computed(() =>
         matchingLogs.value.reduce((sum, l) => sum + (Number(l.quantity) || 0), 0)
     )
@@ -74,6 +83,7 @@
     <div class="daily-section">
         <div class="search-box">
             <input
+                    ref="inputEl"
                     v-model="search"
                     type="text"
                     class="search-input"
@@ -83,6 +93,17 @@
                     @keydown.esc="showSuggestions = false"
                     @keydown.enter.prevent="chooseFood(suggestions[0] || search)"
             />
+            <button
+                    v-if="search || selectedFood"
+                    class="clear-btn"
+                    type="button"
+                    @mousedown.prevent
+                    @click="clearSearch"
+                    aria-label="Clear search"
+            >
+                ×
+            </button>
+
             <ul v-if="showSuggestions && suggestions.length && search.trim().length" class="suggestions">
                 <li
                         v-for="name in suggestions"
@@ -99,7 +120,7 @@
 
         <div v-if="selectedFood">
             <div class="summary" v-if="matchingLogs.length">
-                <strong>{{ totalQuantity }}</strong> grams in <strong>{{ durationDays }}</strong> day<span v-if="durationDays !== 1">s</span>.
+                <strong>Total consumed: {{ totalQuantity }}</strong> grams in <strong>{{ durationDays }}</strong> day<span v-if="durationDays !== 1">s</span>.
             </div>
 
             <h3 class="results-title">History for “{{ selectedFood }}”</h3>
@@ -154,4 +175,24 @@
         margin: 0.5rem 0 0.75rem;
         color: #0f172a;
     }
+    .search-box { position: relative; max-width: 520px; }
+
+    /* make room for the clear button */
+    .search-input { padding-right: 2rem; }
+
+    .clear-btn {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background: transparent;
+        font-size: 1.5rem;   
+        line-height: 1;
+        cursor: pointer;
+        color: #666;
+        padding: 0.25rem;    /* larger clickable area */
+    }
+
+    .clear-btn:hover { color: #000; }
 </style>
