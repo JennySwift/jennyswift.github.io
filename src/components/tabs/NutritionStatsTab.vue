@@ -179,7 +179,7 @@
                 height: 14px;
                 margin-top: 2px;
             }
-            
+
             .target-bar {
                 position: relative;
                 margin-top: .4rem;
