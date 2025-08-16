@@ -10,6 +10,7 @@
 
     const search = ref('')
     const selectedFood = ref('')
+    const showSuggestions = ref(false)
 
     // Prefer string name on exported logs, but fall back to nested object if present.
     function getFoodName(log) {
@@ -32,6 +33,7 @@
     function chooseFood(name) {
         selectedFood.value = name
         search.value = name
+        showSuggestions.value = false
     }
 
     const matchingLogs = computed(() => {
@@ -61,14 +63,17 @@
                     type="text"
                     class="search-input"
                     placeholder="Search foods (e.g., apple, orange)…"
+                    @focus="showSuggestions = true"
+                    @blur="showSuggestions = false"
+                    @keydown.esc="showSuggestions = false"
                     @keydown.enter.prevent="chooseFood(suggestions[0] || search)"
             />
-            <ul v-if="suggestions.length && search.trim().length" class="suggestions">
+            <ul v-if="showSuggestions && suggestions.length && search.trim().length" class="suggestions">
                 <li
                         v-for="name in suggestions"
                         :key="name"
                         class="suggestion"
-                        @click="chooseFood(name)"
+                        @mousedown.prevent="chooseFood(name)"
                 >
                     {{ name }}
                 </li>
