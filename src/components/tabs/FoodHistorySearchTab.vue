@@ -12,6 +12,21 @@
     const selectedFood = ref('')
     const showSuggestions = ref(false)
 
+    const totalQuantity = computed(() =>
+        matchingLogs.value.reduce((sum, l) => sum + (Number(l.quantity) || 0), 0)
+    )
+
+    const DAY_MS = 86_400_000
+    const durationDays = computed(() => {
+        const logs = matchingLogs.value
+        if (logs.length === 0) return 0
+        const times = logs.map(l =>
+            (l.timestamp instanceof Date ? l.timestamp : parseAsSydneyDate(l.timestamp)).getTime()
+        )
+        const spanMs = Math.max(...times) - Math.min(...times) // elapsed time only
+        return Math.max(1, Math.ceil(spanMs / DAY_MS))         // 0 → 1 day minimum
+    })
+
     // Prefer string name on exported logs, but fall back to nested object if present.
     function getFoodName(log) {
         return (log.foodName ?? log.food?.name ?? '').trim()
@@ -82,7 +97,11 @@
 
         <div v-if="!selectedFood" class="hint">Type to search, then pick a food to see its history.</div>
 
-        <div v-else>
+        <div v-if="selectedFood">
+            <div class="summary" v-if="matchingLogs.length">
+                <strong>{{ totalQuantity }}</strong> grams in <strong>{{ durationDays }}</strong> day<span v-if="durationDays !== 1">s</span>.
+            </div>
+
             <h3 class="results-title">History for “{{ selectedFood }}”</h3>
 
             <div v-if="matchingLogs.length === 0">No logs found.</div>
@@ -131,4 +150,8 @@
     .log-main { display: flex; flex-direction: column; gap: 0.15rem; }
     .log-name { font-weight: 600; }
     .log-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; color: #555; font-size: 0.9rem; }
+    .summary {
+        margin: 0.5rem 0 0.75rem;
+        color: #0f172a;
+    }
 </style>
