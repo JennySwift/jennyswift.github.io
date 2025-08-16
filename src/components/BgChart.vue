@@ -247,7 +247,7 @@
 </script>
 
 <template>
-    <div class="chartContainer" style="height: 180px;">
+    <div class="chartContainer">
         <canvas ref="canvasRef" aria-label="Blood glucose chart"></canvas>
     </div>
 </template>

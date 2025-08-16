@@ -136,7 +136,7 @@
             </ul>
         </div>
 
-        <div v-if="!selectedFood" class="hint">Type to search, then pick a food to see its history.</div>
+        <div v-if="!selectedFood" class="hint">Search for a food, select it, then click the results to navigate and see the effect on BG.</div>
 
         <div v-if="selectedFood">
             <h3 class="results-title">History for “{{ selectedFood }}”</h3>

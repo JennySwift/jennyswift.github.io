@@ -273,31 +273,106 @@
 
 <template>
   <main style="padding: 1rem;">
-    <DateHeader v-model:selectedDate="selectedDate" />
+
 
     <!-- stage wrapper so tooltip can't cover the header -->
-    <div ref="stageRef" class="chart-stage" style="position:relative; margin-top:.5rem;">
-      <Tooltip
-              :visible="tooltip.visible"
-              :time="tooltip.time"
-              :bg="tooltip.bg"
-              :basal="tooltip.basal"
-              :left="tooltip.left"
-              :top="8"
-      />
-      <BgChart :glucose-readings="glucoseReadings" :selected-date="selectedDate" />
-      <BasalChart :basal-entries="basalEntries" :selected-date="selectedDate" />
-    </div>
+    <section class="dashboard-grid">
+      <aside class="left-rail">
+        <DateHeader v-model:selectedDate="selectedDate" />
+        <div ref="stageRef" class="chart-stage">
+          <Tooltip
+                  :visible="tooltip.visible"
+                  :time="tooltip.time"
+                  :bg="tooltip.bg"
+                  :basal="tooltip.basal"
+                  :left="tooltip.left"
+                  :top="8"
+          />
 
-    <Tabs
-            :notes="notes"
-            :food-logs="foodLogs"
-            :bolus-doses="bolusDoses"
-            :fasts="fasts"
-            :workouts="workouts"
-            :basal-entries="basalEntries"
-            :glucose-readings="glucoseReadings"
-            :selected-date="selectedDate"
-    />
+          <div class="chart-box bg-box">
+            <BgChart :glucose-readings="glucoseReadings" :selected-date="selectedDate" />
+          </div>
+          <div class="chart-box basal-box">
+            <BasalChart :basal-entries="basalEntries" :selected-date="selectedDate" />
+          </div>
+
+        </div>
+      </aside>
+
+      <main class="right-rail">
+        <Tabs
+                :notes="notes"
+                :food-logs="foodLogs"
+                :bolus-doses="bolusDoses"
+                :fasts="fasts"
+                :workouts="workouts"
+                :basal-entries="basalEntries"
+                :glucose-readings="glucoseReadings"
+                :selected-date="selectedDate"
+        />
+      </main>
+    </section>
   </main>
 </template>
+
+<style scoped lang="scss">
+  /* Desktop: two columns, sticky chart */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 550px 1fr; /* adjust left width if needed */
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .left-rail {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow: visible; /* let the tooltip overflow */
+  }
+
+  .chart-stage {
+    position: relative;             /* keeps Tooltip positioning working */
+    margin-top: .5rem;
+  }
+
+  .right-rail {
+    min-width: 0;                   /* prevents overflow in CSS grid */
+  }
+
+  /* Small screens: fall back to single column, no sticky */
+  @media (max-width: 980px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .left-rail {
+      position: static;
+      max-height: none;
+      overflow: visible;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .bg-box   { --box-h: var(--bg-chart-h); }
+  .basal-box{ --box-h: var(--basal-chart-h); }
+
+  .chart-box > * {
+    width: 100%;
+    height: 100%;
+  }
+
+
+
+  /* Layout the two boxes with a tiny gap */
+  .chart-stage {
+    display: grid;
+    row-gap: 8px;
+  }
+
+  /* Fixed heights: you asked for 180px and 140px */
+  .chart-box { position: relative; overflow: hidden; }
+  .bg-box    { height: 180px; }
+  .basal-box { height: 140px; }
+
+  /* Make the chart components and their canvases fill the box height */
+  .chart-box > * { width: 100%; height: 100%; display: block; }
+  .chart-box canvas { height: 100% !important; width: 100% !important; }
+</style>

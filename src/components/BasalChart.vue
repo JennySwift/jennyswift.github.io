@@ -261,7 +261,7 @@
 </script>
 
 <template>
-    <div class="chartContainer" style="height: 140px;">
+    <div class="chartContainer">
         <canvas ref="canvasRef" aria-label="Basal rate chart"></canvas>
     </div>
 </template>
