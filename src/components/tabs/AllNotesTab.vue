@@ -18,6 +18,34 @@
 
     const query = ref('')
 
+    // Selected tags (store lowercased values for matching)
+    const selectedTags = ref([])
+
+    // Unique tag list (display original casing)
+    const allTags = computed(() => {
+        const set = new Set()
+        if (!Array.isArray(props.notes)) return []
+        for (const n of props.notes) {
+            const tags = Array.isArray(n.tags) ? n.tags : []
+            for (const t of tags) {
+                const name = String(t).trim()
+                if (name) set.add(name)
+            }
+        }
+        // Sort case-insensitively for nicer UI
+        return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'accent' }))
+    })
+
+    function toggleTag(tag) {
+        const lc = String(tag).toLowerCase()
+        const idx = selectedTags.value.indexOf(lc)
+        if (idx >= 0) selectedTags.value.splice(idx, 1)
+        else selectedTags.value.push(lc)
+    }
+    function isTagSelected(tag) {
+        return selectedTags.value.includes(String(tag).toLowerCase())
+    }
+
     const filteredNotes = computed(() => {
         const q = (query.value || '').trim().toLowerCase()
         if (!Array.isArray(props.notes) || props.notes.length === 0) return []
@@ -26,6 +54,12 @@
             const text = (note.text ?? '').toLowerCase()
             const tags = Array.isArray(note.tags) ? note.tags.map(t => String(t).toLowerCase()) : []
             const title = (note.title ?? '').toLowerCase()
+
+            // Tag multi-select (AND): if any tags selected, note must include all of them
+            if (selectedTags.value.length > 0) {
+                const hasAll = selectedTags.value.every(t => tags.includes(t))
+                if (!hasAll) return false
+            }
 
             if (q.startsWith('#')) {
                 const tagOrNumber = q.slice(1)
@@ -79,6 +113,19 @@
             </HelpTooltip>
         </div>
 
+        <div class="tag-cloud">
+            <button
+                    v-for="tag in allTags"
+                    :key="tag"
+                    class="tag-chip"
+                    :class="{ selected: isTagSelected(tag) }"
+                    type="button"
+                    @click="toggleTag(tag)"
+            >
+                {{ tag }}
+            </button>
+        </div>
+
         <!--<div v-if="filteredNotes.length === 0" class="empty">No matching notes found.</div>-->
         <TransitionGroup name="list" tag="div" class="notes-list">
         <div
@@ -127,6 +174,29 @@
         min-height: 800px;
     }
     .all-notes {
+        .tag-cloud {
+            margin: 0.5rem 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+
+            .tag-chip {
+                border: 1px solid #d1d5db;
+                background: #fff;
+                border-radius: 999px;
+                padding: 0.2rem 0.6rem;
+                font-size: 0.85rem;
+                cursor: pointer;
+                user-select: none;
+
+                &.selected {
+                    background: #11182710; /* subtle */
+                    border-color: #11182766;
+                    font-weight: 600;
+                }
+            }
+        }
+        
         .search {
             margin: 1rem 0;
             text-align: center;
