@@ -166,7 +166,8 @@
             foods.value = Array.isArray(data?.foods)
                 ? data.foods.map(f => ({
                     id: f.id,
-                    name: f.name
+                    name: f.name,
+                    tags: Array.isArray(f.tags) ? f.tags : []
                 }))
                 : []
 
@@ -188,6 +189,7 @@
                     protein: f.protein,
                     fibre: f.fibre,
                     totalCarbs: f.totalCarbs,
+                    foodTags: Array.isArray(f.foodTags) ? f.foodTags : []
                 }))
                 : []
 
@@ -302,6 +304,7 @@
       <main class="right-rail">
         <Tabs
                 :notes="notes"
+                :foods="foods"
                 :food-logs="foodLogs"
                 :bolus-doses="bolusDoses"
                 :fasts="fasts"

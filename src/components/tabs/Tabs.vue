@@ -18,6 +18,7 @@
 
     const props = defineProps({
         notes:           { type: Array, default: () => [] },
+        foods:           { type: Array, default: () => [] },
         foodLogs:        { type: Array, default: () => [] },
         bolusDoses:      { type: Array, default: () => [] },
         fasts:           { type: Array, default: () => [] },
@@ -151,6 +152,7 @@
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'food-history' }">
             <FoodHistorySearchTab
                     :all-food-logs="foodLogs"
+                    :foods="foods"
             />
         </div>
     </section>

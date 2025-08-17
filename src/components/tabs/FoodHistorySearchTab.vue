@@ -7,11 +7,13 @@
 
     const props = defineProps({
         allFoodLogs: { type: Array, default: () => [] },
+        foods: { type: Array, default: () => [] },
     })
 
     const search = ref('')
     const selectedFood = ref('')
     const showSuggestions = ref(false)
+    const selectedFoodTags = ref([])
 
     const inputEl = ref(null)
     function clearSearch() {
@@ -20,6 +22,29 @@
         showSuggestions.value = false
         // return focus to the field
         inputEl.value?.focus()
+    }
+
+    const allFoodTags = computed(() => {
+        const set = new Set()
+        for (const f of (props.foods ?? [])) {
+            const tags = Array.isArray(f.tags) ? f.tags : []
+            for (const t of tags) {
+                const name = String(t).trim()
+                if (name) set.add(name)
+            }
+        }
+        return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'accent' }))
+    })
+
+    function toggleFoodTag(tag) {
+        const lc = tag.toLowerCase()
+        const i = selectedFoodTags.value.indexOf(lc)
+        if (i >= 0) selectedFoodTags.value.splice(i, 1)
+        else selectedFoodTags.value.push(lc)
+    }
+
+    function isFoodTagSelected(tag) {
+        return selectedFoodTags.value.includes(tag.toLowerCase())
     }
 
     const totalQuantity = computed(() =>
@@ -81,10 +106,25 @@
     }
 
     const matchingLogs = computed(() => {
-        if (!selectedFood.value) return []
-        const nameLower = selectedFood.value.toLowerCase()
+        const nameLower = (selectedFood.value || '').toLowerCase()
+        const requiredTags = selectedFoodTags.value // already lowercased
+
         return props.allFoodLogs
-            .filter(l => getFoodName(l).toLowerCase() === nameLower)
+            .filter(l => {
+                if (nameLower) {
+                    const fn = getFoodName(l).toLowerCase()
+                    if (fn !== nameLower) return false
+                }
+
+                // 2) tag AND filter: each selected tag must exist in this log's foodTags
+                if (requiredTags.length > 0) {
+                    const tags = Array.isArray(l.foodTags) ? l.foodTags.map(t => String(t).toLowerCase()) : []
+                    // every selected tag must be present
+                    if (!requiredTags.every(t => tags.includes(t))) return false
+                }
+
+                return true
+            })
             .sort((a, b) => {
                 const ta = (a.timestamp instanceof Date ? a.timestamp : parseAsSydneyDate(a.timestamp)).getTime()
                 const tb = (b.timestamp instanceof Date ? b.timestamp : parseAsSydneyDate(b.timestamp)).getTime()
@@ -94,6 +134,11 @@
 
     function onLogClick(ts) {
         jumpToTime(ts, 'food')
+    }
+
+    function clearAllFoodFilters() {
+        clearSearch()
+        selectedFoodTags.value = []
     }
 
 
@@ -136,10 +181,34 @@
             </ul>
         </div>
 
+        <div class="tag-cloud">
+            <button
+                    v-for="tag in allFoodTags"
+                    :key="tag"
+                    class="tag-chip"
+                    :class="{ selected: isFoodTagSelected(tag) }"
+                    type="button"
+                    @click="toggleFoodTag(tag)"
+            >
+                {{ tag }}
+            </button>
+
+            <button
+                    v-if="selectedFoodTags.length || selectedFood"
+                    class="clear-btn"
+                    type="button"
+                    @click="clearAllFoodFilters"
+                    aria-label="Clear tag & name filters"
+                    style="margin-left: 0.5rem"
+            >
+                Clear Filters
+            </button>
+        </div>
+
         <div v-if="!selectedFood" class="hint">Search for a food, select it, then click the results to navigate and see the effect on BG.</div>
 
-        <div v-if="selectedFood">
-            <h3 class="results-title">History for “{{ selectedFood }}”</h3>
+        <div v-if="selectedFood || selectedFoodTags.length > 0">
+            <!--<h3 class="results-title">History for “{{ selectedFood }}”</h3>-->
 
             <div class="summary" v-if="matchingLogs.length">
                 <strong>Total consumed: {{ totalQuantity }}</strong> grams in <strong>{{ durationDays }}</strong> day<span v-if="durationDays !== 1">s</span>.
@@ -223,5 +292,25 @@
         margin: 1rem 0 0.4rem;
         font-weight: 700;
         color: #0f172a;
+    }
+    .tag-cloud {
+        margin: 0.5rem 0 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+    .tag-chip {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        border-radius: 999px;
+        padding: 0.2rem 0.6rem;
+        font-size: 0.85rem;
+        cursor: pointer;
+        user-select: none;
+    }
+    .tag-chip.selected {
+        background: #11182710;
+        border-color: #11182766;
+        font-weight: 600;
     }
 </style>
