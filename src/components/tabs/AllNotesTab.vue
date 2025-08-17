@@ -36,6 +36,11 @@
         return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'accent' }))
     })
 
+    function clearFilters() {
+        query.value = ''
+        selectedTags.value = []
+    }
+
     function toggleTag(tag) {
         const lc = String(tag).toLowerCase()
         const idx = selectedTags.value.indexOf(lc)
@@ -103,6 +108,16 @@
                     type="text"
                     placeholder="Search notes…  (#tag, #1, *title, or text)"
             />
+
+            <button
+                    v-if="query || selectedTags.length"
+                    class="clear-btn"
+                    type="button"
+                    @click="clearFilters"
+            >
+                Clear Search
+            </button>
+
             <HelpTooltip>
                 <div>
                     <div>To filter by tag, prefix tag name with <code>#</code>.</div>
@@ -174,6 +189,21 @@
         min-height: 800px;
     }
     .all-notes {
+        .clear-btn {
+            margin-left: 0.5rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.85rem;
+            border: none;
+            border-radius: 6px;
+            background: var(--color-button);
+            color: #fff; /* white text for contrast */
+            cursor: pointer;
+
+            &:hover {
+                background: color-mix(in srgb, var(--color-bolus) 80%, black); /* darker on hover */
+            }
+        }
+
         .tag-cloud {
             margin: 0.5rem 0 1rem;
             display: flex;
@@ -196,7 +226,7 @@
                 }
             }
         }
-        
+
         .search {
             margin: 1rem 0;
             text-align: center;

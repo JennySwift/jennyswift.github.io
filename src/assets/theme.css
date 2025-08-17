@@ -9,6 +9,8 @@
     /* Neutrals */
     --color-border:  #e5e7eb;
     --color-bg:      #ffffff;
+
+    --color-button:   #007ACC; /* blue */
 }
 
 /* Optional helpers (soft bg/border derived from accent) */
