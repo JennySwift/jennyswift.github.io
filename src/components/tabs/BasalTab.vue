@@ -81,10 +81,70 @@
 
                 <div class="log-details">
                     <span>💧 Rate: {{ b.rate }} U/hr</span>
-                    <span v-if="b.mode">• Mode: {{ b.mode }}</span>
+
+                    <span
+                            v-if="b.mode"
+                            class="mode-chip"
+                            :class="{
+    'chip-control-iq': b.mode === 'ControlIQ',
+    'chip-manual': b.mode === 'Manual',
+    'chip-suspended': b.mode === 'Suspended'
+  }"
+                    >
+  {{ b.mode }}
+</span>
+
+
                     <span v-if="b.notes">• {{ b.notes }}</span>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped lang="scss">
+    .log-block {
+        border-left: 4px solid transparent;
+        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.5rem;
+        background: #f9fafb;
+        transition: background 0.2s, transform 0.1s;
+    }
+    .log-block:hover {
+        background: #f3f4f6;
+        transform: translateX(2px);
+    }
+    
+
+    .mode-chip {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 6px;
+    }
+
+    /* ControlIQ = adaptive → calming indigo */
+    .chip-control-iq {
+        background: #eef2ff;    /* light indigo bg */
+        color: #4338ca;         /* indigo text */
+        border: 1px solid #c7d2fe;
+    }
+
+    /* Manual = steady → green */
+    .chip-manual {
+        background: #ecfdf5;    /* light green bg */
+        color: #065f46;         /* green text */
+        border: 1px solid #bbf7d0;
+    }
+
+    /* Suspended = urgent → red */
+    .chip-suspended {
+        background: #fef2f2;    /* light red bg */
+        color: #b91c1c;         /* red text */
+        border: 1px solid #fecaca;
+    }
+
+</style>
