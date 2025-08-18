@@ -6,8 +6,10 @@
         time:    { type: String,  default: '' },
         bg:      { type: [Number, null], default: null },
         basal:   { type: [Number, null], default: null },
-        left:    { type: Number, default: 8 },   // NEW
-        top:     { type: Number, default: 8 },   // NEW
+        left:    { type: Number, default: 8 },
+        top:     { type: Number, default: 8 },
+        hourlyBasalUnits: { type: [Number, null], default: null },
+        hourlyBasalLabel: { type: String, default: '' }
     })
 </script>
 
@@ -20,12 +22,18 @@
             aria-live="polite"
     >
         <div class="row"><strong>{{ time }}</strong></div>
+
         <div class="row">
             BG: <span>{{ bg != null ? bg.toFixed(2) + ' mmol/L' : '—' }}
             ({{ (bg * 18).toFixed(2) }} mg/dL)
         </span>
         </div>
-        <div class="row">Basal: <span>{{ basal != null ? basal.toFixed(3) + ' U/hr' : '—' }}</span></div>
+
+        <div class="row">Basal Rate: <span>{{ basal != null ? basal.toFixed(3) + ' U/hr' : '—' }}</span></div>
+
+        <div v-if="hourlyBasalUnits != null" class="row">
+            Total basal from {{ hourlyBasalLabel }}: <strong>{{ Number(hourlyBasalUnits).toFixed(2) }}</strong> units
+        </div>
     </div>
 </template>
 

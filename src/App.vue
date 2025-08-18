@@ -36,7 +36,17 @@
     }
 
     const stageRef = ref(null)
-    const tooltip = reactive({ visible:false, time:'', bg:null, basal:null, left: 12, locked:false })
+
+    const tooltip = reactive({
+        visible: false,
+        time: '',
+        bg: null,
+        basal: null,
+        left: 12,
+        locked: false,
+        hourlyBasalUnits: null,
+        hourlyBasalLabel: ''
+    })
 
     // Hourly basal totals for the selected day (array[24] of units)
     const hourlyBasalTotals = computed(() => {
@@ -117,6 +127,7 @@
             goToTimestamp(at, source)
     }
 
+
     function handleChartHover(e) {
         const { x, px, source, hide } = e?.detail ?? {}
 
@@ -125,6 +136,8 @@
         if (hide) {
             tooltip.visible = false
             tooltip.locked = false
+            tooltip.hourlyBasalUnits = null
+            tooltip.hourlyBasalLabel = ''
             return
         }
 
@@ -145,6 +158,15 @@
             const centeredLeft = px - approxWidth / 2
             tooltip.left = clamp(centeredLeft, padding, stageRect.width - approxWidth - padding)
         }
+
+        //Hourly Basal
+        const dtSydney = DateTime.fromMillis(Number(x)).setZone('Australia/Sydney')
+        const hourIdx = dtSydney.hour // 0..23
+        const start = dtSydney.startOf('hour')
+        const end = start.plus({ hours: 1 })
+        const fmt = (dt) => dt.toFormat('h a').toLowerCase().replace(' ', '')
+        tooltip.hourlyBasalLabel = `${fmt(start)}–${fmt(end)}`
+        tooltip.hourlyBasalUnits = Number(hourlyBasalTotals.value?.[hourIdx] ?? 0)
 
         tooltip.locked = (source === 'combined')
         tooltip.visible = true
@@ -335,6 +357,8 @@
                   :basal="tooltip.basal"
                   :left="tooltip.left"
                   :top="8"
+                  :hourly-basal-units="tooltip.hourlyBasalUnits"
+                  :hourly-basal-label="tooltip.hourlyBasalLabel"
           />
 
           <div class="chart-box bg-box">
