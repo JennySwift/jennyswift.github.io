@@ -25,6 +25,7 @@
         fasts:           { type: Array, default: () => [] },
         workouts:        { type: Array, default: () => [] },
         basalEntries:    { type: Array, default: () => [] },
+        hourlyBasalTotals: { type: Array, default: () => [] },
         glucoseReadings: { type: Array, default: () => [] },
         selectedDate:     { type: Date, required: true },
     })
@@ -114,6 +115,7 @@
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'basal-by-hour' }">
             <BasalByHourTab
                     :basal-entries="basalEntries"
+                    :hourly-basal-totals="hourlyBasalTotals"
                     :selected-date="selectedDate"
             />
         </div>

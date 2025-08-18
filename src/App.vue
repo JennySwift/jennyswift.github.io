@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
+    import { ref, computed, reactive, onMounted, onBeforeUnmount } from 'vue'
     import DateHeader from './components/DateHeader.vue'
     import BgChart from './components/BgChart.vue'
     import BasalChart from './components/BasalChart.vue'
@@ -36,6 +36,51 @@
 
     const stageRef = ref(null)
     const tooltip = reactive({ visible:false, time:'', bg:null, basal:null, left: 12, locked:false })
+
+    // Hourly basal totals for the selected day (array[24] of units)
+    const hourlyBasalTotals = computed(() => {
+        const totals = new Array(24).fill(0)
+        if (!selectedDate.value || !Array.isArray(basalEntries.value)) return totals
+
+        // Selected day window in Australia/Sydney
+        const base = selectedDate.value instanceof Date
+            ? selectedDate.value
+            : toSydneyJSDate(selectedDate.value)
+        let dayStart = DateTime.fromJSDate(base, { zone: 'Australia/Sydney' }).startOf('day')
+        const dayEnd = dayStart.plus({ days: 1 })
+
+        for (const e of basalEntries.value) {
+            const jsStart = e.startTime instanceof Date ? e.startTime : toSydneyJSDate(e.startTime)
+            const jsEnd   = e.endTime   ? (e.endTime instanceof Date ? e.endTime : toSydneyJSDate(e.endTime)) : null
+            if (!jsStart || !jsEnd || jsEnd <= jsStart) continue
+
+            const ratePerHour = Number(e.rate) // U/h
+            if (!Number.isFinite(ratePerHour) || ratePerHour <= 0) continue
+
+            // Convert to Sydney and CLAMP to [dayStart, dayEnd)
+            let cur = DateTime.fromJSDate(jsStart, { zone: 'Australia/Sydney' })
+            let end = DateTime.fromJSDate(jsEnd,   { zone: 'Australia/Sydney' })
+
+            if (end <= dayStart || cur >= dayEnd) continue // no overlap with selected day
+            if (cur < dayStart) cur = dayStart
+            if (end > dayEnd)   end = dayEnd
+
+            // Walk hour buckets within the clamped range
+            while (cur < end) {
+                const bucketEnd = cur.startOf('hour').plus({ hours: 1 })
+                const sliceEnd = end < bucketEnd ? end : bucketEnd
+
+                const seconds = Math.max(0, sliceEnd.toSeconds() - cur.toSeconds())
+                if (seconds > 0) {
+                    const hourIdx = cur.hour // 0..23
+                    totals[hourIdx] += ratePerHour * (seconds / 3600)
+                }
+                cur = sliceEnd
+            }
+        }
+
+        return totals.map(v => Math.round(v * 1000) / 1000)
+    })
 
     function clamp(n, min, max) { return Math.max(min, Math.min(n, max)) }
 
@@ -310,6 +355,7 @@
                 :fasts="fasts"
                 :workouts="workouts"
                 :basal-entries="basalEntries"
+                :hourly-basal-totals="hourlyBasalTotals"
                 :glucose-readings="glucoseReadings"
                 :selected-date="selectedDate"
         />
