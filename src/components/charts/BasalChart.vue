@@ -1,6 +1,6 @@
 <script setup>
     import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
-    import { parseAsSydneyDate, getStartAndEndOfDay } from '../helpers/dateHelpers'
+    import { parseAsSydneyDate, getStartAndEndOfDay } from '../../helpers/dateHelpers'
 
     import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler } from 'chart.js'
     import { DateTime } from 'luxon'

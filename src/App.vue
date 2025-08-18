@@ -1,8 +1,9 @@
 <script setup>
     import { ref, computed, reactive, onMounted, onBeforeUnmount } from 'vue'
     import DateHeader from './components/DateHeader.vue'
-    import BgChart from './components/BgChart.vue'
-    import BasalChart from './components/BasalChart.vue'
+    import BgChart from './components/charts/BgChart.vue'
+    import BasalChart from './components/charts/BasalChart.vue'
+    import HourlyBasalChart from './components/charts/HourlyBasalChart.vue'
     import Tabs from './components/tabs/Tabs.vue'
     import Tooltip from './components/CustomTooltip.vue'
     import { getSydneyStartOfToday } from './helpers/dateHelpers'
@@ -343,6 +344,15 @@
             <BasalChart :basal-entries="basalEntries" :selected-date="selectedDate" />
           </div>
 
+          <div class="chart-box hourly-basal-box">
+            <HourlyBasalChart
+                    :hourly-totals="hourlyBasalTotals"
+                    :selected-date="selectedDate"
+            />
+          </div>
+
+
+
         </div>
       </aside>
 
@@ -420,6 +430,7 @@
   .chart-box { position: relative; overflow: hidden; }
   .bg-box    { height: 180px; }
   .basal-box { height: 140px; }
+  .hourly-basal-box { height: 140px; }
 
   /* Make the chart components and their canvases fill the box height */
   .chart-box > * { width: 100%; height: 100%; display: block; }

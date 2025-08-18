@@ -1,6 +1,6 @@
 <script setup>
     import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
-    import { getStartAndEndOfDay } from '../helpers/dateHelpers'
+    import { getStartAndEndOfDay } from '../../helpers/dateHelpers'
     import { DateTime } from 'luxon'
     import 'chartjs-adapter-luxon'
 
