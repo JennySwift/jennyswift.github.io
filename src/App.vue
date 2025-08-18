@@ -3,6 +3,7 @@
     import DateHeader from './components/DateHeader.vue'
     import BgChart from './components/charts/BgChart.vue'
     import BasalChart from './components/charts/BasalChart.vue'
+    import BolusChart from './components/charts/BolusChart.vue'
     import HourlyBasalChart from './components/charts/HourlyBasalChart.vue'
     import Tabs from './components/tabs/Tabs.vue'
     import Tooltip from './components/CustomTooltip.vue'
@@ -375,6 +376,10 @@
             />
           </div>
 
+          <div class="chart-box bolus-box">
+            <BolusChart :bolus-doses="bolusDoses" :selected-date="selectedDate" />
+          </div>
+
 
 
         </div>
@@ -436,6 +441,7 @@
 
   .bg-box   { --box-h: var(--bg-chart-h); }
   .basal-box{ --box-h: var(--basal-chart-h); }
+  .bolus-box { height: 120px; }
 
   .chart-box > * {
     width: 100%;
