@@ -43,7 +43,7 @@
 
     function handleMouseLeave() {
         window.dispatchEvent(new CustomEvent('chart-hover', {
-            detail: { hide: true, source: 'bolus' }
+            detail: { hide: true, source: 'bolus', bolusAmount: null }
         }))
     }
 
@@ -85,11 +85,14 @@
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: 'nearest', intersect: false },
+
             onHover: (evt, _actives, chart) => {
                 const els = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: false }, false)
                 if (els.length) {
                     const { datasetIndex, index } = els[0]
-                    const xVal = chart.data.datasets[datasetIndex].data[index].x
+                    const d = chart.data.datasets[datasetIndex].data[index]
+                    const xVal = d.x
+                    const amount = typeof d.y === 'number' ? d.y : Number(d.amt ?? 0)
 
                     // move this chart’s vertical line
                     chart.options.plugins.annotation.annotations.dynamicLine.value = xVal
@@ -100,7 +103,7 @@
                     const clientX = evt?.native?.clientX ?? evt.clientX
                     const px = clientX - canvasRect.left
                     window.dispatchEvent(new CustomEvent('chart-hover', {
-                        detail: { x: xVal, px, source: 'bolus' }
+                        detail: { x: xVal, px, source: 'bolus', bolusAmount: amount }
                     }))
                 }
             },

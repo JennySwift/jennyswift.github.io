@@ -46,7 +46,8 @@
         left: 12,
         locked: false,
         hourlyBasalUnits: null,
-        hourlyBasalLabel: ''
+        hourlyBasalLabel: '',
+        bolusAmount: null,
     })
 
     // Hourly basal totals for the selected day (array[24] of units)
@@ -130,7 +131,7 @@
 
 
     function handleChartHover(e) {
-        const { x, px, source, hide } = e?.detail ?? {}
+        const { x, px, source, hide, bolusAmount } = e?.detail ?? {}
 
             console.log('[handleChartHover] x value:', x, 'type:', typeof x);
 
@@ -139,6 +140,7 @@
             tooltip.locked = false
             tooltip.hourlyBasalUnits = null
             tooltip.hourlyBasalLabel = ''
+            tooltip.bolusAmount = null
             return
         }
 
@@ -175,6 +177,13 @@
         // tooltip.time = formatTimeInSydney(ts)
         tooltip.bg = findBGAt(ts)
         tooltip.basal = findBasalRateAt(ts)
+
+        // Show bolus amount only when the bolus chart is the hover source
+        if (source === 'bolus') {
+            tooltip.bolusAmount = typeof bolusAmount === 'number' ? bolusAmount : null
+        } else {
+            tooltip.bolusAmount = null
+        }
     }
 
 
@@ -360,6 +369,7 @@
                   :top="8"
                   :hourly-basal-units="tooltip.hourlyBasalUnits"
                   :hourly-basal-label="tooltip.hourlyBasalLabel"
+                  :bolus-amount="tooltip.bolusAmount"
           />
 
           <div class="chart-box bg-box">

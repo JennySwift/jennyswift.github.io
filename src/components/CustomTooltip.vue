@@ -9,7 +9,8 @@
         left:    { type: Number, default: 8 },
         top:     { type: Number, default: 8 },
         hourlyBasalUnits: { type: [Number, null], default: null },
-        hourlyBasalLabel: { type: String, default: '' }
+        hourlyBasalLabel: { type: String, default: '' },
+        bolusAmount: { type: [Number, null], default: null }
     })
 </script>
 
@@ -34,6 +35,10 @@
         <div v-if="hourlyBasalUnits != null" class="row">
             Total basal from {{ hourlyBasalLabel }}: <strong>{{ Number(hourlyBasalUnits).toFixed(2) }}</strong> units
         </div>
+
+         <div v-if="bolusAmount != null" class="row">
+           Bolus: <strong>{{ Number(bolusAmount).toFixed(2) }}</strong> units
+         </div>
     </div>
 </template>
 
