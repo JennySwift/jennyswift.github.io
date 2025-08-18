@@ -51,6 +51,8 @@
         z-index: 5;
         /* lift it up from wherever JS sets top */
         transform: translateY(-80px);
+        min-width: 220px;      /* make it wider */
+        white-space: nowrap;   /* prevent wrapping */
     }
     .row { display:flex; gap:8px; }
     .row + .row { margin-top: 4px; }
