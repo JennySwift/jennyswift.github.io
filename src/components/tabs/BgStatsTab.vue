@@ -103,7 +103,7 @@
             <strong>{{ formatMinutesAsHM(glucoseSummary.timeBelow4) }}</strong>
         </div>
 
-        <div class="row">
+        <div class="row red">
             <span>Lowest BG</span>
             <strong>
                 {{ glucoseSummary.lowestBG != null ? glucoseSummary.lowestBG.toFixed(2) + ' ' : '—' }}
@@ -113,7 +113,7 @@
             </strong>
         </div>
 
-        <div class="row">
+        <div class="row red">
             <span>Highest BG</span>
             <strong>
                 {{ glucoseSummary.highestBG != null ? glucoseSummary.highestBG.toFixed(2) + ' ' : '—' }}
@@ -123,7 +123,7 @@
             </strong>
         </div>
 
-        <div class="row">
+        <div class="row grey">
             <span>Average BG</span>
             <strong>
                 {{ glucoseSummary.averageBG != null ? glucoseSummary.averageBG.toFixed(2) + ' ' : '—' }}
@@ -145,6 +145,7 @@
     .bg-grid { display:grid; gap:.5rem; }
     .row { display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; padding:.6rem .8rem; }
     .row.red   { border-left:4px solid #ef4444; }
+    .row.grey   { border-left:4px solid #777; }
     .row.amber { border-left:4px solid #f59e0b; }
     .row.green { border-left:4px solid #10b981; }
     .foot { color:#374151; font-size:.9rem; }
