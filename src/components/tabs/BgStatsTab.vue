@@ -17,6 +17,8 @@
         let tBelow4 = 0, t4to6 = 0, t4to10 = 0, tAbove8 = 0, tAbove10 = 0, covered = 0
         let minVal = Infinity
         let maxVal = -Infinity
+        //Average BG
+        let weightedSum = 0
 
         for (let i = 0; i < readings.length; i++) {
             const cur = readings[i], next = readings[i+1]
@@ -35,6 +37,8 @@
             if (Number.isFinite(v) && v < minVal) minVal = v
             //Max BG
             if (Number.isFinite(v) && v > maxVal) maxVal = v
+            //Average BG
+            if (Number.isFinite(v)) weightedSum += v * mins
         }
 
         const denom = Math.max(covered, 1) // avoid divide-by-zero
@@ -42,6 +46,8 @@
         //Min and Max BG
         const minMmol = Number.isFinite(minVal) ? minVal : null
         const maxMmol = Number.isFinite(maxVal) ? maxVal : null
+        //Average BG
+        const avgMmol = covered > 0 && Number.isFinite(weightedSum) ? (weightedSum / covered) : null
 
         return {
             timeBelow4: tBelow4,
@@ -59,6 +65,7 @@
             //Lowest and highest BG
             lowestBG: minMmol,
             highestBG: maxMmol,
+            averageBG: avgMmol,
         }
     })
 </script>
@@ -112,6 +119,16 @@
                 {{ glucoseSummary.highestBG != null ? glucoseSummary.highestBG.toFixed(2) + ' ' : '—' }}
                 <span v-if="glucoseSummary.highestBG != null" class="secondary">
       ({{ (glucoseSummary.highestBG * 18).toFixed(0) }} mg/dL)
+    </span>
+            </strong>
+        </div>
+
+        <div class="row">
+            <span>Average BG</span>
+            <strong>
+                {{ glucoseSummary.averageBG != null ? glucoseSummary.averageBG.toFixed(2) + ' ' : '—' }}
+                <span v-if="glucoseSummary.averageBG != null" class="secondary">
+      ({{ (glucoseSummary.averageBG * 18).toFixed(0) }} mg/dL)
     </span>
             </strong>
         </div>
