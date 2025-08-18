@@ -115,7 +115,7 @@
         background: #f3f4f6;
         transform: translateX(2px);
     }
-    
+
 
     .mode-chip {
         display: inline-block;
