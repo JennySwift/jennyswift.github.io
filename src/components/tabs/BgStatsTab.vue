@@ -15,6 +15,7 @@
             .sort((a, b) => a.timestamp - b.timestamp)
 
         let tBelow4 = 0, t4to6 = 0, t4to10 = 0, tAbove8 = 0, tAbove10 = 0, covered = 0
+        let minVal = Infinity
 
         for (let i = 0; i < readings.length; i++) {
             const cur = readings[i], next = readings[i+1]
@@ -28,9 +29,11 @@
             if (v >= 4 && v <= 10) t4to10 += mins
             if (v > 8) tAbove8 += mins
             if (v > 10) tAbove10 += mins
+            if (Number.isFinite(v) && v < minVal) minVal = v
         }
 
         const denom = Math.max(covered, 1) // avoid divide-by-zero
+        const minMmol = Number.isFinite(minVal) ? minVal : null
 
         return {
             timeBelow4: tBelow4,
@@ -44,41 +47,54 @@
             // Percentages based on covered time (matches Dexcom-style reporting)
             pct4to6: (t4to6 / denom) * 100,
             pct4to10: (t4to10 / denom) * 100,
+
+            //Lowest BG
+            lowestBG: minMmol
         }
     })
 </script>
 
 <template>
     <div class="bg-grid">
-        <div class="row red">
-            <span>⏱ BG &gt; 10</span>
-            <strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove10) }}</strong>
-        </div>
-
-        <div class="row amber">
-            <span>⏱ BG &gt; 8</span>
-            <strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove8) }}</strong>
-        </div>
-
         <div class="row green">
-            <span>⏱ BG 4–6</span>
-            <div class="right">
-                <span class="chip chip-green">{{ glucoseSummary.pct4to6.toFixed(1) }}%</span>
-                <strong>{{ formatMinutesAsHM(glucoseSummary.timeBetween4and6) }}</strong>
-            </div>
-        </div>
-
-        <div class="row green">
-            <span>⏱ BG 4–10</span>
+            <span>In range (4–10)</span>
             <div class="right">
                 <span class="chip chip-green">{{ glucoseSummary.pct4to10.toFixed(1) }}%</span>
                 <strong>{{ formatMinutesAsHM(glucoseSummary.timeBetween4and10) }}</strong>
             </div>
         </div>
 
+        <div class="row green">
+            <span>In range, stricter (4–6)</span>
+            <div class="right">
+                <span class="chip chip-green">{{ glucoseSummary.pct4to6.toFixed(1) }}%</span>
+                <strong>{{ formatMinutesAsHM(glucoseSummary.timeBetween4and6) }}</strong>
+            </div>
+        </div>
+
         <div class="row red">
-            <span>⏱ BG &lt; 4</span>
+            <span>High (above 10)</span>
+            <strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove10) }}</strong>
+        </div>
+
+        <div class="row amber">
+            <span>Above 8</span>
+            <strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove8) }}</strong>
+        </div>
+
+        <div class="row red">
+            <span>Low (below 4)</span>
             <strong>{{ formatMinutesAsHM(glucoseSummary.timeBelow4) }}</strong>
+        </div>
+
+        <div class="row">
+            <span>Lowest BG</span>
+            <strong>
+                {{ glucoseSummary.lowestBG != null ? glucoseSummary.lowestBG.toFixed(2) + ' ' : '—' }}
+                <span v-if="glucoseSummary.lowestBG != null" class="secondary">
+      ({{ (glucoseSummary.lowestBG * 18).toFixed(0) }} mg/dL)
+    </span>
+            </strong>
         </div>
 
         <div class="foot">
@@ -113,4 +129,5 @@
         background: #f0fdf4;
         color: #166534;
     }
+    .secondary { opacity: .75; margin-left: 6px; font-weight: 600; }
 </style>
