@@ -10,6 +10,7 @@
     import { getSydneyStartOfToday } from './helpers/dateHelpers'
     import { fetchDashboardData } from './helpers/dataService'
     import { DateTime } from 'luxon';
+    import { supabase } from './lib/supabase'
 
     const notes = ref([])
     const foods = ref([])
@@ -21,6 +22,8 @@
     const bolusDoses = ref([])
     const selectedDate = ref(getSydneyStartOfToday())
 
+
+    const dbBoluses = ref([])
     // Treat ISO strings with an explicit offset/Z as that instant.
     // Treat unzoned strings as Australia/Sydney local wall time.
     // Numbers = epoch ms. Dates pass through.
@@ -238,6 +241,24 @@
         window.addEventListener('jump-to-time', onJumptoTime)
         window.addEventListener('chart-hover', handleChartHover)
 
+
+        // Fetch latest 5 boluses from Supabase
+        const { data: dbRows, error: dbErr } = await supabase
+            .from('boluses')
+            .select('timestamp, amount, type, notes')
+            .order('timestamp', { ascending: false })
+            .limit(5)
+
+        if (dbErr) {
+            console.error('[App:onMounted] supabase boluses error:', dbErr)
+        } else {
+            dbBoluses.value = dbRows ?? []
+                console.log('[App:onMounted] fetched', dbBoluses.value.length, 'boluses from DB')
+        }
+        //End supabase test
+
+
+
         try {
             const data = await fetchDashboardData()
 
@@ -396,6 +417,16 @@
       </aside>
 
       <main class="right-rail">
+        <div style="margin:.5rem 0; font-size:14px;">
+          <strong>DB boluses (latest 5):</strong>
+          <ul style="margin:.25rem 0 0 .75rem; padding:0;">
+            <li v-for="b in dbBoluses" :key="b.timestamp">
+              {{ new Date(b.timestamp).toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }) }}
+              — {{ b.amount }}U {{ b.type || '' }}
+            </li>
+          </ul>
+        </div>
+
         <Tabs
                 :notes="notes"
                 :foods="foods"
