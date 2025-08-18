@@ -139,7 +139,7 @@
                     beginAtZero: true,
                     grid: { color: '#eee', lineWidth: 1 },
                     ticks: { stepSize: 0.5 }, // tweak if you prefer
-                    title: { display: true, text: 'Units (per hour bucket)' },
+                    title: { display: true, text: 'Units / Hour' },
                 }
             },
             plugins: {
