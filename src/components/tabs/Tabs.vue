@@ -28,6 +28,7 @@
         hourlyBasalTotals: { type: Array, default: () => [] },
         glucoseReadings: { type: Array, default: () => [] },
         selectedDate:     { type: Date, required: true },
+        loadingBoluses:    { type: Boolean, default: false },
     })
 
     const emit = defineEmits(['note-click'])
@@ -88,6 +89,7 @@
             <BolusTab
                     :bolus-doses="bolusDoses"
                     :selected-date="selectedDate"
+                    :loading="loadingBoluses"
             />
         </div>
 

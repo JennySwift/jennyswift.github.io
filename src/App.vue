@@ -22,6 +22,8 @@
     const bolusDoses = ref([])
     const selectedDate = ref(getSydneyStartOfToday())
 
+    const loadingBoluses = ref(false)
+
 
     const dbBoluses = ref([])
     // Treat ISO strings with an explicit offset/Z as that instant.
@@ -233,6 +235,7 @@
     }
 
     async function loadBolusesForSelectedDay() {
+        loadingBoluses.value = true
         try {
             const rows = await fetchBolusesForDay(selectedDate.value)
             bolusDoses.value = rows
@@ -240,6 +243,8 @@
         } catch (e) {
             console.error('[App] failed to fetch boluses for day:', e)
             bolusDoses.value = []
+        } finally {
+            loadingBoluses.value = false
         }
     }
 
@@ -424,6 +429,7 @@
                 :hourly-basal-totals="hourlyBasalTotals"
                 :glucose-readings="glucoseReadings"
                 :selected-date="selectedDate"
+                :loading-boluses="loadingBoluses"
         />
       </main>
     </section>

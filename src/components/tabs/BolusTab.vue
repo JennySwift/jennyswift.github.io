@@ -6,7 +6,8 @@
 
     const props = defineProps({
         bolusDoses:  { type: Array, default: () => [] },
-        selectedDate:{ type: Date,  required: true }
+        selectedDate:{ type: Date,  required: true },
+        loading:     { type: Boolean, default: false },
     })
 
     const bolusesForDay = computed(() => {
@@ -27,7 +28,12 @@
 
 <template>
     <div class="daily-section">
-        <div v-if="bolusesForDay.length === 0">No bolus doses for this day.</div>
+        <div v-if="loading" class="loading-row">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Loading boluses…</span>
+        </div>
+
+        <div v-else-if="bolusesForDay.length === 0">No bolus doses for this day.</div>
 
         <template v-else>
             <BolusRow
