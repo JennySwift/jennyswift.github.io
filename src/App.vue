@@ -10,8 +10,7 @@
     import { getSydneyStartOfToday } from './helpers/dateHelpers'
     import { fetchDashboardData } from './helpers/dataService'
     import { DateTime } from 'luxon'
-    // Either use the barrel:
-    import { fetchBolusesForDay, fetchGlucoseReadingsForDay } from './supabase/dayLoaders'
+    import { loadAllForSelectedDay } from './dayLoadersUI'
 
 
     const data = reactive({
@@ -239,37 +238,8 @@
         }
     }
 
-    // ───────────────────────────────────────────────────────────
-    // per-day loaders (Supabase)
-    // ───────────────────────────────────────────────────────────
-    async function loadBolusesForSelectedDay() {
-        loading.boluses = true
-        try {
-            data.boluses = await fetchBolusesForDay(selectedDate.value)
-        } catch (e) {
-            console.error('[App] failed to fetch boluses for day:', e)
-            data.boluses = []
-        } finally {
-            loading.boluses = false
-        }
-    }
-
-    async function loadGlucoseReadingsForSelectedDay() {
-        loading.bg = true
-        try {
-            data.glucoseReadings = await fetchGlucoseReadingsForDay(selectedDate.value)
-        } catch (e) {
-            console.error('[App] failed to fetch BG readings for day:', e)
-            data.glucoseReadings = []
-        } finally {
-            loading.bg = false
-        }
-    }
-
-    // fetch once on mount, then whenever the date changes
-    watch(selectedDate, () => {
-        loadBolusesForSelectedDay()
-        loadGlucoseReadingsForSelectedDay()
+    watch(selectedDate, (d) => {
+        loadAllForSelectedDay(data, loading, d)
     }, { immediate: true })
 
     onBeforeUnmount(() => {
