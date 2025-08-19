@@ -11,6 +11,7 @@
     import { fetchDashboardData } from './helpers/dataService'
     import { DateTime } from 'luxon';
     import { fetchBolusesForDay } from './supabase/supabaseBoluses'
+    import { fetchGlucoseReadingsForDay } from './supabase/supabaseBG'
 
     const notes = ref([])
     const foods = ref([])
@@ -23,6 +24,7 @@
     const selectedDate = ref(getSydneyStartOfToday())
 
     const loadingBoluses = ref(false)
+    const loadingBG = ref(false)
 
 
     const dbBoluses = ref([])
@@ -248,8 +250,24 @@
         }
     }
 
+    async function loadGlucoseReadingsForSelectedDay() {
+        loadingBG.value = true
+        try {
+            const rows = await fetchGlucoseReadingsForDay(selectedDate.value)
+            glucoseReadings.value = rows
+        } catch (e) {
+            console.error('[App] failed to fetch BG readings for day:', e)
+            glucoseReadings.value = []
+        } finally {
+            loadingBG.value = false
+        }
+    }
+
     // fetch once on mount, then whenever the date changes
-    watch(selectedDate, () => { loadBolusesForSelectedDay() }, { immediate: true })
+    watch(selectedDate, () => {
+        loadBolusesForSelectedDay()
+        loadGlucoseReadingsForSelectedDay()
+    }, { immediate: true })
 
     onBeforeUnmount(() => {
         window.removeEventListener('jump-to-time', onJumptoTime)
@@ -271,12 +289,12 @@
                 }))
                 : []
 
-            glucoseReadings.value = Array.isArray(data?.glucoseReadings)
-                ? data.glucoseReadings.map(r => ({
-                    timestamp: r.timestamp,
-                    value: r.value,
-                }))
-                : []
+            // glucoseReadings.value = Array.isArray(data?.glucoseReadings)
+            //     ? data.glucoseReadings.map(r => ({
+            //         timestamp: r.timestamp,
+            //         value: r.value,
+            //     }))
+            //     : []
 
             foodLogs.value = Array.isArray(data?.foodLogs)
                 ? data.foodLogs.map(f => ({
