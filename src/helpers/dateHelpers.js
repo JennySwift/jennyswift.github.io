@@ -1,5 +1,23 @@
 import { DateTime } from 'luxon'
 
+
+// Sydney-local day's [start, end) as UTC ISO strings for DB filters
+export function sydneyDayRangeUtcISO(dateLike, { withMillis = false } = {}) {
+    const base = dateLike instanceof Date ? dateLike : new Date(dateLike)
+    if (Number.isNaN(base.getTime())) {
+        throw new Error(`sydneyDayRangeUtcISO: invalid date (${String(dateLike)})`)
+    }
+
+    const startSydney = DateTime.fromJSDate(base, { zone: 'Australia/Sydney' }).startOf('day')
+    const endSydney   = startSydney.plus({ days: 1 })
+
+    const toISOOpts = withMillis ? {} : { suppressMilliseconds: true }
+    return {
+        startUtcISO: startSydney.toUTC().toISO(toISOOpts),
+        endUtcISO:   endSydney.toUTC().toISO(toISOOpts),
+    }
+}
+
 // Midnight *today* in Australia/Sydney (JS Date)
 export function getSydneyStartOfToday() {
     return DateTime.local().setZone('Australia/Sydney').startOf('day').toJSDate()

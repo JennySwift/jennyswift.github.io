@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, computed, reactive, onMounted, onBeforeUnmount } from 'vue'
+    import { ref, computed, reactive, onMounted, onBeforeUnmount, watch } from 'vue'
     import DateHeader from './components/DateHeader.vue'
     import BgChart from './components/charts/BgChart.vue'
     import BasalChart from './components/charts/BasalChart.vue'
@@ -10,7 +10,7 @@
     import { getSydneyStartOfToday } from './helpers/dateHelpers'
     import { fetchDashboardData } from './helpers/dataService'
     import { DateTime } from 'luxon';
-    import { supabase } from './lib/supabase'
+    import { fetchBolusesForDay } from './supabase/supabaseBoluses'
 
     const notes = ref([])
     const foods = ref([])
@@ -232,6 +232,20 @@
         }
     }
 
+    async function loadBolusesForSelectedDay() {
+        try {
+            const rows = await fetchBolusesForDay(selectedDate.value)
+            bolusDoses.value = rows
+            // console.log('[boluses]', rows.slice(0,3))
+        } catch (e) {
+            console.error('[App] failed to fetch boluses for day:', e)
+            bolusDoses.value = []
+        }
+    }
+
+    // fetch once on mount, then whenever the date changes
+    watch(selectedDate, () => { loadBolusesForSelectedDay() }, { immediate: true })
+
     onBeforeUnmount(() => {
         window.removeEventListener('jump-to-time', onJumptoTime)
         window.removeEventListener('chart-hover', handleChartHover)
@@ -240,24 +254,6 @@
     onMounted(async () => {
         window.addEventListener('jump-to-time', onJumptoTime)
         window.addEventListener('chart-hover', handleChartHover)
-
-
-        // Fetch latest 5 boluses from Supabase
-        const { data: dbRows, error: dbErr } = await supabase
-            .from('boluses')
-            .select('timestamp, amount, type, notes')
-            .order('timestamp', { ascending: false })
-            .limit(5)
-
-        if (dbErr) {
-            console.error('[App:onMounted] supabase boluses error:', dbErr)
-        } else {
-            dbBoluses.value = dbRows ?? []
-                console.log('[App:onMounted] fetched', dbBoluses.value.length, 'boluses from DB')
-        }
-        //End supabase test
-
-
 
         try {
             const data = await fetchDashboardData()
@@ -343,18 +339,18 @@
 
             closeLastBasalEntryAtPumpUploadTime(data)
 
-            bolusDoses.value = Array.isArray(data?.bolusDoses)
-                ? data.bolusDoses.map(b => ({
-                    timestamp: toSydneyJSDate(b.timestamp),
-                    amount: b.amount,
-                    duration: b.duration,
-                    type: b.type,
-                    notes: b.notes,
-                    carbRatioUsed: b.carbRatioUsed,
-                    source: b.source,
-                    tags: b.tags ?? [],
-                }))
-                : []
+            // bolusDoses.value = Array.isArray(data?.bolusDoses)
+            //     ? data.bolusDoses.map(b => ({
+            //         timestamp: toSydneyJSDate(b.timestamp),
+            //         amount: b.amount,
+            //         duration: b.duration,
+            //         type: b.type,
+            //         notes: b.notes,
+            //         carbRatioUsed: b.carbRatioUsed,
+            //         source: b.source,
+            //         tags: b.tags ?? [],
+            //     }))
+            //     : []
 
             console.log('[App:onMounted] loaded', {
                 glucose: glucoseReadings.value.length,
@@ -417,16 +413,6 @@
       </aside>
 
       <main class="right-rail">
-        <div style="margin:.5rem 0; font-size:14px;">
-          <strong>DB boluses (latest 5):</strong>
-          <ul style="margin:.25rem 0 0 .75rem; padding:0;">
-            <li v-for="b in dbBoluses" :key="b.timestamp">
-              {{ new Date(b.timestamp).toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }) }}
-              — {{ b.amount }}U {{ b.type || '' }}
-            </li>
-          </ul>
-        </div>
-
         <Tabs
                 :notes="notes"
                 :foods="foods"
