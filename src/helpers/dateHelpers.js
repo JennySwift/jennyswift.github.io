@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 
 
 // Sydney-local day's [start, end) as UTC ISO strings for DB filters
+//dateLike just means “anything you can turn into a Date.”
 export function sydneyDayRangeUtcISO(dateLike, { withMillis = false } = {}) {
     const base = dateLike instanceof Date ? dateLike : new Date(dateLike)
     if (Number.isNaN(base.getTime())) {
