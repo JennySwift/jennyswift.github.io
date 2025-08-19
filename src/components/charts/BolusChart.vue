@@ -12,7 +12,7 @@
     Chart.register(BarController, BarElement, LinearScale, TimeScale, Tooltip, Legend, annotationPlugin)
 
     const props = defineProps({
-        bolusDoses: { type: Array, default: () => [] }, // [{ timestamp: Date|string|number, amount: number, ... }]
+        boluses: { type: Array, default: () => [] }, // [{ timestamp: Date|string|number, amount: number, ... }]
         selectedDate: { type: Date, required: true },
     })
 
@@ -31,7 +31,7 @@
         const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
 
         // doses that fall within the day window
-        return (props.bolusDoses || [])
+        return (props.boluses || [])
             .map(d => ({
                 ts: (d.timestamp instanceof Date) ? d.timestamp : new Date(d.timestamp),
                 amt: Number(d.amount ?? 0),
@@ -198,7 +198,7 @@
         chartInstance?.destroy(); chartInstance = null
     })
 
-    watch([() => props.selectedDate, () => props.bolusDoses], updateChart)
+    watch([() => props.selectedDate, () => props.boluses], updateChart)
 </script>
 
 <template>

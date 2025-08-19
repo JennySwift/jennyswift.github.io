@@ -5,7 +5,7 @@
     import { jumpToTime } from '../../helpers/jumpToTime'
 
     const props = defineProps({
-        bolusDoses:  { type: Array, default: () => [] },
+        boluses:  { type: Array, default: () => [] },
         selectedDate:{ type: Date,  required: true },
         loading:     { type: Boolean, default: false },
     })
@@ -13,7 +13,7 @@
     const bolusesForDay = computed(() => {
         if (!props.selectedDate) return []
         const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
-        return props.bolusDoses
+        return props.boluses
             .filter(b => {
                 const t = b.timestamp instanceof Date ? b.timestamp : parseAsSydneyDate(b.timestamp)
                 return t >= startOfDay && t < endOfDay

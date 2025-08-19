@@ -9,25 +9,42 @@
     import Tooltip from './components/CustomTooltip.vue'
     import { getSydneyStartOfToday } from './helpers/dateHelpers'
     import { fetchDashboardData } from './helpers/dataService'
-    import { DateTime } from 'luxon';
-    import { fetchBolusesForDay } from './supabase/supabaseBoluses'
-    import { fetchGlucoseReadingsForDay } from './supabase/supabaseBG'
+    import { DateTime } from 'luxon'
+    // Either use the barrel:
+    import { fetchBolusesForDay, fetchGlucoseReadingsForDay } from './supabase/dayLoaders'
 
-    const notes = ref([])
-    const foods = ref([])
-    const glucoseReadings = ref([])
-    const foodLogs = ref([])
-    const fasts = ref([])
-    const workouts = ref([])
-    const basalEntries = ref([])
-    const bolusDoses = ref([])
+
+    const data = reactive({
+        notes: [],
+        foods: [],
+        glucoseReadings: [],
+        foodLogs: [],
+        fasts: [],
+        workouts: [],
+        basalEntries: [],
+        boluses: [],
+    })
+
+    const loading = reactive({
+        boluses: false,
+        bg: false,
+    })
+
     const selectedDate = ref(getSydneyStartOfToday())
+    const stageRef = ref(null)
 
-    const loadingBoluses = ref(false)
-    const loadingBG = ref(false)
+    const tooltip = reactive({
+        visible: false,
+        time: '',
+        bg: null,
+        basal: null,
+        left: 12,
+        locked: false,
+        hourlyBasalUnits: null,
+        hourlyBasalLabel: '',
+        bolusAmount: null,
+    })
 
-
-    const dbBoluses = ref([])
     // Treat ISO strings with an explicit offset/Z as that instant.
     // Treat unzoned strings as Australia/Sydney local wall time.
     // Numbers = epoch ms. Dates pass through.
@@ -43,24 +60,10 @@
         return null
     }
 
-    const stageRef = ref(null)
-
-    const tooltip = reactive({
-        visible: false,
-        time: '',
-        bg: null,
-        basal: null,
-        left: 12,
-        locked: false,
-        hourlyBasalUnits: null,
-        hourlyBasalLabel: '',
-        bolusAmount: null,
-    })
-
     // Hourly basal totals for the selected day (array[24] of units)
     const hourlyBasalTotals = computed(() => {
         const totals = new Array(24).fill(0)
-        if (!selectedDate.value || !Array.isArray(basalEntries.value)) return totals
+        if (!selectedDate.value || !Array.isArray(data.basalEntries)) return totals
 
         // Selected day window in Australia/Sydney
         const base = selectedDate.value instanceof Date
@@ -69,7 +72,7 @@
         let dayStart = DateTime.fromJSDate(base, { zone: 'Australia/Sydney' }).startOf('day')
         const dayEnd = dayStart.plus({ days: 1 })
 
-        for (const e of basalEntries.value) {
+        for (const e of data.basalEntries) {
             const jsStart = e.startTime instanceof Date ? e.startTime : toSydneyJSDate(e.startTime)
             const jsEnd   = e.endTime   ? (e.endTime instanceof Date ? e.endTime : toSydneyJSDate(e.endTime)) : null
             if (!jsStart || !jsEnd || jsEnd <= jsStart) continue
@@ -196,13 +199,13 @@
 
     // BG at time T = the most recent reading at or before T (not "nearest")
     function findBGAt(when) {
-        if (!glucoseReadings.value.length || !when) return null
+        if (!data.glucoseReadings.length || !when) return null
         const target = when instanceof Date ? when : new Date(when)
 
         let bestTs = null
         let bestVal = null
 
-        for (const r of glucoseReadings.value) {
+        for (const r of data.glucoseReadings) {
             const ts = toSydneyJSDate(r.timestamp)
             if (ts <= target && (bestTs === null || ts > bestTs)) {
                 bestTs = ts
@@ -214,10 +217,10 @@
 
     // Basal rate at time T = the segment whose [start, end) contains T
     function findBasalRateAt(when) {
-        if (!basalEntries.value.length || !when) return null
+        if (!data.basalEntries.length || !when) return null
         const t = when instanceof Date ? when : new Date(when)
 
-        for (const e of basalEntries.value) {
+        for (const e of data.basalEntries) {
             const start = e.startTime instanceof Date ? e.startTime : toSydneyJSDate(e.startTime)
             const end   = e.endTime ? (e.endTime instanceof Date ? e.endTime : toSydneyJSDate(e.endTime)) : null
             if (start <= t && (end === null || t < end)) {
@@ -227,39 +230,39 @@
         return null
     }
 
-    function closeLastBasalEntryAtPumpUploadTime(data) {
-        if (!data?.pumpUploadTime || basalEntries.value.length === 0) return
+    function closeLastBasalEntryAtPumpUploadTime(payload) {
+        if (!payload?.pumpUploadTime || data.basalEntries.length === 0) return
 
-        const lastEntry = basalEntries.value[basalEntries.value.length - 1]
+        const lastEntry = data.basalEntries[data.basalEntries.length - 1]
         if (!lastEntry.endTime) {
-            lastEntry.endTime = toSydneyJSDate(data.pumpUploadTime)
+            lastEntry.endTime = toSydneyJSDate(payload.pumpUploadTime)
         }
     }
 
+    // ───────────────────────────────────────────────────────────
+    // per-day loaders (Supabase)
+    // ───────────────────────────────────────────────────────────
     async function loadBolusesForSelectedDay() {
-        loadingBoluses.value = true
+        loading.boluses = true
         try {
-            const rows = await fetchBolusesForDay(selectedDate.value)
-            bolusDoses.value = rows
-            // console.log('[boluses]', rows.slice(0,3))
+            data.boluses = await fetchBolusesForDay(selectedDate.value)
         } catch (e) {
             console.error('[App] failed to fetch boluses for day:', e)
-            bolusDoses.value = []
+            data.boluses = []
         } finally {
-            loadingBoluses.value = false
+            loading.boluses = false
         }
     }
 
     async function loadGlucoseReadingsForSelectedDay() {
-        loadingBG.value = true
+        loading.bg = true
         try {
-            const rows = await fetchGlucoseReadingsForDay(selectedDate.value)
-            glucoseReadings.value = rows
+            data.glucoseReadings = await fetchGlucoseReadingsForDay(selectedDate.value)
         } catch (e) {
             console.error('[App] failed to fetch BG readings for day:', e)
-            glucoseReadings.value = []
+            data.glucoseReadings = []
         } finally {
-            loadingBG.value = false
+            loading.bg = false
         }
     }
 
@@ -279,25 +282,18 @@
         window.addEventListener('chart-hover', handleChartHover)
 
         try {
-            const data = await fetchDashboardData()
+            const payload = await fetchDashboardData()
 
-            foods.value = Array.isArray(data?.foods)
-                ? data.foods.map(f => ({
+            data.foods = Array.isArray(payload?.foods)
+                ? payload.foods.map(f => ({
                     id: f.id,
                     name: f.name,
                     tags: Array.isArray(f.tags) ? f.tags : []
                 }))
                 : []
 
-            // glucoseReadings.value = Array.isArray(data?.glucoseReadings)
-            //     ? data.glucoseReadings.map(r => ({
-            //         timestamp: r.timestamp,
-            //         value: r.value,
-            //     }))
-            //     : []
-
-            foodLogs.value = Array.isArray(data?.foodLogs)
-                ? data.foodLogs.map(f => ({
+            data.foodLogs = Array.isArray(payload?.foodLogs)
+                ? payload.foodLogs.map(f => ({
                     timestamp: toSydneyJSDate(f.timestamp),
                     foodName: f.foodName,
                     quantity: f.quantity,
@@ -311,8 +307,8 @@
                 }))
                 : []
 
-            notes.value = Array.isArray(data?.notes)
-                ? data.notes.map(n => ({
+            data.notes = Array.isArray(payload?.notes)
+                ? payload.notes.map(n => ({
                     timestamp: toSydneyJSDate(n.startTime),
                     noteNumber: n.noteNumber,
                     text: n.text,
@@ -321,8 +317,8 @@
                 }))
                 : []
 
-            fasts.value = Array.isArray(data?.fasts)
-                ? data.fasts.map(f => {
+            data.fasts = Array.isArray(payload?.fasts)
+                ? payload.fasts.map(f => {
                     const startTime = toSydneyJSDate(f.startTime)
                     const endTime = f.endTime ? toSydneyJSDate(f.endTime) : null
                     const duration = endTime ? (endTime - startTime) / 1000 : null // seconds
@@ -330,8 +326,8 @@
                 })
                 : []
 
-            workouts.value = Array.isArray(data?.workouts)
-                ? data.workouts.map(w => ({
+            data.workouts = Array.isArray(payload?.workouts)
+                ? payload.workouts.map(w => ({
                     start: toSydneyJSDate(w.startTime),
                     name: w.name,
                     type: w.type,
@@ -350,8 +346,8 @@
                 }))
                 : []
 
-            basalEntries.value = Array.isArray(data?.basalEntries)
-                ? data.basalEntries.map(b => ({
+            data.basalEntries = Array.isArray(payload?.basalEntries)
+                ? payload.basalEntries.map(b => ({
                     startTime: toSydneyJSDate(b.startTime),
                     endTime: b.endTime ? toSydneyJSDate(b.endTime) : null,
                     rate: b.rate,
@@ -362,28 +358,17 @@
 
             closeLastBasalEntryAtPumpUploadTime(data)
 
-            // bolusDoses.value = Array.isArray(data?.bolusDoses)
-            //     ? data.bolusDoses.map(b => ({
-            //         timestamp: toSydneyJSDate(b.timestamp),
-            //         amount: b.amount,
-            //         duration: b.duration,
-            //         type: b.type,
-            //         notes: b.notes,
-            //         carbRatioUsed: b.carbRatioUsed,
-            //         source: b.source,
-            //         tags: b.tags ?? [],
-            //     }))
-            //     : []
-
             console.log('[App:onMounted] loaded', {
-                glucose: glucoseReadings.value.length,
-                foodLogs: foodLogs.value.length,
-                notes: notes.value.length,
-                fasts: fasts.value.length,
-                workouts: workouts.value.length,
-                basalEntries: basalEntries.value.length,
-                bolusDoses: bolusDoses.value.length,
+                glucose: data.glucoseReadings.length,
+                foodLogs: data.foodLogs.length,
+                notes: data.notes.length,
+                fasts: data.fasts.length,
+                workouts: data.workouts.length,
+                basalEntries: data.basalEntries.length,
+                boluses: data.boluses.length,
             })
+
+
         } catch (e) {
             console.error('[App:onMounted] failed to load data:', e)
         }
@@ -413,10 +398,10 @@
           />
 
           <div class="chart-box bg-box">
-            <BgChart :glucose-readings="glucoseReadings" :selected-date="selectedDate" />
+            <BgChart :glucose-readings="data.glucoseReadings" :selected-date="selectedDate" />
           </div>
           <div class="chart-box basal-box">
-            <BasalChart :basal-entries="basalEntries" :selected-date="selectedDate" />
+            <BasalChart :basal-entries="data.basalEntries" :selected-date="selectedDate" />
           </div>
 
           <div class="chart-box hourly-basal-box">
@@ -427,7 +412,7 @@
           </div>
 
           <div class="chart-box bolus-box">
-            <BolusChart :bolus-doses="bolusDoses" :selected-date="selectedDate" />
+            <BolusChart :boluses="data.boluses" :selected-date="selectedDate" />
           </div>
 
 
@@ -437,18 +422,19 @@
 
       <main class="right-rail">
         <Tabs
-                :notes="notes"
-                :foods="foods"
-                :food-logs="foodLogs"
-                :bolus-doses="bolusDoses"
-                :fasts="fasts"
-                :workouts="workouts"
-                :basal-entries="basalEntries"
+                :notes="data.notes"
+                :foods="data.foods"
+                :food-logs="data.foodLogs"
+                :boluses="data.boluses"
+                :fasts="data.fasts"
+                :workouts="data.workouts"
+                :basal-entries="data.basalEntries"
                 :hourly-basal-totals="hourlyBasalTotals"
-                :glucose-readings="glucoseReadings"
+                :glucose-readings="data.glucoseReadings"
                 :selected-date="selectedDate"
-                :loading-boluses="loadingBoluses"
+                :loading-boluses="loading.boluses"
         />
+
       </main>
     </section>
   </main>

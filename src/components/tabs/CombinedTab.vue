@@ -10,7 +10,7 @@
     const props = defineProps({
         selectedDate: { type: Date, required: true },
         foodLogs:     { type: Array, default: () => [] },
-        bolusDoses:   { type: Array, default: () => [] },
+        boluses:   { type: Array, default: () => [] },
         notes:        { type: Array, default: () => [] },
         workouts:     { type: Array, default: () => [] },
     })
@@ -34,7 +34,7 @@
             return (ts >= startOfDay && ts < endOfDay) ? { type: 'food', ts, payload: f } : null
         }).filter(Boolean)
 
-        const boluses = props.bolusDoses.map(b => {
+        const boluses = props.boluses.map(b => {
             const ts = b.timestamp instanceof Date ? b.timestamp : parseAsSydneyDate(b.timestamp)
             return (ts >= startOfDay && ts < endOfDay) ? { type: 'bolus', ts, payload: b } : null
         }).filter(Boolean)

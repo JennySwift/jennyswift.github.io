@@ -21,7 +21,7 @@
         notes:           { type: Array, default: () => [] },
         foods:           { type: Array, default: () => [] },
         foodLogs:        { type: Array, default: () => [] },
-        bolusDoses:      { type: Array, default: () => [] },
+        boluses:      { type: Array, default: () => [] },
         fasts:           { type: Array, default: () => [] },
         workouts:        { type: Array, default: () => [] },
         basalEntries:    { type: Array, default: () => [] },
@@ -65,7 +65,7 @@
             <CombinedTab
                     :selected-date="selectedDate"
                     :food-logs="foodLogs"
-                    :bolus-doses="bolusDoses"
+                    :boluses="boluses"
                     :notes="notes"
                     :workouts="workouts"
             />
@@ -87,7 +87,7 @@
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'bolus' }">
             <BolusTab
-                    :bolus-doses="bolusDoses"
+                    :boluses="boluses"
                     :selected-date="selectedDate"
                     :loading="loadingBoluses"
             />
@@ -144,7 +144,7 @@
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'insulin-stats' }">
             <InsulinStatsTab
                     :selected-date="selectedDate"
-                    :bolus-doses="bolusDoses"
+                    :bolus-doses="boluses"
                     :basal-entries="basalEntries"
                     :food-logs="foodLogs"
             />
