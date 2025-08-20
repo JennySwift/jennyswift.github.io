@@ -1,4 +1,6 @@
 import { fetchBolusesForDay, fetchGlucoseReadingsForDay } from './supabase/dayLoaders'
+import { fetchBasalEntriesForDay, finalizeBasalForUIWithPumpUpload } from './supabase/supabaseBasal'
+import { fetchDashboardData } from './helpers/dataService'
 
 export async function loadBolusesForSelectedDay(data, loading, date) {
     loading.boluses = true
@@ -24,10 +26,33 @@ export async function loadGlucoseForSelectedDay(data, loading, date) {
     }
 }
 
+export async function loadBasalForSelectedDay(data, loading, date) {
+    loading.basal = true
+    try {
+        // Get basal rows overlapping the day + the pump upload time (for accurate closing)
+        const [entries, dashboard] = await Promise.all([
+            fetchBasalEntriesForDay(date),
+            fetchDashboardData(), // should include { pumpUploadTime }
+        ])
+        const pumpUploadTime =
+            dashboard?.pumpUploadTime ? new Date(dashboard.pumpUploadTime) : null
+
+        data.basalEntries = finalizeBasalForUIWithPumpUpload(entries, date, pumpUploadTime)
+    } catch (e) {
+        console.error('[dayLoadersUI] basal failed:', e)
+        data.basalEntries = []
+    }
+    finally {
+        loading.basal = false
+    }
+}
+
+
 // Handy helper to kick off both in parallel.
 export async function loadAllForSelectedDay(data, loading, date) {
     await Promise.allSettled([
         loadBolusesForSelectedDay(data, loading, date),
         loadGlucoseForSelectedDay(data, loading, date),
+        loadBasalForSelectedDay(data, loading, date),
     ])
 }

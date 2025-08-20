@@ -30,7 +30,8 @@
 
     const props = defineProps({
         basalEntries: { type: Array, default: () => [] },
-        selectedDate: { type: Date,  required: true }
+        selectedDate: { type: Date,  required: true },
+        loading:      { type: Boolean, default: false }
     })
 
     const basalEntriesForDay = computed(() => {
@@ -56,7 +57,16 @@
 
 <template>
     <div class="daily-section">
-        <div v-if="basalEntriesForDay.length === 0">No basal entries for this day.</div>
+        <div v-if="loading" class="loading-row">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Loading basal…</span>
+        </div>
+
+        <div v-else-if="basalEntriesForDay.length === 0">
+            No basal entries for this day.
+        </div>
+
+
         <div v-else>
             <div
                     v-for="b in basalEntriesForDay"

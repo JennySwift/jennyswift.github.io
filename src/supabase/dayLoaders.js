@@ -2,3 +2,4 @@
 // Add new loaders (basal, notes, etc.) here later.
 export { fetchBolusesForDay } from './supabaseBoluses'
 export { fetchGlucoseReadingsForDay } from './supabaseBG'
+export { fetchBasalEntriesForDay } from './supabaseBasal'
