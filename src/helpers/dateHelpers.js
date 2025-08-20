@@ -19,6 +19,14 @@ export function sydneyDayRangeUtcISO(dateLike, { withMillis = false } = {}) {
     }
 }
 
+// “19 Aug 2025, 8:55pm” in Australia/Sydney
+export function formatDateTimeInSydney(date) {
+    return DateTime.fromJSDate(asJSDate(date))
+        .setZone('Australia/Sydney')
+        .toFormat('d LLL yyyy, h:mma')
+        .toLowerCase()
+}
+
 // Midnight *today* in Australia/Sydney (JS Date)
 export function getSydneyStartOfToday() {
     return DateTime.local().setZone('Australia/Sydney').startOf('day').toJSDate()

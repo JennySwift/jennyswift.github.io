@@ -1,8 +1,9 @@
 //dayLoadersUI.js
 import { fetchBolusesForDay, fetchGlucoseReadingsForDay, fetchFoodLogsForDay, fetchFastsForDay, fetchWorkoutsForDay } from './supabase/dayLoaders'
 import { fetchBasalEntriesForDay, finalizeBasalForUIWithPumpUpload } from './supabase/supabaseBasal'
-import { fetchDashboardData } from './helpers/dataService'
 import { fetchNotesForDay } from './supabase/supabaseNotes'
+import { formatDateTimeInSydney } from './helpers/dateHelpers'
+import { fetchPumpUploadTime } from './supabase/supabaseSettings'
 
 export async function loadBolusesForSelectedDay(data, loading, date) {
     loading.boluses = true
@@ -31,20 +32,24 @@ export async function loadGlucoseForSelectedDay(data, loading, date) {
 export async function loadBasalForSelectedDay(data, loading, date) {
     loading.basal = true
     try {
-        // Get basal rows overlapping the day + the pump upload time (for accurate closing)
-        const [entries, dashboard] = await Promise.all([
+        const [entries, settings] = await Promise.all([
             fetchBasalEntriesForDay(date),
-            fetchDashboardData(), // should include { pumpUploadTime }
+            fetchPumpUploadTime(),
         ])
-        const pumpUploadTime =
-            dashboard?.pumpUploadTime ? new Date(dashboard.pumpUploadTime) : null
+
+        const pumpUploadTime = settings?.pumpUploadTime
+            ? new Date(settings.pumpUploadTime)
+            : null
+
+        if (pumpUploadTime) {
+            console.log('[dayLoadersUI] Pump upload time:', formatDateTimeInSydney(pumpUploadTime))
+        }
 
         data.basalEntries = finalizeBasalForUIWithPumpUpload(entries, date, pumpUploadTime)
     } catch (e) {
         console.error('[dayLoadersUI] basal failed:', e)
         data.basalEntries = []
-    }
-    finally {
+    } finally {
         loading.basal = false
     }
 }
