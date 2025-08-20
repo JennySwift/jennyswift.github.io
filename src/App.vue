@@ -32,6 +32,7 @@
         bg: false,
         basal: false,
         filteredNotes: false,
+        foodLogs: false,
     })
 
     const selectedDate = ref(getSydneyStartOfToday())
@@ -255,21 +256,6 @@
                     id: f.id,
                     name: f.name,
                     tags: Array.isArray(f.tags) ? f.tags : []
-                }))
-                : []
-
-            data.foodLogs = Array.isArray(payload?.foodLogs)
-                ? payload.foodLogs.map(f => ({
-                    timestamp: toSydneyJSDate(f.timestamp),
-                    foodName: f.foodName,
-                    quantity: f.quantity,
-                    netCarbs: f.netCarbs,
-                    calories: f.calories,
-                    fat: f.fat,
-                    protein: f.protein,
-                    fibre: f.fibre,
-                    totalCarbs: f.totalCarbs,
-                    foodTags: Array.isArray(f.foodTags) ? f.foodTags : []
                 }))
                 : []
 

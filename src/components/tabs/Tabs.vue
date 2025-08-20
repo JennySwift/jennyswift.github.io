@@ -84,6 +84,7 @@
             <FoodLogsTab
                     :food-logs="foodLogs"
                     :selected-date="selectedDate"
+                    :loading="props.loading?.foodLogs === true"
             />
         </div>
 

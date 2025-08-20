@@ -6,32 +6,24 @@
 
     const props = defineProps({
         foodLogs:     { type: Array, default: () => [] },
-        selectedDate: { type: Date,  required: true }
-    })
-
-    const foodLogsForDay = computed(() => {
-        if (!props.selectedDate) return []
-        const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
-        return props.foodLogs
-            .filter(f => {
-                const t = f.timestamp instanceof Date ? f.timestamp : parseAsSydneyDate(f.timestamp)
-                return t >= startOfDay && t < endOfDay
-            })
-            .sort((a, b) => {
-                const ta = (a.timestamp instanceof Date ? a.timestamp : parseAsSydneyDate(a.timestamp)).getTime()
-                const tb = (b.timestamp instanceof Date ? b.timestamp : parseAsSydneyDate(b.timestamp)).getTime()
-                return ta - tb
-            })
+        selectedDate: { type: Date,  required: true },
+        loading:      { type: Boolean, default: false },
     })
 
 </script>
 
 <template>
     <div class="daily-section">
-        <div v-if="foodLogsForDay.length === 0">No food logs.</div>
+        <div v-if="loading" class="loading-row">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Loading food logs…</span>
+        </div>
+
+        <div v-else-if="foodLogs.length === 0">No food logs.</div>
+
         <div v-else>
             <FoodLogRow
-                    v-for="f in foodLogsForDay"
+                    v-for="f in foodLogs"
                     :key="f.id"
                     :log="f"
                     @click="jumpToTime(f.timestamp, 'foodLogs')"
