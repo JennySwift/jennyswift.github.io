@@ -1,3 +1,4 @@
+//Tabs.vue
 <script setup>
     import { ref, computed } from 'vue'
     import CombinedTab from './CombinedTab.vue'
@@ -75,6 +76,7 @@
             <NotesTab
                     :notes="notes"
                     :selected-date="selectedDate"
+                    :loading="props.loading?.notes === true"
             />
         </div>
 

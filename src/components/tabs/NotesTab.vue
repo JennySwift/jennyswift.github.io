@@ -1,3 +1,4 @@
+//NotesTab.vue
 <script setup>
     import { computed } from 'vue'
     import { parseAsSydneyDate, getStartAndEndOfDay } from '../../helpers/dateHelpers'
@@ -6,7 +7,8 @@
 
     const props = defineProps({
         notes:        { type: Array, default: () => [] },
-        selectedDate: { type: Date,  required: true }
+        selectedDate: { type: Date,  required: true },
+        loading:      { type: Boolean, default: false },
     })
     const emit = defineEmits(['note-click'])
 
@@ -28,7 +30,13 @@
 
 <template>
     <div class="daily-section">
-        <div v-if="notesForDay.length === 0">No notes for this day.</div>
+        <div v-if="loading" class="loading-row">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Loading notes…</span>
+        </div>
+
+        <div v-else-if="notesForDay.length === 0">No notes for this day.</div>
+
         <div v-else>
             <NoteRow
                     v-for="n in notesForDay"

@@ -1,3 +1,4 @@
+//App.vue
 <script setup>
     import { ref, computed, reactive, onMounted, onBeforeUnmount, watch } from 'vue'
     import DateHeader from './components/DateHeader.vue'
@@ -230,15 +231,6 @@
         return null
     }
 
-    // function closeLastBasalEntryAtPumpUploadTime(payload) {
-    //     if (!payload?.pumpUploadTime || data.basalEntries.length === 0) return
-    //
-    //     const lastEntry = data.basalEntries[data.basalEntries.length - 1]
-    //     if (!lastEntry.endTime) {
-    //         lastEntry.endTime = toSydneyJSDate(payload.pumpUploadTime)
-    //     }
-    // }
-
     watch(selectedDate, (d) => {
         loadAllForSelectedDay(data, loading, d)
     }, { immediate: true })
@@ -278,16 +270,6 @@
                 }))
                 : []
 
-            data.notes = Array.isArray(payload?.notes)
-                ? payload.notes.map(n => ({
-                    timestamp: toSydneyJSDate(n.startTime),
-                    noteNumber: n.noteNumber,
-                    text: n.text,
-                    tags: n.tags ?? [],
-                    title: n.title ?? '',
-                }))
-                : []
-
             data.fasts = Array.isArray(payload?.fasts)
                 ? payload.fasts.map(f => {
                     const startTime = toSydneyJSDate(f.startTime)
@@ -316,18 +298,6 @@
                     tags: w.tags ?? [],
                 }))
                 : []
-
-            // data.basalEntries = Array.isArray(payload?.basalEntries)
-            //     ? payload.basalEntries.map(b => ({
-            //         startTime: toSydneyJSDate(b.startTime),
-            //         endTime: b.endTime ? toSydneyJSDate(b.endTime) : null,
-            //         rate: b.rate,
-            //         mode: b.mode,
-            //         notes: b.notes,
-            //     }))
-            //     : []
-            //
-            // closeLastBasalEntryAtPumpUploadTime(data)
 
             console.log('[App:onMounted] loaded', {
                 glucose: data.glucoseReadings.length,

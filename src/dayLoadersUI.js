@@ -1,6 +1,7 @@
 import { fetchBolusesForDay, fetchGlucoseReadingsForDay } from './supabase/dayLoaders'
 import { fetchBasalEntriesForDay, finalizeBasalForUIWithPumpUpload } from './supabase/supabaseBasal'
 import { fetchDashboardData } from './helpers/dataService'
+import { fetchNotesForDay } from './supabase/supabaseNotes'
 
 export async function loadBolusesForSelectedDay(data, loading, date) {
     loading.boluses = true
@@ -47,6 +48,19 @@ export async function loadBasalForSelectedDay(data, loading, date) {
     }
 }
 
+export async function loadNotesForSelectedDay(data, loading, date) {
+    loading.notes = true
+    try {
+        data.notes = await fetchNotesForDay(date)
+    } catch (e) {
+        console.error('[dayLoadersUI] notes failed:', e)
+        data.notes = []
+    } finally {
+        loading.notes = false
+    }
+}
+
+
 
 // Handy helper to kick off both in parallel.
 export async function loadAllForSelectedDay(data, loading, date) {
@@ -54,5 +68,6 @@ export async function loadAllForSelectedDay(data, loading, date) {
         loadBolusesForSelectedDay(data, loading, date),
         loadGlucoseForSelectedDay(data, loading, date),
         loadBasalForSelectedDay(data, loading, date),
+        loadNotesForSelectedDay(data, loading, date),
     ])
 }
