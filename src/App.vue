@@ -12,6 +12,7 @@
     import { fetchDashboardData } from './helpers/dataService'
     import { DateTime } from 'luxon'
     import { loadAllForSelectedDay } from './dayLoadersUI'
+    import { fetchAllFoods } from './supabase/supabaseFoods'
 
 
     const data = reactive({
@@ -33,6 +34,7 @@
         basal: false,
         filteredNotes: false,
         foodLogs: false,
+        foods: false,
     })
 
     const selectedDate = ref(getSydneyStartOfToday())
@@ -144,6 +146,18 @@
             goToTimestamp(at, source)
     }
 
+    async function loadFoodsFromSupabase() {
+        loading.foods = true
+        try {
+            data.foods = await fetchAllFoods()
+        } catch (e) {
+            console.error('[App] fetchAllFoods failed:', e)
+            data.foods = []
+        } finally {
+            loading.foods = false
+        }
+    }
+
 
     function handleChartHover(e) {
         const { x, px, source, hide, bolusAmount } = e?.detail ?? {}
@@ -235,6 +249,8 @@
         return null
     }
 
+
+
     watch(selectedDate, (d) => {
         loadAllForSelectedDay(data, loading, d)
     }, { immediate: true })
@@ -248,16 +264,10 @@
         window.addEventListener('jump-to-time', onJumptoTime)
         window.addEventListener('chart-hover', handleChartHover)
 
+        await loadFoodsFromSupabase()
+
         try {
             const payload = await fetchDashboardData()
-
-            data.foods = Array.isArray(payload?.foods)
-                ? payload.foods.map(f => ({
-                    id: f.id,
-                    name: f.name,
-                    tags: Array.isArray(f.tags) ? f.tags : []
-                }))
-                : []
 
             data.fasts = Array.isArray(payload?.fasts)
                 ? payload.fasts.map(f => {

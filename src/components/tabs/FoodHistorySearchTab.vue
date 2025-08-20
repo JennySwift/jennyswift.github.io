@@ -1,5 +1,6 @@
+//FoodHistorySearchTab.vue
 <script setup>
-    import { ref, computed, watch } from 'vue'
+    import { ref, computed, watch, onMounted } from 'vue'
     import { DateTime } from 'luxon'
     import FoodLogRow from '../rows/FoodLogRow.vue'
     import { jumpToTime } from '../../helpers/jumpToTime'
@@ -8,22 +9,24 @@
         fetchFoodHistorySummary
     } from '../../supabase/supabaseFoodHistory'
 
-    const props = defineProps({
-        foods: { type: Array, default: () => [] },
-    })
-
     const search = ref('')
     const selectedFood = ref('')
     const showSuggestions = ref(false)
     const selectedFoodTags = ref([])
 
+    const props = defineProps({
+        foods: { type: Array, default: () => [] },
+        loading: { type: Object, default: () => ({}) }
+    })
+
     const inputEl = ref(null)
 
-    // build suggestions & tag cloud from props.foods (JSON)
     const allFoodNames = computed(() => {
         const set = new Set((props.foods ?? []).map(f => (f.name ?? '').trim()).filter(Boolean))
         return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
     })
+
+
     const suggestions = computed(() => {
         const q = search.value.trim().toLowerCase()
         if (!q) return allFoodNames.value.slice(0, 20)
@@ -66,7 +69,7 @@
     function isFoodTagSelected(tag) {
         return selectedFoodTags.value.includes(tag)
     }
-    
+
     function chooseFood(name) {
         selectedFood.value = name
         search.value = name
