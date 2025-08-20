@@ -12,6 +12,7 @@
     const filteredNotes = ref([])
     const nextAnchor = ref(null)
     const loading = ref(false)
+    const totalMatchingFilter = ref(null)
 
     // UI state
     const query = ref('')
@@ -41,17 +42,19 @@
     async function loadFirstPage() {
         loading.value = true
         try {
-            const { items, nextAnchor: anchor } = await filterAllNotesWithPagination({
+            const { items, nextAnchor: anchor, totalMatchingFilter: total } = await filterAllNotesWithPagination({
                 limit: 10,
                 query: query.value,
                 tags: selectedTags.value,
             })
             filteredNotes.value = items
             nextAnchor.value = anchor
+            totalMatchingFilter.value = total
         } catch (e) {
             console.error('[AllNotesTab] first page failed:', e)
             filteredNotes.value = []
             nextAnchor.value = null
+            totalMatchingFilter.value = 0
         } finally {
             loading.value = false
         }
@@ -87,6 +90,7 @@
         loading.value = true
         filteredNotes.value = []   // hide current results while fetching
         nextAnchor.value = null
+        totalMatchingFilter.value = null
         await loadFirstPage()
     })
 
@@ -132,6 +136,11 @@
             <!--<div>To filter by title: <code>*keyword</code>.</div>-->
             </div>
             </HelpTooltip>
+        </div>
+
+        <div v-if="!loading" class="results-bar">
+            <span v-if="(totalMatchingFilter ?? 0) > 0">{{ totalMatchingFilter }} result<span v-if="totalMatchingFilter !== 1">s</span></span>
+            <span v-else>No results</span>
         </div>
 
         <div class="tag-cloud">
@@ -465,5 +474,11 @@
             }
         }
 
+    }
+    .results-bar {
+        text-align: center;
+        margin: .5rem 0 .25rem;
+        color: #374151;
+        font-size: .95rem;
     }
 </style>

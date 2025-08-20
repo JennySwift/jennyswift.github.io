@@ -76,7 +76,7 @@ export async function filterAllNotesWithPagination({
         q = q.contains('tags', cleanTags) // AND semantics on array column
     }
 
-    const { data, error } = await q
+    const { data, error, count } = await q
     if (error) throw error
 
     const items = (data ?? []).map(r => ({
@@ -93,7 +93,11 @@ export async function filterAllNotesWithPagination({
         ? { startISO: DateTime.fromJSDate(last.startTime).toISO(), id: last.id }
         : null
 
-    return { items, nextAnchor }
+    return {
+        items,
+        nextAnchor,
+        totalMatchingFilter: count ?? null,
+    }
 }
 
 export async function fetchAllNoteTags() {
