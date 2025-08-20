@@ -1,4 +1,5 @@
-import { fetchBolusesForDay, fetchGlucoseReadingsForDay, fetchFoodLogsForDay } from './supabase/dayLoaders'
+//dayLoadersUI.js
+import { fetchBolusesForDay, fetchGlucoseReadingsForDay, fetchFoodLogsForDay, fetchFastsForDay, fetchWorkoutsForDay } from './supabase/dayLoaders'
 import { fetchBasalEntriesForDay, finalizeBasalForUIWithPumpUpload } from './supabase/supabaseBasal'
 import { fetchDashboardData } from './helpers/dataService'
 import { fetchNotesForDay } from './supabase/supabaseNotes'
@@ -72,6 +73,30 @@ export async function loadFoodLogsForSelectedDay(data, loading, date) {
     }
 }
 
+export async function loadFastsForSelectedDay(data, loading, date) {
+    loading.fasts = true
+    try {
+        data.fasts = await fetchFastsForDay(date)
+    } catch (e) {
+        console.error('[dayLoadersUI] fasts failed:', e)
+        data.fasts = []
+    } finally {
+        loading.fasts = false
+    }
+}
+
+export async function loadWorkoutsForSelectedDay(data, loading, date) {
+    loading.workouts = true
+    try {
+        data.workouts = await fetchWorkoutsForDay(date)
+    } catch (e) {
+        console.error('[dayLoadersUI] workouts failed:', e)
+        data.workouts = []
+    } finally {
+        loading.workouts = false
+    }
+}
+
 
 
 // Handy helper to kick off both in parallel.
@@ -82,5 +107,7 @@ export async function loadAllForSelectedDay(data, loading, date) {
         loadBasalForSelectedDay(data, loading, date),
         loadNotesForSelectedDay(data, loading, date),
         loadFoodLogsForSelectedDay(data, loading, date),
+        loadFastsForSelectedDay(data, loading, date),
+        loadWorkoutsForSelectedDay(data, loading, date),
     ])
 }

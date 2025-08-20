@@ -9,7 +9,7 @@
     import Tabs from './components/tabs/Tabs.vue'
     import Tooltip from './components/CustomTooltip.vue'
     import { getSydneyStartOfToday } from './helpers/dateHelpers'
-    import { fetchDashboardData } from './helpers/dataService'
+    // import { fetchDashboardData } from './helpers/dataService'
     import { DateTime } from 'luxon'
     import { loadAllForSelectedDay } from './dayLoadersUI'
     import { fetchAllFoods } from './supabase/supabaseFoods'
@@ -35,6 +35,8 @@
         filteredNotes: false,
         foodLogs: false,
         foods: false,
+        fasts: false,
+        workouts: false
     })
 
     const selectedDate = ref(getSydneyStartOfToday())
@@ -267,36 +269,7 @@
         await loadFoodsFromSupabase()
 
         try {
-            const payload = await fetchDashboardData()
-
-            data.fasts = Array.isArray(payload?.fasts)
-                ? payload.fasts.map(f => {
-                    const startTime = toSydneyJSDate(f.startTime)
-                    const endTime = f.endTime ? toSydneyJSDate(f.endTime) : null
-                    const duration = endTime ? (endTime - startTime) / 1000 : null // seconds
-                    return { startTime, endTime, duration, notes: f.notes }
-                })
-                : []
-
-            data.workouts = Array.isArray(payload?.workouts)
-                ? payload.workouts.map(w => ({
-                    start: toSydneyJSDate(w.startTime),
-                    name: w.name,
-                    type: w.type,
-                    duration: w.duration,
-                    distance: w.distance,
-                    activeCalories: w.activeCalories,
-                    maxHeartRate: w.maxHeartRate,
-                    endTime: toSydneyJSDate(w.endTime),
-                    source: w.source,
-                    elapsedTime: w.elapsedTime,
-                    averageHeartRate: w.averageHeartRate,
-                    notes: w.notes,
-                    kmPerHour: w.kmPerHour,
-                    minutesPerKm: w.minutesPerKm,
-                    tags: w.tags ?? [],
-                }))
-                : []
+            // const payload = await fetchDashboardData()
 
             console.log('[App:onMounted] loaded', {
                 glucose: data.glucoseReadings.length,
