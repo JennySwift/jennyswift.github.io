@@ -16,6 +16,8 @@
 
     const data = reactive({
         notes: [],
+        filteredNotes: [],
+        filteredNotesCursor: null,
         foods: [],
         glucoseReadings: [],
         foodLogs: [],
@@ -29,6 +31,7 @@
         boluses: false,
         bg: false,
         basal: false,
+        filteredNotes: false,
     })
 
     const selectedDate = ref(getSydneyStartOfToday())
