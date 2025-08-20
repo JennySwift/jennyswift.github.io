@@ -1,259 +1,553 @@
-    <script setup>
-        import { ref, computed } from 'vue'
-        import { parseAsSydneyDate, formatHM } from '../../helpers/dateHelpers'
-        import { jumpToTime } from '../../helpers/jumpToTime'
-        import FoodLogRow from '../rows/FoodLogRow.vue'
-        import { DateTime } from 'luxon'
+<script setup>
+    import { ref, computed, watch } from 'vue'
+    import { DateTime } from 'luxon'
+    import FoodLogRow from '../rows/FoodLogRow.vue'
+    import { jumpToTime } from '../../helpers/jumpToTime'
+    import {
+        filterFoodLogsHistoryPaginated,
+        fetchFoodHistorySummary
+    } from '../../supabase/supabaseFoodHistory'
 
-        const props = defineProps({
-            allFoodLogs: { type: Array, default: () => [] },
-            foods: { type: Array, default: () => [] },
-        })
+    const props = defineProps({
+        foods: { type: Array, default: () => [] },
+    })
 
-        const search = ref('')
-        const selectedFood = ref('')
-        const showSuggestions = ref(false)
-        const selectedFoodTags = ref([])
+    const search = ref('')
+    const selectedFood = ref('')
+    const showSuggestions = ref(false)
+    const selectedFoodTags = ref([])
 
-        const inputEl = ref(null)
-        function clearSearch() {
-            search.value = ''
-            selectedFood.value = ''
-            showSuggestions.value = false
-            // return focus to the field
-            inputEl.value?.focus()
-        }
+    const inputEl = ref(null)
 
-        const allFoodTags = computed(() => {
-            const set = new Set()
-            for (const f of (props.foods ?? [])) {
-                const tags = Array.isArray(f.tags) ? f.tags : []
-                for (const t of tags) {
-                    const name = String(t).trim()
-                    if (name) set.add(name)
-                }
+    // build suggestions & tag cloud from props.foods (JSON)
+    const allFoodNames = computed(() => {
+        const set = new Set((props.foods ?? []).map(f => (f.name ?? '').trim()).filter(Boolean))
+        return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+    })
+    const suggestions = computed(() => {
+        const q = search.value.trim().toLowerCase()
+        if (!q) return allFoodNames.value.slice(0, 20)
+        return allFoodNames.value.filter(n => n.toLowerCase().includes(q)).slice(0, 20)
+    })
+
+    const allFoodTags = computed(() => {
+        const set = new Set()
+        for (const f of (props.foods ?? [])) {
+            for (const t of (Array.isArray(f.tags) ? f.tags : [])) {
+                const name = String(t).trim()
+                if (name) set.add(name)
             }
-            return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'accent' }))
-        })
+        }
+        return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'accent' }))
+    })
 
-        function toggleFoodTag(tag) {
-            const lc = tag.toLowerCase()
-            const i = selectedFoodTags.value.indexOf(lc)
-            if (i >= 0) selectedFoodTags.value.splice(i, 1)
-            else selectedFoodTags.value.push(lc)
+    function clearSearch() {
+        search.value = ''
+        selectedFood.value = ''
+        showSuggestions.value = false
+        inputEl.value?.focus()
+    }
+
+    function toggleFoodTag(tag) {
+        const i = selectedFoodTags.value.indexOf(tag)
+        if (i >= 0) {
+            selectedFoodTags.value.splice(i, 1)
+        } else {
+            selectedFoodTags.value.push(tag)
         }
 
-        function isFoodTagSelected(tag) {
-            return selectedFoodTags.value.includes(tag.toLowerCase())
-        }
+        // instant feedback
+        loading.value = true
+        logs.value = []
+        nextAnchor.value = null
+        totalMatchingFilter.value = null
+    }
 
-        const totalQuantity = computed(() =>
-            matchingLogs.value.reduce((sum, l) => sum + (Number(l.quantity) || 0), 0)
-        )
+    function isFoodTagSelected(tag) {
+        return selectedFoodTags.value.includes(tag)
+    }
+    
+    function chooseFood(name) {
+        selectedFood.value = name
+        search.value = name
+        showSuggestions.value = false
 
-        const DAY_MS = 86_400_000
-        const durationDays = computed(() => {
-            const logs = matchingLogs.value
-            if (logs.length === 0) return 0
-            const times = logs.map(l =>
-                (l.timestamp instanceof Date ? l.timestamp : parseAsSydneyDate(l.timestamp)).getTime()
-            )
-            const spanMs = Math.max(...times) - Math.min(...times) // elapsed time only
-            return Math.max(1, Math.ceil(spanMs / DAY_MS))         // 0 → 1 day minimum
-        })
+        loading.value = true
+        logs.value = []
+        nextAnchor.value = null
+        totalMatchingFilter.value = null
+    }
 
-        const groupedLogs = computed(() => {
-            const logs = matchingLogs.value
-            if (!logs.length) return []
+    // loading + results
+    const loading = ref(false)
+    const loadingSummary = ref(false)
+    const logs = ref([])
+    const nextAnchor = ref(null)
+    const totalMatchingFilter = ref(null) // total rows matching current filters
 
-            const map = new Map()
-            for (const l of logs) {
-                const js = l.timestamp instanceof Date ? l.timestamp : parseAsSydneyDate(l.timestamp)
-                const dt = DateTime.fromJSDate(js, { zone: 'Australia/Sydney' })
-                const key = dt.toISODate() // e.g., "2025-08-16"
-                const label = dt.toFormat('EEE d LLL yyyy') // e.g., "Sat 16 Aug 2025"
+    const totalQuantity = ref(0)
+    const durationDays = ref(0)
+    const averagePerDay = ref(0)
 
-                if (!map.has(key)) map.set(key, { key, label, logs: [] })
-                map.get(key).logs.push(l)
-            }
-
-            // newest day first; logs within each group remain sorted by your existing sort
-            return Array.from(map.values()).sort((a, b) => b.key.localeCompare(a.key))
-        })
-
-        // Prefer string name on exported logs, but fall back to nested object if present.
-        function getFoodName(log) {
-            return (log.foodName ?? log.food?.name ?? '').trim()
-        }
-
-        const allFoodNames = computed(() => {
-            const set = new Set(
-                props.allFoodLogs.map(getFoodName).filter(Boolean)
-            )
-            return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
-        })
-
-        const suggestions = computed(() => {
-            const q = search.value.trim().toLowerCase()
-            if (!q) return allFoodNames.value.slice(0, 20)
-            return allFoodNames.value.filter(n => n.toLowerCase().includes(q)).slice(0, 20)
-        })
-
-        function chooseFood(name) {
-            selectedFood.value = name
-            search.value = name
-            showSuggestions.value = false
-        }
-
-        const matchingLogs = computed(() => {
-            const nameLower = (selectedFood.value || '').toLowerCase()
-            const requiredTags = selectedFoodTags.value // already lowercased
-
-            return props.allFoodLogs
-                .filter(l => {
-                    if (nameLower) {
-                        const fn = getFoodName(l).toLowerCase()
-                        if (fn !== nameLower) return false
-                    }
-
-                    // 2) tag AND filter: each selected tag must exist in this log's foodTags
-                    if (requiredTags.length > 0) {
-                        const tags = Array.isArray(l.foodTags) ? l.foodTags.map(t => String(t).toLowerCase()) : []
-                        // every selected tag must be present
-                        if (!requiredTags.every(t => tags.includes(t))) return false
-                    }
-
-                    return true
+    async function loadFirstPage() {
+        loading.value = true
+        try {
+            const { items, nextAnchor: anchor, totalMatchingFilter: total } =
+                await filterFoodLogsHistoryPaginated({
+                    limit: 20,
+                    foodName: selectedFood.value,
+                    tags: selectedFoodTags.value
                 })
-                .sort((a, b) => {
-                    const ta = (a.timestamp instanceof Date ? a.timestamp : parseAsSydneyDate(a.timestamp)).getTime()
-                    const tb = (b.timestamp instanceof Date ? b.timestamp : parseAsSydneyDate(b.timestamp)).getTime()
-                    return tb - ta
-                })
-        })
-
-        const averagePerDay = computed(() => {
-            const days = durationDays.value || 0
-            return days ? totalQuantity.value / days : 0
-        })
-
-        function onLogClick(ts) {
-            jumpToTime(ts, 'food')
+            logs.value = items
+            nextAnchor.value = anchor
+            totalMatchingFilter.value = total
+        } catch (e) {
+            console.error('[FoodHistory] first page failed:', e)
+            logs.value = []
+            nextAnchor.value = null
+            totalMatchingFilter.value = 0
+        } finally {
+            loading.value = false
         }
-
-        function clearAllFoodFilters() {
-            clearSearch()
-            selectedFoodTags.value = []
+    }
+    async function loadMore() {
+        if (!nextAnchor.value || loading.value) return
+        loading.value = true
+        try {
+            const { items, nextAnchor: anchor } = await filterFoodLogsHistoryPaginated({
+                limit: 20,
+                foodName: selectedFood.value,
+                tags: selectedFoodTags.value,
+                anchor: nextAnchor.value
+            })
+            logs.value.push(...items)
+            nextAnchor.value = anchor
+        } catch (e) {
+            console.error('[FoodHistory] next page failed:', e)
+        } finally {
+            loading.value = false
         }
+    }
+    async function refreshSummary() {
+        loadingSummary.value = true
+        try {
+            const s = await fetchFoodHistorySummary({
+                foodName: selectedFood.value,
+                tags: selectedFoodTags.value
+            })
+            totalQuantity.value = s.totalQuantity
+            durationDays.value = s.durationDays
+            averagePerDay.value = s.averagePerDay
+        } catch (e) {
+            console.error('[FoodHistory] summary failed:', e)
+            totalQuantity.value = 0
+            durationDays.value = 0
+            averagePerDay.value = 0
+        } finally {
+            loadingSummary.value = false
+        }
+    }
+    function onLogClick(ts) { jumpToTime(ts, 'food-history') }
 
+    // react to filter changes
+    watch([() => selectedFood.value, () => selectedFoodTags.value.join('|')], async () => {
+        loading.value = true
+        logs.value = []
+        nextAnchor.value = null
+        totalMatchingFilter.value = null
+        await Promise.all([loadFirstPage(), refreshSummary()])
+    })
 
-    </script>
+    // small helper to group by Sydney day (client-side)
+    function groupByDate(items) {
+        const byKey = new Map()
+        for (const l of items) {
+            const dt = DateTime.fromJSDate(l.timestamp, { zone: 'Australia/Sydney' })
+            const key = dt.toISODate()
+            const label = dt.toFormat('EEE d LLL yyyy')
+            if (!byKey.has(key)) byKey.set(key, { label, items: [] })
+            byKey.get(key).items.push(l)
+        }
+        return Array.from(byKey.entries())
+            .sort((a, b) => b[0].localeCompare(a[0]))
+            .map(([, v]) => v)
+    }
+</script>
 
-    <template>
-        <div class="daily-section">
-            <div class="search-box">
-                <input
-                        ref="inputEl"
-                        v-model="search"
-                        type="text"
-                        class="search-input"
-                        placeholder="Search foods (e.g., apple, orange)…"
-                        @focus="showSuggestions = true"
-                        @blur="showSuggestions = false"
-                        @keydown.esc="showSuggestions = false"
-                        @keydown.enter.prevent="chooseFood(suggestions[0] || search)"
-                />
-                <button
-                        v-if="search || selectedFood"
-                        class="clear-btn"
-                        type="button"
-                        @mousedown.prevent
-                        @click="clearSearch"
-                        aria-label="Clear search"
-                >
-                    ×
-                </button>
+<template>
+    <div class="daily-section">
+        <div class="search-box">
+            <input
+                    ref="inputEl"
+                    v-model="search"
+                    type="text"
+                    class="search-input"
+                    placeholder="Search foods (e.g., apple)…"
+                    @focus="showSuggestions = true"
+                    @blur="showSuggestions = false"
+                    @keydown.esc="showSuggestions = false"
+                    @keydown.enter.prevent="chooseFood((suggestions[0] || search) ?? '')"
+            />
+            <button
+                    v-if="search || selectedFood"
+                    class="clear-btn"
+                    type="button"
+                    @mousedown.prevent
+                    @click="clearSearch"
+                    aria-label="Clear search"
+            >×</button>
 
-                <button
-                        v-if="selectedFoodTags.length || selectedFood"
-                        class="clear-btn"
-                        type="button"
-                        @click="clearAllFoodFilters"
-                        aria-label="Clear tag & name filters"
-                        style="margin-left: 0.5rem"
-                >
-                    Clear Filters
-                </button>
+            <button
+                    v-if="selectedFoodTags.length || selectedFood"
+                    class="clear-btn"
+                    type="button"
+                    @click="() => { selectedFoodTags.splice(0); clearSearch(); }"
+                    aria-label="Clear tag & name filters"
+                    style="margin-left: 0.5rem"
+            >Clear Filters</button>
 
-                <ul v-if="showSuggestions && suggestions.length && search.trim().length" class="suggestions">
-                    <li
-                            v-for="name in suggestions"
-                            :key="name"
-                            class="suggestion"
-                            @mousedown.prevent="chooseFood(name)"
-                    >
-                        {{ name }}
-                    </li>
-                </ul>
+            <ul v-if="showSuggestions && suggestions.length && search.trim().length" class="suggestions">
+                <li
+                        v-for="name in suggestions"
+                        :key="name"
+                        class="suggestion"
+                        @mousedown.prevent="chooseFood(name)"
+                >{{ name }}</li>
+            </ul>
+        </div>
+
+        <div class="tag-cloud">
+            <button
+                    v-for="tag in allFoodTags"
+                    :key="tag"
+                    class="tag-chip"
+                    :class="{ selected: isFoodTagSelected(tag) }"
+                    type="button"
+                    @click="toggleFoodTag(tag)"
+            >{{ tag }}</button>
+        </div>
+
+        <div v-if="!selectedFood && selectedFoodTags.length === 0" class="hint">
+            Search for a food, select it, then browse the history and click any row to jump the charts.
+        </div>
+
+        <div v-if="selectedFood || selectedFoodTags.length">
+            <div v-if="!loading" class="results-bar">
+        <span v-if="(totalMatchingFilter ?? 0) > 0">
+          {{ totalMatchingFilter }} result<span v-if="totalMatchingFilter !== 1">s</span>
+        </span>
+                <span v-else>No results</span>
             </div>
 
-            <div class="tag-cloud">
-                <button
-                        v-for="tag in allFoodTags"
-                        :key="tag"
-                        class="tag-chip"
-                        :class="{ selected: isFoodTagSelected(tag) }"
-                        type="button"
-                        @click="toggleFoodTag(tag)"
-                >
-                    {{ tag }}
-                </button>
-            </div>
-
-            <div v-if="!selectedFood" class="hint">Search for a food, select it, then click the results to navigate and see the effect on BG.</div>
-
-            <div v-if="selectedFood || selectedFoodTags.length > 0">
-                <!--<h3 class="results-title">History for “{{ selectedFood }}”</h3>-->
-
-                <div class="summary pretty" v-if="matchingLogs.length">
-                    <div class="stat-row">
-                        <span class="label">Total consumed</span>
-                        <span class="right">
-                        <span class="chip">{{ totalQuantity }}g</span>
-        </span>
-                    </div>
-
-                    <div class="stat-row">
-                        <span class="label">Days covered</span>
-                        <span class="right">
-          <span class="chip">{{ durationDays }}</span>
-        </span>
-                    </div>
-
-                    <div class="stat-row">
-                        <span class="label">Avg per day</span>
-                        <span class="right">
-          <span class="chip">{{ averagePerDay.toFixed(1) }}g</span>
-        </span>
-                    </div>
+            <div class="summary pretty" v-if="!loadingSummary && totalMatchingFilter">
+                <div class="stat-row">
+                    <span class="label">Total consumed</span>
+                    <span class="right"><span class="chip">{{ totalQuantity }}g</span></span>
                 </div>
+                <div class="stat-row">
+                    <span class="label">Days covered</span>
+                    <span class="right"><span class="chip">{{ durationDays }}</span></span>
+                </div>
+                <div class="stat-row">
+                    <span class="label">Avg per day</span>
+                    <span class="right"><span class="chip">{{ averagePerDay.toFixed(1) }}g</span></span>
+                </div>
+            </div>
+            <div v-else-if="loadingSummary" class="empty">Calculating summary…</div>
 
-                <div v-if="matchingLogs.length === 0">No logs found.</div>
+            <div v-if="loading" class="empty">Loading…</div>
 
-                <div v-else class="logs">
-                    <template v-for="group in groupedLogs" :key="group.key">
+            <template v-else>
+                <template v-if="logs.length === 0">
+                    <div class="empty">No logs found.</div>
+                </template>
+
+                <template v-else>
+                    <template v-for="(group, gi) in groupByDate(logs)" :key="gi">
                         <h4 class="date-heading">{{ group.label }}</h4>
                         <FoodLogRow
-                                v-for="log in group.logs"
+                                v-for="log in group.items"
                                 :key="log.id"
                                 :log="log"
                                 @click="onLogClick(log.timestamp)"
                         />
                     </template>
-                </div>
-            </div>
+
+                    <div class="load-more">
+                        <button v-if="nextAnchor" type="button" @click="loadMore">Load more</button>
+                        <div v-else-if="logs.length > 0">No more results.</div>
+                    </div>
+                </template>
+            </template>
         </div>
-    </template>
+    </div>
+</template>
+
+<style scoped>
+    /* keep your existing styles; same as before */
+</style>
+
+
+
+
+
+
+<!--<script setup>-->
+        <!--import { ref, computed } from 'vue'-->
+        <!--import { parseAsSydneyDate, formatHM } from '../../helpers/dateHelpers'-->
+        <!--import { jumpToTime } from '../../helpers/jumpToTime'-->
+        <!--import FoodLogRow from '../rows/FoodLogRow.vue'-->
+        <!--import { DateTime } from 'luxon'-->
+
+        <!--const props = defineProps({-->
+            <!--allFoodLogs: { type: Array, default: () => [] },-->
+            <!--foods: { type: Array, default: () => [] },-->
+        <!--})-->
+
+        <!--const search = ref('')-->
+        <!--const selectedFood = ref('')-->
+        <!--const showSuggestions = ref(false)-->
+        <!--const selectedFoodTags = ref([])-->
+
+        <!--const inputEl = ref(null)-->
+        <!--function clearSearch() {-->
+            <!--search.value = ''-->
+            <!--selectedFood.value = ''-->
+            <!--showSuggestions.value = false-->
+            <!--// return focus to the field-->
+            <!--inputEl.value?.focus()-->
+        <!--}-->
+
+        <!--const allFoodTags = computed(() => {-->
+            <!--const set = new Set()-->
+            <!--for (const f of (props.foods ?? [])) {-->
+                <!--const tags = Array.isArray(f.tags) ? f.tags : []-->
+                <!--for (const t of tags) {-->
+                    <!--const name = String(t).trim()-->
+                    <!--if (name) set.add(name)-->
+                <!--}-->
+            <!--}-->
+            <!--return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'accent' }))-->
+        <!--})-->
+
+        <!--function toggleFoodTag(tag) {-->
+            <!--const lc = tag.toLowerCase()-->
+            <!--const i = selectedFoodTags.value.indexOf(lc)-->
+            <!--if (i >= 0) selectedFoodTags.value.splice(i, 1)-->
+            <!--else selectedFoodTags.value.push(lc)-->
+        <!--}-->
+
+        <!--function isFoodTagSelected(tag) {-->
+            <!--return selectedFoodTags.value.includes(tag.toLowerCase())-->
+        <!--}-->
+
+        <!--const totalQuantity = computed(() =>-->
+            <!--matchingLogs.value.reduce((sum, l) => sum + (Number(l.quantity) || 0), 0)-->
+        <!--)-->
+
+        <!--const DAY_MS = 86_400_000-->
+        <!--const durationDays = computed(() => {-->
+            <!--const logs = matchingLogs.value-->
+            <!--if (logs.length === 0) return 0-->
+            <!--const times = logs.map(l =>-->
+                <!--(l.timestamp instanceof Date ? l.timestamp : parseAsSydneyDate(l.timestamp)).getTime()-->
+            <!--)-->
+            <!--const spanMs = Math.max(...times) - Math.min(...times) // elapsed time only-->
+            <!--return Math.max(1, Math.ceil(spanMs / DAY_MS))         // 0 → 1 day minimum-->
+        <!--})-->
+
+        <!--const groupedLogs = computed(() => {-->
+            <!--const logs = matchingLogs.value-->
+            <!--if (!logs.length) return []-->
+
+            <!--const map = new Map()-->
+            <!--for (const l of logs) {-->
+                <!--const js = l.timestamp instanceof Date ? l.timestamp : parseAsSydneyDate(l.timestamp)-->
+                <!--const dt = DateTime.fromJSDate(js, { zone: 'Australia/Sydney' })-->
+                <!--const key = dt.toISODate() // e.g., "2025-08-16"-->
+                <!--const label = dt.toFormat('EEE d LLL yyyy') // e.g., "Sat 16 Aug 2025"-->
+
+                <!--if (!map.has(key)) map.set(key, { key, label, logs: [] })-->
+                <!--map.get(key).logs.push(l)-->
+            <!--}-->
+
+            <!--// newest day first; logs within each group remain sorted by your existing sort-->
+            <!--return Array.from(map.values()).sort((a, b) => b.key.localeCompare(a.key))-->
+        <!--})-->
+
+        <!--// Prefer string name on exported logs, but fall back to nested object if present.-->
+        <!--function getFoodName(log) {-->
+            <!--return (log.foodName ?? log.food?.name ?? '').trim()-->
+        <!--}-->
+
+        <!--const allFoodNames = computed(() => {-->
+            <!--const set = new Set(-->
+                <!--props.allFoodLogs.map(getFoodName).filter(Boolean)-->
+            <!--)-->
+            <!--return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))-->
+        <!--})-->
+
+        <!--const suggestions = computed(() => {-->
+            <!--const q = search.value.trim().toLowerCase()-->
+            <!--if (!q) return allFoodNames.value.slice(0, 20)-->
+            <!--return allFoodNames.value.filter(n => n.toLowerCase().includes(q)).slice(0, 20)-->
+        <!--})-->
+
+        <!--function chooseFood(name) {-->
+            <!--selectedFood.value = name-->
+            <!--search.value = name-->
+            <!--showSuggestions.value = false-->
+        <!--}-->
+
+        <!--const matchingLogs = computed(() => {-->
+            <!--const nameLower = (selectedFood.value || '').toLowerCase()-->
+            <!--const requiredTags = selectedFoodTags.value // already lowercased-->
+
+            <!--return props.allFoodLogs-->
+                <!--.filter(l => {-->
+                    <!--if (nameLower) {-->
+                        <!--const fn = getFoodName(l).toLowerCase()-->
+                        <!--if (fn !== nameLower) return false-->
+                    <!--}-->
+
+                    <!--// 2) tag AND filter: each selected tag must exist in this log's foodTags-->
+                    <!--if (requiredTags.length > 0) {-->
+                        <!--const tags = Array.isArray(l.foodTags) ? l.foodTags.map(t => String(t).toLowerCase()) : []-->
+                        <!--// every selected tag must be present-->
+                        <!--if (!requiredTags.every(t => tags.includes(t))) return false-->
+                    <!--}-->
+
+                    <!--return true-->
+                <!--})-->
+                <!--.sort((a, b) => {-->
+                    <!--const ta = (a.timestamp instanceof Date ? a.timestamp : parseAsSydneyDate(a.timestamp)).getTime()-->
+                    <!--const tb = (b.timestamp instanceof Date ? b.timestamp : parseAsSydneyDate(b.timestamp)).getTime()-->
+                    <!--return tb - ta-->
+                <!--})-->
+        <!--})-->
+
+        <!--const averagePerDay = computed(() => {-->
+            <!--const days = durationDays.value || 0-->
+            <!--return days ? totalQuantity.value / days : 0-->
+        <!--})-->
+
+        <!--function onLogClick(ts) {-->
+            <!--jumpToTime(ts, 'food')-->
+        <!--}-->
+
+        <!--function clearAllFoodFilters() {-->
+            <!--clearSearch()-->
+            <!--selectedFoodTags.value = []-->
+        <!--}-->
+
+
+    <!--</script>-->
+
+    <!--<template>-->
+        <!--<div class="daily-section">-->
+            <!--<div class="search-box">-->
+                <!--<input-->
+                        <!--ref="inputEl"-->
+                        <!--v-model="search"-->
+                        <!--type="text"-->
+                        <!--class="search-input"-->
+                        <!--placeholder="Search foods (e.g., apple, orange)…"-->
+                        <!--@focus="showSuggestions = true"-->
+                        <!--@blur="showSuggestions = false"-->
+                        <!--@keydown.esc="showSuggestions = false"-->
+                        <!--@keydown.enter.prevent="chooseFood(suggestions[0] || search)"-->
+                <!--/>-->
+                <!--<button-->
+                        <!--v-if="search || selectedFood"-->
+                        <!--class="clear-btn"-->
+                        <!--type="button"-->
+                        <!--@mousedown.prevent-->
+                        <!--@click="clearSearch"-->
+                        <!--aria-label="Clear search"-->
+                <!--&gt;-->
+                    <!--×-->
+                <!--</button>-->
+
+                <!--<button-->
+                        <!--v-if="selectedFoodTags.length || selectedFood"-->
+                        <!--class="clear-btn"-->
+                        <!--type="button"-->
+                        <!--@click="clearAllFoodFilters"-->
+                        <!--aria-label="Clear tag & name filters"-->
+                        <!--style="margin-left: 0.5rem"-->
+                <!--&gt;-->
+                    <!--Clear Filters-->
+                <!--</button>-->
+
+                <!--<ul v-if="showSuggestions && suggestions.length && search.trim().length" class="suggestions">-->
+                    <!--<li-->
+                            <!--v-for="name in suggestions"-->
+                            <!--:key="name"-->
+                            <!--class="suggestion"-->
+                            <!--@mousedown.prevent="chooseFood(name)"-->
+                    <!--&gt;-->
+                        <!--{{ name }}-->
+                    <!--</li>-->
+                <!--</ul>-->
+            <!--</div>-->
+
+            <!--<div class="tag-cloud">-->
+                <!--<button-->
+                        <!--v-for="tag in allFoodTags"-->
+                        <!--:key="tag"-->
+                        <!--class="tag-chip"-->
+                        <!--:class="{ selected: isFoodTagSelected(tag) }"-->
+                        <!--type="button"-->
+                        <!--@click="toggleFoodTag(tag)"-->
+                <!--&gt;-->
+                    <!--{{ tag }}-->
+                <!--</button>-->
+            <!--</div>-->
+
+            <!--<div v-if="!selectedFood" class="hint">Search for a food, select it, then click the results to navigate and see the effect on BG.</div>-->
+
+            <!--<div v-if="selectedFood || selectedFoodTags.length > 0">-->
+                <!--&lt;!&ndash;<h3 class="results-title">History for “{{ selectedFood }}”</h3>&ndash;&gt;-->
+
+                <!--<div class="summary pretty" v-if="matchingLogs.length">-->
+                    <!--<div class="stat-row">-->
+                        <!--<span class="label">Total consumed</span>-->
+                        <!--<span class="right">-->
+                        <!--<span class="chip">{{ totalQuantity }}g</span>-->
+        <!--</span>-->
+                    <!--</div>-->
+
+                    <!--<div class="stat-row">-->
+                        <!--<span class="label">Days covered</span>-->
+                        <!--<span class="right">-->
+          <!--<span class="chip">{{ durationDays }}</span>-->
+        <!--</span>-->
+                    <!--</div>-->
+
+                    <!--<div class="stat-row">-->
+                        <!--<span class="label">Avg per day</span>-->
+                        <!--<span class="right">-->
+          <!--<span class="chip">{{ averagePerDay.toFixed(1) }}g</span>-->
+        <!--</span>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--<div v-if="matchingLogs.length === 0">No logs found.</div>-->
+
+                <!--<div v-else class="logs">-->
+                    <!--<template v-for="group in groupedLogs" :key="group.key">-->
+                        <!--<h4 class="date-heading">{{ group.label }}</h4>-->
+                        <!--<FoodLogRow-->
+                                <!--v-for="log in group.logs"-->
+                                <!--:key="log.id"-->
+                                <!--:log="log"-->
+                                <!--@click="onLogClick(log.timestamp)"-->
+                        <!--/>-->
+                    <!--</template>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</template>-->
 
     <style scoped>
         .search-box { position: relative; max-width: 520px; }
