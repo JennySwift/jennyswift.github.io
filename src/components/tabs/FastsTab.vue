@@ -4,7 +4,9 @@
         parseAsSydneyDate,
         getStartAndEndOfDay,
         isSameDay,
-        formatDateTime
+        formatDateTime,
+        minutesBetweenOrEndOfDay,
+        formatMinutesAsHM
     } from '../../helpers/dateHelpers'
 
     const props = defineProps({
@@ -32,6 +34,13 @@
             })
     })
 
+    function durationForFast(f) {
+        const start = f.startTime instanceof Date ? f.startTime : parseAsSydneyDate(f.startTime)
+        const end   = f.endTime ? (f.endTime instanceof Date ? f.endTime : parseAsSydneyDate(f.endTime)) : null
+        const mins  = minutesBetweenOrEndOfDay(start, end, props.selectedDate)
+        return formatMinutesAsHM(mins)
+    }
+
     function labelForFast(f) {
         const d = props.selectedDate
         const start = f.startTime
@@ -58,10 +67,8 @@
                 <!-- Label -->
                 <div class="fast-label">{{ labelForFast(f) }}</div>
 
-                <!-- Duration (from export if present, in seconds) -->
-                <div v-if="f.duration">
-                    <strong>Duration:</strong>
-                    {{ Math.floor(f.duration / 3600) }}h {{ Math.floor((f.duration % 3600) / 60) }}m
+                <div>
+                    <strong>Duration:</strong> {{ durationForFast(f) }}
                 </div>
 
                 <!-- Start / End -->
