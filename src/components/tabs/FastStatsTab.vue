@@ -99,7 +99,6 @@
     <div class="stats-card">
         <div class="row">
             <button type="button" @click="prevRange">◀︎ Prev</button>
-            <div class="range">{{ label }}</div>
             <div class="pickers">
                 <input type="date" :value="startInput" @change="setStartFromInput" />
                 <span>→</span>
