@@ -5,6 +5,7 @@
     import AllNotesTab from './AllNotesTab.vue'
     import NotesTab from './NotesTab.vue'
     import FastsTab from './FastsTab.vue'
+    import FastStatsTab from './FastStatsTab.vue'
     import GlucoseTab from './GlucoseTab.vue'
     import FoodLogsTab from './FoodLogsTab.vue'
     import WorkoutsTab from './WorkoutsTab.vue'
@@ -50,6 +51,7 @@
             <button class="tab-button" :class="{ active: activeTab === 'foodLogs' }" @click="setTab('foodLogs')">🥗 Food</button>
             <button class="tab-button" :class="{ active: activeTab === 'bolus' }" @click="setTab('bolus')">💉 Bolus</button>
             <button class="tab-button" :class="{ active: activeTab === 'fasts' }" @click="setTab('fasts')">⏳ Fasts</button>
+            <button class="tab-button" :class="{ active: activeTab === 'fast-stats' }" @click="setTab('fast-stats')">⏳ Fast Stats</button>
             <button class="tab-button" :class="{ active: activeTab === 'workouts' }" @click="setTab('workouts')">🏃‍♀️ Workouts</button>
             <button class="tab-button" :class="{ active: activeTab === 'basal' }" @click="setTab('basal')">💉 Basal</button>
             <button class="tab-button" :class="{ active: activeTab === 'basal-by-hour' }" @click="setTab('basal-by-hour')">💉 Hourly Basal</button>
@@ -102,6 +104,12 @@
                     :selected-date="selectedDate"
             />
         </div>
+
+        <div class="tab-content" :class="{ 'active-tab': activeTab === 'fast-stats' }">
+            <FastStatsTab/>
+        </div>
+
+
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'workouts' }">
             <WorkoutsTab

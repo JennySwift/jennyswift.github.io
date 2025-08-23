@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 
 // Sydney-local day's [start, end) as UTC ISO strings for DB filters
 //dateLike just means “anything you can turn into a Date.”
+//Inclusive
 export function sydneyDayRangeUtcISO(dateLike, { withMillis = false } = {}) {
     const base = dateLike instanceof Date ? dateLike : new Date(dateLike)
     if (Number.isNaN(base.getTime())) {
@@ -16,6 +17,22 @@ export function sydneyDayRangeUtcISO(dateLike, { withMillis = false } = {}) {
     return {
         startUtcISO: startSydney.toUTC().toISO(toISOOpts),
         endUtcISO:   endSydney.toUTC().toISO(toISOOpts),
+    }
+}
+
+export function sydneyRangeUtcISOExclusive(startLike, endLike, { withMillis = false } = {}) {
+    const startBase = startLike instanceof Date ? startLike : new Date(startLike)
+    const endBase   = endLike   instanceof Date ? endLike   : new Date(endLike)
+
+    const startSydney = DateTime.fromJSDate(startBase, { zone: 'Australia/Sydney' }).startOf('day')
+    const endSydney   = DateTime.fromJSDate(endBase,   { zone: 'Australia/Sydney' }).startOf('day') // exclusive
+
+    const toISOOpts = withMillis ? {} : { suppressMilliseconds: true }
+    return {
+        startUtcISO: startSydney.toUTC().toISO(toISOOpts),
+        endUtcISO:   endSydney.toUTC().toISO(toISOOpts),
+        startSydney,
+        endSydney,
     }
 }
 
