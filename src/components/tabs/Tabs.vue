@@ -55,7 +55,7 @@
             <button class="tab-button" :class="{ active: activeTab === 'nutrition-stats' }" @click="setTab('nutrition-stats')">🥗 Nutrition Stats</button>
             <button class="tab-button" :class="{ active: activeTab === 'bg-stats' }" @click="setTab('bg-stats')">📈 BG Stats</button>
             <button class="tab-button" :class="{ active: activeTab === 'food-history' }" @click="setTab('food-history')">🔎 Food History</button>
-            <button class="tab-button" :class="{ active: activeTab === 'weekly-calories' }" @click="setTab('weekly-calories')">🔎 Weekly Calories</button>
+            <button class="tab-button" :class="{ active: activeTab === 'weekly-calories' }" @click="setTab('weekly-calories')">⚖︎ Weight Analysis</button>
         </div>
 
         <!-- Containers -->
