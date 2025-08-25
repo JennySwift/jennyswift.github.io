@@ -70,6 +70,24 @@
         return { min: 0, max }
     }
 
+    function cssVarRGBA(name, alpha, fallback = '#000000') {
+        const hex = getComputedStyle(document.documentElement)
+            .getPropertyValue(name)
+            .trim() || fallback
+
+        // expand shorthand #abc → #aabbcc
+        const fullHex = hex.length === 4
+            ? '#' + [...hex.slice(1)].map(c => c + c).join('')
+            : hex
+
+        const intVal = parseInt(fullHex.slice(1), 16)
+        const r = (intVal >> 16) & 255
+        const g = (intVal >> 8) & 255
+        const b = intVal & 255
+
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`
+    }
+
     function createDataset(pts) {
         console.log('[createDataset] types:', pts.map((p, i) => ({ i, type: p.type ?? p.t, raw: p })));
         const color = cssVar('--color-bolus', '#ef4444') // fallback red-500-ish
@@ -83,12 +101,19 @@
             categoryPercentage: 1.0,
             // Chart.js supports CSS variables as strings
             barThickness: 10,
+            // backgroundColor: (ctx) => {
+            //     const t = ctx.raw?.type
+            //     if (t === 'meal')       return cssVar('--color-bolus-meal')
+            //     if (t === 'correction') return cssVar('--color-bolus-correction')
+            //     if (t === 'Control-IQ') return cssVar('--color-bolus-controliq')
+            //     return cssVar('--color-bolus', '#2563eb') // fallback (blue)
+            // },
             backgroundColor: (ctx) => {
                 const t = ctx.raw?.type
-                if (t === 'meal')       return cssVar('--color-bolus-meal')
-                if (t === 'correction') return cssVar('--color-bolus-correction')
-                if (t === 'Control-IQ') return cssVar('--color-bolus-controliq')
-                return cssVar('--color-bolus', '#2563eb') // fallback (blue)
+                if (t === 'meal')       return cssVarRGBA('--color-bolus-meal', 0.7, '#16a34a')
+                if (t === 'correction') return cssVarRGBA('--color-bolus-correction', 0.7, '#f97316')
+                if (t === 'Control-IQ') return cssVarRGBA('--color-bolus-controliq', 0.7, '#6b7280')
+                return cssVarRGBA('--color-bolus', 0.7, '#2563eb') // fallback blue
             },
 
         }
