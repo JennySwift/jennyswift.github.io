@@ -6,6 +6,10 @@
     --color-workout: #ef4444; /* red */
     --color-fast: #777;
 
+    --color-bolus-meal:       #16a34a; /* green */
+    --color-bolus-correction: #f97316; /* orange */
+    --color-bolus-controliq:  #6b7280; /* gray */
+
     /* Neutrals */
     --color-border:  #e5e7eb;
     --color-bg:      #ffffff;

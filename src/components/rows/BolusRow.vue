@@ -37,6 +37,7 @@
                     :class="{
     'badge-meal': dose.type === 'meal',
     'badge-correction': dose.type === 'correction',
+    'badge-controliq': dose.type === 'Control-IQ',
     'badge-other': dose.type !== 'meal' && dose.type !== 'correction'
   }"
             >{{ dose.type }}</span>
@@ -98,26 +99,44 @@
         white-space: nowrap;
     }
 
-    /* Meal = green tag */
     .badge-meal {
-        background: #16a34a;   /* strong green */
-        color: #ffffff;        /* white text */
-        border-color: #15803d; /* darker green border */
+        background: var(--color-bolus-meal);
+        color: #ffffff;
+        border-color: color-mix(in srgb, var(--color-bolus-meal) 80%, black);
     }
 
-    /* Correction = orange tag */
     .badge-correction {
-        background: #f97316;   /* vivid orange */
-        color: #ffffff;        /* white text */
-        border-color: #ea580c; /* darker orange border */
+        background: var(--color-bolus-correction);
+        color: #ffffff;
+        border-color: color-mix(in srgb, var(--color-bolus-correction) 80%, black);
     }
+
+    .badge-controliq {
+        background: var(--color-bolus-controliq);
+        color: #ffffff;
+        border-color: color-mix(in srgb, var(--color-bolus-controliq) 80%, black);
+    }
+
+    /* Meal = green tag */
+    /*.badge-meal {*/
+        /*background: #16a34a;   !* strong green *!*/
+        /*color: #ffffff;        !* white text *!*/
+        /*border-color: #15803d; !* darker green border *!*/
+    /*}*/
+
+    /*!* Correction = orange tag *!*/
+    /*.badge-correction {*/
+        /*background: #f97316;   !* vivid orange *!*/
+        /*color: #ffffff;        !* white text *!*/
+        /*border-color: #ea580c; !* darker orange border *!*/
+    /*}*/
 
     /* Fallback for any other type = gray tag */
-    .badge-other {
-        background: #6b7280;   /* medium gray */
-        color: #ffffff;        /* white text */
-        border-color: #4b5563; /* dark gray border */
-    }
+    /*.badge-other {*/
+        /*background: #6b7280;   !* medium gray *!*/
+        /*color: #ffffff;        !* white text *!*/
+        /*border-color: #4b5563; !* dark gray border *!*/
+    /*}*/
 
     .amount-pill {
         font-size: 1.1rem;          /* larger than meta text */
