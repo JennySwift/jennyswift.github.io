@@ -71,6 +71,8 @@
             .sort((a, b) => a.day.localeCompare(b.day))
     })
 
+
+
     // 2) Build rows for all weeks from first to last day we have data
     const rows = computed(() => {
         const keys = [...caloriesByDay.value.keys()].sort()
@@ -116,6 +118,19 @@
             cursor = weekEnd
         }
 
+        // compute deltas vs previous week (chronological order)
+        for (let i = 0; i < out.length; i++) {
+            const prev = i > 0 ? out[i - 1] : null
+            out[i].deltaAvg    = prev ? out[i].avgPerDay - prev.avgPerDay : null
+            out[i].deltaTotal  = prev ? out[i].total - prev.total : null
+            out[i].deltaWeight = (prev && out[i].avgWeight != null && prev.avgWeight != null)
+                ? out[i].avgWeight - prev.avgWeight
+                : null
+        }
+
+        // show newest first
+        return out.reverse()
+
         return out.reverse()
     })
 </script>
@@ -134,10 +149,28 @@
             <tbody>
             <tr v-for="w in rows" :key="w.weekStart.toISO()">
                 <td>{{ w.label }}</td>
-                <td class="num">{{ Math.round(w.avgPerDay).toLocaleString('en-AU') }}</td>
-                <td class="num">{{ Math.round(w.total).toLocaleString('en-AU') }}</td>
+                <td class="num">
+                    {{ Math.round(w.avgPerDay).toLocaleString('en-AU') }}
+                    <span v-if="w.deltaAvg != null" :class="['delta', w.deltaAvg >= 0 ? 'up' : 'down']">
+    {{ w.deltaAvg >= 0 ? '▲' : '▼' }}
+    ({{ Math.abs(Math.round(w.deltaAvg)).toLocaleString('en-AU') }})
+  </span>
+                </td>
+
+                <td class="num">
+                    {{ Math.round(w.total).toLocaleString('en-AU') }}
+                    <span v-if="w.deltaTotal != null" :class="['delta', w.deltaTotal >= 0 ? 'up' : 'down']">
+    {{ w.deltaTotal >= 0 ? '▲' : '▼' }}
+    ({{ Math.abs(Math.round(w.deltaTotal)).toLocaleString('en-AU') }})
+  </span>
+                </td>
+
                 <td class="num">
                     {{ w.avgWeight != null ? w.avgWeight.toFixed(2) : '—' }}
+                    <span v-if="w.deltaWeight != null" :class="['delta', w.deltaWeight >= 0 ? 'up' : 'down']">
+    {{ w.deltaWeight >= 0 ? '▲' : '▼' }}
+    ({{ Math.abs(w.deltaWeight).toFixed(2) }})
+  </span>
                 </td>
             </tr>
             <tr v-if="!rows.length">
@@ -163,4 +196,7 @@
     th { text-align: left; font-weight: 700; color: #374151; }
     .num { text-align: right; font-variant-numeric: tabular-nums; }
     .empty { text-align: center; color: #6b7280; }
+    .delta { margin-left: 6px; font-weight: 600; }
+    .delta.up   { color: #dc2626; }  /* red when value went up */
+    .delta.down { color: #16a34a; }  /* green when value went down */
 </style>
