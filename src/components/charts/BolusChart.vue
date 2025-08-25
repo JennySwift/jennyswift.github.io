@@ -35,10 +35,16 @@
             .map(d => ({
                 ts: (d.timestamp instanceof Date) ? d.timestamp : new Date(d.timestamp),
                 amt: Number(d.amount ?? 0),
+                type: d.type ?? d.bolusType ?? null,
             }))
+
             .filter(d => d.ts >= startOfDay && d.ts < endOfDay && d.amt > 0)
             .sort((a, b) => a.ts - b.ts)
-            .map(d => ({ x: d.ts.getTime(), y: d.amt }))
+            .map(d => ({
+                x: d.ts.getTime(),
+                y: d.amt,
+                type: d.type ?? d.bolusType ?? null
+            }))
     })
 
     function handleMouseLeave() {
@@ -65,6 +71,7 @@
     }
 
     function createDataset(pts) {
+        console.log('[createDataset] types:', pts.map((p, i) => ({ i, type: p.type ?? p.t, raw: p })));
         const color = cssVar('--color-bolus', '#ef4444') // fallback red-500-ish
         return {
             label: 'Bolus (U)',
@@ -75,8 +82,15 @@
             barPercentage: 0.95,
             categoryPercentage: 1.0,
             // Chart.js supports CSS variables as strings
-            backgroundColor: color,
             barThickness: 10,
+            backgroundColor: (ctx) => {
+                const t = ctx.raw?.type
+                if (t === 'meal')       return cssVar('--color-bolus-meal')
+                if (t === 'correction') return cssVar('--color-bolus-correction')
+                if (t === 'Control-IQ') return cssVar('--color-bolus-controliq')
+                return cssVar('--color-bolus', '#2563eb') // fallback (blue)
+            },
+
         }
     }
 
