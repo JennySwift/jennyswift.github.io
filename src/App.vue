@@ -3,6 +3,7 @@
     import { ref, computed, reactive, onMounted, onBeforeUnmount, watch } from 'vue'
     import DateHeader from './components/DateHeader.vue'
     import BgChart from './components/charts/BgChart.vue'
+    import NotesChart from './components/charts/NotesChart.vue'
     import BasalChart from './components/charts/BasalChart.vue'
     import BolusChart from './components/charts/BolusChart.vue'
     import HourlyBasalChart from './components/charts/HourlyBasalChart.vue'
@@ -51,7 +52,8 @@
         locked: false,
         hourlyBasalUnits: null,
         hourlyBasalLabel: '',
-        bolusAmount: null,
+        bolus: null,
+        note: null
     })
 
     // Treat ISO strings with an explicit offset/Z as that instant.
@@ -162,7 +164,7 @@
 
 
     function handleChartHover(e) {
-        const { x, px, source, hide, bolus } = e?.detail ?? {}
+        const { x, px, source, hide, bolus, note } = e?.detail ?? {}
 
             console.log('[handleChartHover] x value:', x, 'type:', typeof x);
 
@@ -172,6 +174,7 @@
             tooltip.hourlyBasalUnits = null
             tooltip.hourlyBasalLabel = ''
             tooltip.bolus = null
+            tooltip.note = null
             return
         }
 
@@ -217,6 +220,13 @@
             }
         } else {
             tooltip.bolus = null
+        }
+
+        // Show note only when notes chart hovers
+        if (source === 'note' && note?.text) {
+            tooltip.note = note
+        } else {
+            tooltip.note = null
         }
     }
 
@@ -311,11 +321,21 @@
                   :hourly-basal-units="tooltip.hourlyBasalUnits"
                   :hourly-basal-label="tooltip.hourlyBasalLabel"
                   :bolus="tooltip.bolus"
+                  :note="tooltip.note"
           />
 
           <div class="chart-box bg-box">
             <BgChart :glucose-readings="data.glucoseReadings" :selected-date="selectedDate" />
           </div>
+
+          <div class="chart-box notes-box">
+            <NotesChart
+                    :notes="data.notes"
+                    :selected-date="selectedDate"
+                    note-icon-url="/note-icon.png"
+            />
+          </div>
+
           <div class="chart-box basal-box">
             <BasalChart :basal-entries="data.basalEntries" :selected-date="selectedDate" />
           </div>
@@ -412,6 +432,7 @@
   /* Fixed heights: you asked for 180px and 140px */
   .chart-box { position: relative; overflow: hidden; }
   .bg-box    { height: 180px; }
+  .notes-box { height: 50px; }
   .basal-box { height: 140px; }
   .hourly-basal-box { height: 140px; }
 

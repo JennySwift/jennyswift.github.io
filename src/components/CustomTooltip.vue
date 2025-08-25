@@ -10,7 +10,8 @@
         top:     { type: Number, default: 8 },
         hourlyBasalUnits: { type: [Number, null], default: null },
         hourlyBasalLabel: { type: String, default: '' },
-        bolus: { type: [Object, null], default: null }
+        bolus: { type: [Object, null], default: null },
+        note: { type: [Object, null], default: null },
     })
 </script>
 
@@ -42,6 +43,10 @@
             <span v-if="bolus.type"> ({{ bolus.type }})</span>
         </div>
 
+        <div v-if="note" class="row">
+            <div class="note-text">{{ note.text }}</div>
+        </div>
+
     </div>
 </template>
 
@@ -57,11 +62,16 @@
         box-shadow: 0 4px 14px rgba(0,0,0,.25);
         pointer-events: none;
         z-index: 5;
+        max-width: 360px;
         /* lift it up from wherever JS sets top */
         transform: translateY(-80px);
         min-width: 220px;      /* make it wider */
-        white-space: nowrap;   /* prevent wrapping */
+        /*white-space: nowrap;   !* prevent wrapping *!*/
     }
-    .row { display:flex; gap:8px; }
+    .row { display: flex; gap: 8px; align-items: flex-start; }
     .row + .row { margin-top: 4px; }
+    .note-text {
+        white-space: pre-wrap;     /* keeps your \n line breaks */
+        overflow-wrap: anywhere;   /* prevents super-long words from blowing width */
+    }
 </style>
