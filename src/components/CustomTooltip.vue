@@ -12,6 +12,7 @@
         hourlyBasalLabel: { type: String, default: '' },
         bolus: { type: [Object, null], default: null },
         note: { type: [Object, null], default: null },
+        // noteIconUrl: { type: String, default: '/note-icon.png' },
     })
 </script>
 
@@ -43,9 +44,17 @@
             <span v-if="bolus.type"> ({{ bolus.type }})</span>
         </div>
 
-        <div v-if="note" class="row">
+        <div v-if="note" class="row note-row">
+            <span class="note-symbol">📝</span>
             <div class="note-text">{{ note.text }}</div>
         </div>
+
+        <!--<div v-if="note" class="row note-row">-->
+            <!--<img class="note-icon" :src="noteIconUrl" alt="" aria-hidden="true" />-->
+            <!--<div class="note-text">{{ note.text }}</div>-->
+        <!--</div>-->
+
+
 
     </div>
 </template>
@@ -70,8 +79,29 @@
     }
     .row { display: flex; gap: 8px; align-items: flex-start; }
     .row + .row { margin-top: 4px; }
+
+    .note-row {
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px solid rgba(255,255,255,0.12); /* divider before notes */
+    }
+
+    .note-icon {
+        width: 14px;
+        height: 14px;
+        flex: 0 0 auto;
+        margin-top: 2px; /* aligns icon with first text line */
+        opacity: 0.95;
+    }
+
     .note-text {
-        white-space: pre-wrap;     /* keeps your \n line breaks */
-        overflow-wrap: anywhere;   /* prevents super-long words from blowing width */
+        white-space: pre-wrap;     /* keep your line breaks */
+        overflow-wrap: anywhere;   /* prevent long words from overflowing */
+    }
+
+    .note-symbol {
+        font-size: 14px;
+        line-height: 1;
+        margin-top: 2px;
     }
 </style>
