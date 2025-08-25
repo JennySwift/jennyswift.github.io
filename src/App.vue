@@ -14,6 +14,7 @@
     import { DateTime } from 'luxon'
     import { loadAllForSelectedDay } from './dayLoadersUI'
     import { fetchAllFoods } from './supabase/supabaseFoods'
+    import { fetchFoodLogsBetween } from './supabase/supabaseFoodLogs'
 
 
     const data = reactive({
@@ -27,6 +28,8 @@
         workouts: [],
         basalEntries: [],
         boluses: [],
+        //For the weekly calories tab
+        weeklyFoodLogs: []
     })
 
     const loading = reactive({
@@ -162,6 +165,40 @@
         }
     }
 
+    async function loadWeeklyFoodLogs(weeksBack = 26, tz = 'Australia/Sydney') {
+        const now = DateTime.now().setZone(tz)
+
+        // Start: Monday 00:00 of (now - weeksBack)
+        const start = now.minus({ weeks: weeksBack }).startOf('week').toJSDate()
+
+        // End (exclusive): next midnight after “today” in Sydney
+        // Using next midnight avoids any edge-case at 23:59:59.999
+        const end = now.plus({ days: 1 }).startOf('day').toJSDate()
+
+        try {
+            data.weeklyFoodLogs = await fetchFoodLogsBetween(start, end, tz)
+            console.log('[weekly range]',
+                'start=', start.toISOString(),
+                'endExclusive=', end.toISOString(),
+                'rows=', data.weeklyFoodLogs.length
+            )
+        } catch (e) {
+            console.error('[loadFoodLogsWeekly] failed:', e)
+            data.weeklyFoodLogs = []
+        }
+    }
+
+    // async function loadWeeklyFoodLogs(weeksBack = 26, tz = 'Australia/Sydney') {
+    //     const end = DateTime.now().setZone(tz).endOf('day').toJSDate()
+    //     const start = DateTime.now().setZone(tz).minus({ weeks: weeksBack }).startOf('week').toJSDate()
+    //     try {
+    //         data.weeklyFoodLogs = await fetchFoodLogsBetween(start, end, tz)
+    //     } catch (e) {
+    //         console.error('[loadFoodLogsWeekly] failed:', e)
+    //         data.weeklyFoodLogs = []
+    //     }
+    // }
+
 
     function handleChartHover(e) {
         const { x, px, source, hide, bolus, note } = e?.detail ?? {}
@@ -280,6 +317,7 @@
         window.addEventListener('chart-hover', handleChartHover)
 
         await loadFoodsFromSupabase()
+        await loadWeeklyFoodLogs(26) // last ~6 months
 
         try {
             // const payload = await fetchDashboardData()
@@ -361,6 +399,7 @@
                 :notes="data.notes"
                 :foods="data.foods"
                 :food-logs="data.foodLogs"
+                :weekly-food-logs="data.weeklyFoodLogs"
                 :boluses="data.boluses"
                 :fasts="data.fasts"
                 :workouts="data.workouts"

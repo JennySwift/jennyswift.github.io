@@ -14,6 +14,7 @@
     import BasalByHourTab from './BasalByHourTab.vue'
     import InsulinStatsTab from './InsulinStatsTab.vue'
     import NutritionStatsTab from './NutritionStatsTab.vue'
+    import WeeklyCaloriesTab from './WeeklyCaloriesTab.vue'
     import BgStatsTab from './BgStatsTab.vue'
     import FoodHistorySearchTab from './FoodHistorySearchTab.vue'
     import { formatDateTime, parseAsSydneyDate, getStartAndEndOfDay, isSameDay, formatTimeFromString, minutesOverlapWithinDay, formatHM, minutesBetweenOrEndOfDay} from '../../helpers/dateHelpers'
@@ -23,6 +24,7 @@
         notes:           { type: Array, default: () => [] },
         foods:           { type: Array, default: () => [] },
         foodLogs:        { type: Array, default: () => [] },
+        weeklyFoodLogs:  { type: Array, default: () => [] },
         boluses:      { type: Array, default: () => [] },
         fasts:           { type: Array, default: () => [] },
         workouts:        { type: Array, default: () => [] },
@@ -61,6 +63,7 @@
             <button class="tab-button" :class="{ active: activeTab === 'nutrition-stats' }" @click="setTab('nutrition-stats')">🥗 Nutrition Stats</button>
             <button class="tab-button" :class="{ active: activeTab === 'bg-stats' }" @click="setTab('bg-stats')">📈 BG Stats</button>
             <button class="tab-button" :class="{ active: activeTab === 'food-history' }" @click="setTab('food-history')">🔎 Food History</button>
+            <button class="tab-button" :class="{ active: activeTab === 'weekly-calories' }" @click="setTab('weekly-calories')">🔎 Weekly Calories</button>
         </div>
 
         <!-- Containers -->
@@ -182,6 +185,16 @@
                     :foods="foods"
             />
         </div>
+
+        <div class="tab-content" :class="{ 'active-tab': activeTab === 'weekly-calories' }">
+            <WeeklyCaloriesTab
+                    :food-logs="weeklyFoodLogs"
+                    week-starts-on="monday"
+            tz="Australia/Sydney"
+            />
+        </div>
+
+
     </section>
 </template>
 

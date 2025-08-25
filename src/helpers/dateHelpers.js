@@ -155,6 +155,21 @@ export function minutesBetweenOrEndOfDay(start, end, dayForFallback) {
     return Math.round(ms / 60000)
 }
 
+// Parse any input to a Luxon DateTime representing the *instant in time*
+// - strings with TZ/offset are respected
+// - strings without TZ are assumed UTC (so epochs/ISO dates are stable)
+//   (We only treat unzoned strings as Sydney *when explicitly using parseAsSydneyDate*)
+export function toInstant(v) {
+    if (v instanceof Date) return DateTime.fromJSDate(v)
+    if (typeof v === 'number') return DateTime.fromMillis(v)
+    if (typeof v === 'string') {
+        return /Z|[+\-]\d{2}:?\d{2}$/.test(v)
+            ? DateTime.fromISO(v)
+            : DateTime.fromISO(v, { zone: 'utc' })
+    }
+    return DateTime.invalid('Unknown input')
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // no timezone dependency
 // ──────────────────────────────────────────────────────────────────────────────
@@ -192,17 +207,3 @@ function asJSDate(v) {
     return new Date(NaN)
 }
 
-// Parse any input to a Luxon DateTime representing the *instant in time*
-// - strings with TZ/offset are respected
-// - strings without TZ are assumed UTC (so epochs/ISO dates are stable)
-//   (We only treat unzoned strings as Sydney *when explicitly using parseAsSydneyDate*)
-function toInstant(v) {
-    if (v instanceof Date) return DateTime.fromJSDate(v)
-    if (typeof v === 'number') return DateTime.fromMillis(v)
-    if (typeof v === 'string') {
-        return /Z|[+\-]\d{2}:?\d{2}$/.test(v)
-            ? DateTime.fromISO(v)
-            : DateTime.fromISO(v, { zone: 'utc' })
-    }
-    return DateTime.invalid('Unknown input')
-}
