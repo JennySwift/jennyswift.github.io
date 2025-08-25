@@ -15,6 +15,7 @@
     import { loadAllForSelectedDay } from './dayLoadersUI'
     import { fetchAllFoods } from './supabase/supabaseFoods'
     import { fetchFoodLogsBetween } from './supabase/supabaseFoodLogs'
+    import { fetchWeightsBetween } from './supabase/supabaseWeights'
 
 
     const data = reactive({
@@ -29,7 +30,8 @@
         basalEntries: [],
         boluses: [],
         //For the weekly calories tab
-        weeklyFoodLogs: []
+        weeklyFoodLogs: [],
+        weeklyWeights: []
     })
 
     const loading = reactive({
@@ -164,6 +166,25 @@
             loading.foods = false
         }
     }
+
+    async function loadWeeklyWeights(weeksBack = 26, tz = 'Australia/Sydney') {
+        const now = DateTime.now().setZone(tz)
+        const start = now.minus({ weeks: weeksBack }).startOf('week').toJSDate()
+        const end = now.plus({ days: 1 }).startOf('day').toJSDate()
+        loading.weights = true
+        try {
+            data.weeklyWeights = await fetchWeightsBetween(start, end)
+            const first = data.weeklyWeights[0]?.timestamp ?? '-'
+            const last = data.weeklyWeights.at(-1)?.timestamp ?? '-'
+                console.log('[weekly weights] rows=', data.weeklyWeights.length, 'first=', first, 'last=', last)
+        } catch (e) {
+            console.error('[loadWeeklyWeights] failed:', e)
+            data.weeklyWeights = []
+        } finally {
+            loading.weights = false
+        }
+    }
+
 
     async function loadWeeklyFoodLogs(weeksBack = 26, tz = 'Australia/Sydney') {
         const now = DateTime.now().setZone(tz)
@@ -318,6 +339,7 @@
 
         await loadFoodsFromSupabase()
         await loadWeeklyFoodLogs(26) // last ~6 months
+        await loadWeeklyWeights(26)
 
         try {
             // const payload = await fetchDashboardData()
@@ -396,16 +418,8 @@
 
       <main class="right-rail">
         <Tabs
-                :notes="data.notes"
-                :foods="data.foods"
-                :food-logs="data.foodLogs"
-                :weekly-food-logs="data.weeklyFoodLogs"
-                :boluses="data.boluses"
-                :fasts="data.fasts"
-                :workouts="data.workouts"
-                :basal-entries="data.basalEntries"
+                :data="data"
                 :hourly-basal-totals="hourlyBasalTotals"
-                :glucose-readings="data.glucoseReadings"
                 :selected-date="selectedDate"
                 :loading="loading"
         />

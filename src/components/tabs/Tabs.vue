@@ -21,16 +21,8 @@
     import { formatMinutesPerKm, formatKmPerHour, formatDistance } from '../../helpers/workoutHelpers'
 
     const props = defineProps({
-        notes:           { type: Array, default: () => [] },
-        foods:           { type: Array, default: () => [] },
-        foodLogs:        { type: Array, default: () => [] },
-        weeklyFoodLogs:  { type: Array, default: () => [] },
-        boluses:      { type: Array, default: () => [] },
-        fasts:           { type: Array, default: () => [] },
-        workouts:        { type: Array, default: () => [] },
-        basalEntries:    { type: Array, default: () => [] },
+        data: { type: Object, required: true },
         hourlyBasalTotals: { type: Array, default: () => [] },
-        glucoseReadings: { type: Array, default: () => [] },
         selectedDate:     { type: Date, required: true },
         loading: { type: Object, default: () => ({}) },
     })
@@ -70,16 +62,16 @@
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'combined' }">
             <CombinedTab
                     :selected-date="selectedDate"
-                    :food-logs="foodLogs"
-                    :boluses="boluses"
-                    :notes="notes"
-                    :workouts="workouts"
+                    :food-logs="data.foodLogs"
+                    :boluses="data.boluses"
+                    :notes="data.notes"
+                    :workouts="data.workouts"
             />
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'notes' }">
             <NotesTab
-                    :notes="notes"
+                    :notes="data.notes"
                     :selected-date="selectedDate"
                     :loading="props.loading?.notes === true"
             />
@@ -87,7 +79,7 @@
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'foodLogs' }">
             <FoodLogsTab
-                    :food-logs="foodLogs"
+                    :food-logs="data.foodLogs"
                     :selected-date="selectedDate"
                     :loading="props.loading?.foodLogs === true"
             />
@@ -95,7 +87,7 @@
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'bolus' }">
             <BolusTab
-                    :boluses="boluses"
+                    :boluses="data.boluses"
                     :selected-date="selectedDate"
                     :loading="props.loading?.boluses === true"
             />
@@ -103,7 +95,7 @@
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'fasts' }">
             <FastsTab
-                    :fasts="fasts"
+                    :fasts="data.fasts"
                     :selected-date="selectedDate"
             />
         </div>
@@ -116,14 +108,14 @@
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'workouts' }">
             <WorkoutsTab
-                    :workouts="workouts"
+                    :workouts="data.workouts"
                     :selected-date="selectedDate"
             />
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'basal' }">
             <BasalTab
-                    :basal-entries="basalEntries"
+                    :basal-entries="data.basalEntries"
                     :selected-date="selectedDate"
                     :loading="props.loading?.basal === true"
             />
@@ -131,7 +123,7 @@
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'basal-by-hour' }">
             <BasalByHourTab
-                    :basal-entries="basalEntries"
+                    :basal-entries="data.basalEntries"
                     :hourly-basal-totals="hourlyBasalTotals"
                     :selected-date="selectedDate"
             />
@@ -141,7 +133,7 @@
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'glucose' }">
             <GlucoseTab
-                    :glucose-readings="glucoseReadings"
+                    :glucose-readings="data.glucoseReadings"
                     :selected-date="selectedDate"
             />
         </div>
@@ -150,7 +142,7 @@
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'all-notes' }">
             <div class="daily-section">
                 <AllNotesTab
-                        :notes="notes"
+                        :notes="data.notes"
                         @note-click="ts => emit('note-click', ts)"
                 />
             </div>
@@ -159,36 +151,37 @@
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'insulin-stats' }">
             <InsulinStatsTab
                     :selected-date="selectedDate"
-                    :bolus-doses="boluses"
-                    :basal-entries="basalEntries"
-                    :food-logs="foodLogs"
+                    :bolus-doses="data.boluses"
+                    :basal-entries="data.basalEntries"
+                    :food-logs="data.foodLogs"
             />
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'nutrition-stats' }">
             <NutritionStatsTab
                     :selected-date="selectedDate"
-                    :food-logs="foodLogs"
+                    :food-logs="data.foodLogs"
             />
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'bg-stats' }">
             <BgStatsTab
                     :selected-date="selectedDate"
-                    :glucose-readings="glucoseReadings"
+                    :glucose-readings="data.glucoseReadings"
             />
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'food-history' }">
             <FoodHistorySearchTab
-                    :all-food-logs="foodLogs"
-                    :foods="foods"
+                    :all-food-logs="data.foodLogs"
+                    :foods="data.foods"
             />
         </div>
 
         <div class="tab-content" :class="{ 'active-tab': activeTab === 'weekly-calories' }">
             <WeeklyCaloriesTab
-                    :food-logs="weeklyFoodLogs"
+                    :food-logs="data.weeklyFoodLogs"
+                    :weights="data.weeklyWeights"
                     week-starts-on="monday"
             tz="Australia/Sydney"
             />

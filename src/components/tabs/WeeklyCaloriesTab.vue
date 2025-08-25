@@ -13,7 +13,24 @@
 
         // Timezone to align days with
         tz: { type: String, default: 'Australia/Sydney' },
+
+        weights: { type: Array, default: () => [] }
     })
+
+    function averageWeightForRange(start, end) {
+        let sum = 0
+        let count = 0
+        for (const w of props.weights) {
+            const js = parseAsSydneyDate(w.timestamp)
+            const dt = DateTime.fromJSDate(js, { zone: props.tz })
+            if (!dt.isValid) continue
+            if (dt >= start && dt < end) {
+                const kg = Number(w.value)
+                if (Number.isFinite(kg)) { sum += kg; count += 1 }
+            }
+        }
+        return count ? (sum / count) : null
+    }
 
     function startOfWeek(dt, mode) {
         if (mode === 'monday') return dt.startOf('week') // ISO Monday
@@ -85,6 +102,7 @@
             const daysWithData = perDay.filter(v => v > 0).length
             const denom = isCurrentWeek ? (daysWithData || 1) : 7
             const avgPerDay = weekTotal / denom
+            const avgWeight = averageWeightForRange(weekStart, weekEnd)
 
             out.push({
                 weekStart,
@@ -92,6 +110,7 @@
                 label: weekLabel(weekStart, props.tz),
                 total: weekTotal,
                 avgPerDay,
+                avgWeight
             })
 
             cursor = weekEnd
@@ -109,6 +128,7 @@
                 <th>Week</th>
                 <th class="num">Avg kcal/day</th>
                 <th class="num">Total kcal</th>
+                <th class="num">Avg weight (kg)</th>
             </tr>
             </thead>
             <tbody>
@@ -116,6 +136,9 @@
                 <td>{{ w.label }}</td>
                 <td class="num">{{ Math.round(w.avgPerDay).toLocaleString('en-AU') }}</td>
                 <td class="num">{{ Math.round(w.total).toLocaleString('en-AU') }}</td>
+                <td class="num">
+                    {{ w.avgWeight != null ? w.avgWeight.toFixed(2) : '—' }}
+                </td>
             </tr>
             <tr v-if="!rows.length">
                 <td colspan="3" class="empty">No data</td>
