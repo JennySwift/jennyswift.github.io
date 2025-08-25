@@ -17,6 +17,8 @@
         weights: { type: Array, default: () => [] }
     })
 
+    const LB_PER_KG = 2.2046226218
+
     function averageWeightForRange(start, end) {
         let sum = 0
         let count = 0
@@ -105,6 +107,7 @@
             const denom = isCurrentWeek ? (daysWithData || 1) : 7
             const avgPerDay = weekTotal / denom
             const avgWeight = averageWeightForRange(weekStart, weekEnd)
+            const avgWeightLb = avgWeight != null ? avgWeight * LB_PER_KG : null
 
             out.push({
                 weekStart,
@@ -112,7 +115,8 @@
                 label: weekLabel(weekStart, props.tz),
                 total: weekTotal,
                 avgPerDay,
-                avgWeight
+                avgWeight,
+                avgWeightLb
             })
 
             cursor = weekEnd
@@ -126,6 +130,7 @@
             out[i].deltaWeight = (prev && out[i].avgWeight != null && prev.avgWeight != null)
                 ? out[i].avgWeight - prev.avgWeight
                 : null
+            out[i].deltaWeightLb = out[i].deltaWeight != null ? out[i].deltaWeight * LB_PER_KG : null
         }
 
         // show newest first
@@ -144,6 +149,7 @@
                 <th class="num">Avg kcal/day</th>
                 <th class="num">Total kcal</th>
                 <th class="num">Avg weight (kg)</th>
+                <th class="num">Avg weight (lb)</th>
             </tr>
             </thead>
             <tbody>
@@ -170,6 +176,14 @@
                     <span v-if="w.deltaWeight != null" :class="['delta', w.deltaWeight >= 0 ? 'up' : 'down']">
     {{ w.deltaWeight >= 0 ? '▲' : '▼' }}
     ({{ Math.abs(w.deltaWeight).toFixed(2) }})
+  </span>
+                </td>
+
+                <td class="num">
+                    {{ w.avgWeightLb != null ? w.avgWeightLb.toFixed(2) : '—' }}
+                    <span v-if="w.deltaWeightLb != null" :class="['delta', w.deltaWeightLb >= 0 ? 'up' : 'down']">
+    {{ w.deltaWeightLb >= 0 ? '▲' : '▼' }}
+    ({{ Math.abs(w.deltaWeightLb).toFixed(2) }})
   </span>
                 </td>
             </tr>
