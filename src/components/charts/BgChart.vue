@@ -1,3 +1,4 @@
+//BgChart.vue
 <script setup>
     import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
     import { getStartAndEndOfDay } from '../../helpers/dateHelpers'
