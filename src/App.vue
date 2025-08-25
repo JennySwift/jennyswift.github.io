@@ -162,7 +162,7 @@
 
 
     function handleChartHover(e) {
-        const { x, px, source, hide, bolusAmount } = e?.detail ?? {}
+        const { x, px, source, hide, bolus } = e?.detail ?? {}
 
             console.log('[handleChartHover] x value:', x, 'type:', typeof x);
 
@@ -171,7 +171,7 @@
             tooltip.locked = false
             tooltip.hourlyBasalUnits = null
             tooltip.hourlyBasalLabel = ''
-            tooltip.bolusAmount = null
+            tooltip.bolus = null
             return
         }
 
@@ -210,10 +210,13 @@
         tooltip.basal = findBasalRateAt(ts)
 
         // Show bolus amount only when the bolus chart is the hover source
-        if (source === 'bolus') {
-            tooltip.bolusAmount = typeof bolusAmount === 'number' ? bolusAmount : null
+        if (source === 'bolus' && bolus?.amount != null) {
+            tooltip.bolus = {
+                amount: Number(bolus.amount),
+                type: bolus.type ?? null,
+            }
         } else {
-            tooltip.bolusAmount = null
+            tooltip.bolus = null
         }
     }
 
@@ -307,7 +310,7 @@
                   :top="8"
                   :hourly-basal-units="tooltip.hourlyBasalUnits"
                   :hourly-basal-label="tooltip.hourlyBasalLabel"
-                  :bolus-amount="tooltip.bolusAmount"
+                  :bolus="tooltip.bolus"
           />
 
           <div class="chart-box bg-box">

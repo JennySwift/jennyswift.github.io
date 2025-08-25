@@ -49,7 +49,7 @@
 
     function handleMouseLeave() {
         window.dispatchEvent(new CustomEvent('chart-hover', {
-            detail: { hide: true, source: 'bolus', bolusAmount: null }
+            detail: { hide: true, source: 'bolus', bolus: null }
         }))
     }
 
@@ -141,9 +141,10 @@
                     const canvasRect = chart.canvas.getBoundingClientRect()
                     const clientX = evt?.native?.clientX ?? evt.clientX
                     const px = clientX - canvasRect.left
-                    window.dispatchEvent(new CustomEvent('chart-hover', {
-                        detail: { x: xVal, px, source: 'bolus', bolusAmount: amount }
-                    }))
+                    const type = d.type ?? null
+                        window.dispatchEvent(new CustomEvent('chart-hover', {
+                            detail: { x: xVal, px, source: 'bolus', bolus: { amount, type } }
+                        }))
                 }
             },
             scales: {
