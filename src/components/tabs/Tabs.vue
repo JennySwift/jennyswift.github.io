@@ -183,6 +183,7 @@
                     :food-logs="data.weeklyFoodLogs"
                     :weights="data.weeklyWeights"
                     week-starts-on="monday"
+                    :daily-activity="data.dailyActivity"
             tz="Australia/Sydney"
             />
         </div>

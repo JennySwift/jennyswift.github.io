@@ -16,6 +16,7 @@
     import { fetchAllFoods } from './supabase/supabaseFoods'
     import { fetchFoodLogsBetween } from './supabase/supabaseFoodLogs'
     import { fetchWeightsBetween } from './supabase/supabaseWeights'
+    import { fetchDailyActivityBetween } from './supabase/supabaseDailyActivity'
 
 
     const data = reactive({
@@ -31,7 +32,8 @@
         boluses: [],
         //For the weekly calories tab
         weeklyFoodLogs: [],
-        weeklyWeights: []
+        weeklyWeights: [],
+        dailyActivity: []
     })
 
     const loading = reactive({
@@ -164,6 +166,24 @@
             data.foods = []
         } finally {
             loading.foods = false
+        }
+    }
+
+    async function loadDailyActivity(weeksBack = 26, tz = 'Australia/Sydney') {
+        const now = DateTime.now().setZone(tz)
+        const start = now.minus({ weeks: weeksBack }).startOf('week').toJSDate()
+        const end   = now.plus({ days: 1 }).startOf('day').toJSDate() // end-exclusive next midnight
+
+        try {
+            data.dailyActivity = await fetchDailyActivityBetween(start, end, tz)
+            console.log('[daily activity range]',
+                'start=', start.toISOString(),
+                'endExclusive=', end.toISOString(),
+                'rows=', data.dailyActivity.length
+            )
+        } catch (e) {
+            console.error('[loadDailyActivity] failed:', e)
+            data.dailyActivity = []
         }
     }
 
@@ -340,6 +360,7 @@
         await loadFoodsFromSupabase()
         await loadWeeklyFoodLogs(26) // last ~6 months
         await loadWeeklyWeights(26)
+        await loadDailyActivity(26)
 
         try {
             // const payload = await fetchDashboardData()
