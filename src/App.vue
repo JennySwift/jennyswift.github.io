@@ -309,14 +309,15 @@
             tooltip.note = null
         }
 
-        if (source === 'foodLogs' && foodLogs?.descriptions?.length) {
+        if (source === 'foodLogs' && foodLogs?.logs?.length) {
             tooltip.foodLogs = {
-                descriptions: foodLogs.descriptions,
+                logs: foodLogs.logs,
                 netCarbs: Number(foodLogs.netCarbs ?? 0)
             }
         } else {
             tooltip.foodLogs = null
         }
+
     }
 
 

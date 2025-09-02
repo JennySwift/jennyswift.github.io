@@ -41,12 +41,15 @@
             const desc = log.foodName || log.description || '(no name)'
 
             if (!groups.has(timeKey)) {
-                groups.set(timeKey, { x: timeKey, y: 0, descriptions: [] })
+                groups.set(timeKey, { x: timeKey, y: 0, logs: [] })
             }
 
             const entry = groups.get(timeKey)
             entry.y += carbs
-            entry.descriptions.push(desc)
+            entry.logs.push({
+                name: log.foodName,
+                quantity: log.quantity
+            })
         }
 
         return Array.from(groups.values()).sort((a, b) => a.x - b.x)
@@ -95,7 +98,10 @@
                             x: d.x,
                             px,
                             source: 'foodLogs',
-                            foodLogs: { descriptions: d.descriptions, netCarbs: d.y }
+                            foodLogs: {
+                                logs: d.logs,
+                                netCarbs: d.y
+                            }
                         }
                     }))
                 }
@@ -155,7 +161,10 @@
                     data: pts,
                     backgroundColor: cssVarRGBA('--color-food', 0.6, '#10b981'),
                     barThickness: 10,
-                    borderRadius: 3
+                    borderRadius: 3,
+                    borderWidth: 1,
+                    borderColor: '#065f46', // very dark green
+                    // borderSkipped: false,
                 }]
             },
             options: buildOptions({ min: start, max: end }, bounds)

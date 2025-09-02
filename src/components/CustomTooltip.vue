@@ -50,10 +50,17 @@
             <div class="note-text">{{ note.text }}</div>
         </div>
 
-        <div v-if="foodLogs" class="row food-log-row" style="flex-direction: column;">
-            <div><strong>Foods ({{ foodLogs.netCarbs.toFixed(1) }}g net carbs) :</strong></div>
-            <ul style="margin: 4px 0 0; padding-left: 1rem;">
-                <li v-for="(desc, i) in foodLogs.descriptions" :key="i">{{ desc }}</li>
+        <div v-if="foodLogs" class="food-log-block">
+            <div class="food-label">
+                <span class="food-symbol">🍽️</span>
+                <strong>Foods</strong>
+                <span class="carbs-label">({{ foodLogs.netCarbs.toFixed(1) }}g net carbs)</span>
+            </div>
+            <span>Occasionally foods should be in mLs not grams, such as almond milk.</span>
+            <ul class="food-list">
+                <li v-for="(log, i) in foodLogs.logs" :key="i">
+                    <span>{{ log.quantity }}g</span> {{ log.name }}
+                </li>
             </ul>
         </div>
 
@@ -111,5 +118,36 @@
         font-size: 14px;
         line-height: 1;
         margin-top: 2px;
+    }
+
+    .food-log-block {
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .food-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: bold;
+        margin-bottom: 4px;
+    }
+
+    .food-symbol {
+        font-size: 14px;
+        line-height: 1;
+        margin-top: 1px;
+    }
+
+    .carbs-label {
+        font-weight: normal;
+        opacity: 0.85;
+    }
+
+    .food-list {
+        margin: 0;
+        padding-left: 1.2rem;
+        list-style: disc;
     }
 </style>
