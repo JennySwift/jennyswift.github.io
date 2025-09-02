@@ -166,6 +166,7 @@
                     max: xRange?.max,
                 },
                 y: {
+                    position: 'right',
                     min: yBounds.min,
                     max: yBounds.max,
                     beginAtZero: true,

@@ -1,3 +1,4 @@
+//BasalChart.vue
 <script setup>
     import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
     import { parseAsSydneyDate, getStartAndEndOfDay } from '../../helpers/dateHelpers'
@@ -145,6 +146,7 @@
                     max: xRange?.max,
                 },
                 y: {
+                    position: 'right',
                     min: yBounds.min,
                     max: yBounds.max,
                     beginAtZero: true,

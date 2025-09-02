@@ -149,11 +149,22 @@
                 //     max: xRange?.max,
                 // },
                 y: {
+                    position: 'right',
                     min: yBounds.min,
                     max: yBounds.max,
                     grid: { color: '#888', lineWidth: 1 },
-                    ticks: { stepSize: 2 },
                     title: { display: true, text: 'mmol/L' },
+
+
+                    ticks: {
+                        stepSize: 2,
+                        // padding: 12,      // space between tick and chart area
+                        // callback: (val) => val, // normal labels
+                    },
+                    // afterFit: function(scaleInstance) {
+                    //     // Force exact width of Y-axis space
+                    //     scaleInstance.width = 60  // or whatever fixed width you decide
+                    // },
                 }
             },
 

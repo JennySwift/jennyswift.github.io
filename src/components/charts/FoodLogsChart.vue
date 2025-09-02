@@ -56,8 +56,10 @@
     })
 
     function computeYBounds(points) {
-        const max = Math.max(1, Math.ceil(Math.max(...points.map(p => p.y)) + 1))
-        return { min: 0, max }
+        const maxY = Math.max(1, ...points.map(p => p.y))
+        const roundedMax = Math.ceil(maxY / 20) * 20
+        //Always at least 100 because when the y labels had unpredicated number of digits it messed up the vertical lines aligning across charts
+        return { min: 0, max: Math.max(100, roundedMax) }
     }
 
     function handleMouseLeave() {
@@ -106,24 +108,47 @@
                     }))
                 }
             },
+
             scales: {
                 x: {
                     type: 'time',
-                    time: { unit: 'hour', displayFormats: { hour: 'h:mm a' } },
+                    time: { zone: 'Australia/Sydney', unit: 'hour', displayFormats: { hour: 'h:mm a' } },
                     ticks: {
                         source: 'auto',
-                        callback: val => DateTime.fromMillis(Number(val)).setZone('Australia/Sydney').toFormat('h a')
+                        autoSkip: false,
+                        maxTicksLimit: 12,
+                        maxRotation: 0,
+                        minRotation: 0,
+                        callback: (val) =>
+                            DateTime.fromMillis(Number(val))
+                                .setZone('Australia/Sydney')
+                                .toFormat('h a')
                     },
-                    grid: { color: '#ddd', lineWidth: 1 },
-                    min: xRange.min,
-                    max: xRange.max
+                    // ticks: { source: 'auto', autoSkip: false, maxTicksLimit: 12 },
+                    grid: { color: '#ccc', lineWidth: 1 },
+                    min: xRange?.min,
+                    max: xRange?.max,
                 },
                 y: {
+                    position: 'right',
                     min: yBounds.min,
                     max: yBounds.max,
                     beginAtZero: true,
-                    grid: { color: '#eee' },
-                    title: { display: true, text: 'Net Carbs (g)' }
+                    grid: { display: true, color: '#888', lineWidth: 1 },
+                    title: { display: true, text: 'Net Carbs' },
+                    // ticks: {
+                    //     display: false
+                    // },
+
+                    ticks: {
+                        stepSize: 20,
+                        // padding: 12,      // space between tick and chart area
+                        // callback: (val) => val, // normal labels
+                    },
+                    // afterFit: function(scaleInstance) {
+                    //     // Force exact width of Y-axis space
+                    //     scaleInstance.width = 60  // or whatever fixed width you decide
+                    // },
                 }
             },
             plugins: {
@@ -151,7 +176,11 @@
         const pts = groupedByTimestamp.value
         const start = DateTime.fromJSDate(props.selectedDate).setZone('Australia/Sydney').startOf('day').toMillis()
         const end = start + 86_400_000
-        const bounds = computeYBounds(pts)
+        const rawBounds = computeYBounds(pts)
+        const bounds = {
+            min: rawBounds.min,
+            max: Math.max(100, rawBounds.max)  // ✅ Enforce at least 100 here so vertical lines line up across charts
+        }
 
         chartInstance = new Chart(ctx, {
             type: 'bar',
@@ -182,7 +211,7 @@
         chartInstance.options.scales.x.min = start
         chartInstance.options.scales.x.max = end
         chartInstance.options.scales.y.min = bounds.min
-        chartInstance.options.scales.y.max = bounds.max
+        chartInstance.options.scales.y.max = Math.max(100, bounds.max)  // <- ✅ force 100 here again so that vertical lines are in alignment across charts
         chartInstance.update('none')
     }
 
