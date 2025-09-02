@@ -116,16 +116,17 @@
         return {
             type: 'scatter',
             data: pts,
-            pointRadius: 10,       // icon size (tweak)
+            pointRadius: 8,       // icon size (tweak)
             pointHoverRadius: 12,
             pointHitRadius: 18,    // easy to hover
             // pointBackgroundColor: 'transparent',
             // pointBorderColor: 'transparent',
-            pointBackgroundColor: '#f59e0b',   // visible fill (or use a CSS var)
-            pointBorderColor: '#f59e0b',       // visible border
+            pointBackgroundColor: '#f59e0b',
+            pointBorderColor: '#f59e0b',
             borderWidth: 0,
-            pointStyle: 'triangle',
-            // pointStyle: noteImg ?? 'circle', // will become your PNG once loaded
+            pointStyle: '📝',
+            // pointStyle: 'triangle',
+            // pointStyle: noteImg ?? 'circle',
         }
     }
 
@@ -157,7 +158,7 @@
     }
 
     onMounted(() => {
-        // Load the custom PNG once; Chart.js accepts HTMLImageElement as pointStyle
+        //Load the custom PNG once; Chart.js accepts HTMLImageElement as pointStyle
         // noteImg = new Image()
         // noteImg.src = props.noteIconUrl
         // noteImg.onload = () => {

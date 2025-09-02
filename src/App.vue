@@ -517,13 +517,13 @@
   /* Layout the two boxes with a tiny gap */
   .chart-stage {
     display: grid;
-    row-gap: 8px;
+    /*row-gap: 8px;*/
   }
 
   /* Fixed heights: you asked for 180px and 140px */
   .chart-box { position: relative; overflow: hidden; }
   .bg-box    { height: 180px; }
-  .notes-box { height: 50px; }
+  .notes-box { height: 40px; }
   .basal-box { height: 140px; }
   .hourly-basal-box { height: 140px; }
   .food-logs-box { height: 120px; }
