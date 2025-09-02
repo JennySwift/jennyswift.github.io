@@ -7,6 +7,7 @@
     import BasalChart from './components/charts/BasalChart.vue'
     import BolusChart from './components/charts/BolusChart.vue'
     import HourlyBasalChart from './components/charts/HourlyBasalChart.vue'
+    import FoodLogsChart from './components/charts/FoodLogsChart.vue'
     import Tabs from './components/tabs/Tabs.vue'
     import Tooltip from './components/CustomTooltip.vue'
     import { getSydneyStartOfToday } from './helpers/dateHelpers'
@@ -242,7 +243,7 @@
 
 
     function handleChartHover(e) {
-        const { x, px, source, hide, bolus, note } = e?.detail ?? {}
+        const { x, px, source, hide, bolus, note, foodLogs } = e?.detail ?? {}
 
             console.log('[handleChartHover] x value:', x, 'type:', typeof x);
 
@@ -253,6 +254,7 @@
             tooltip.hourlyBasalLabel = ''
             tooltip.bolus = null
             tooltip.note = null
+            tooltip.foodLogs = null
             return
         }
 
@@ -305,6 +307,15 @@
             tooltip.note = note
         } else {
             tooltip.note = null
+        }
+
+        if (source === 'foodLogs' && foodLogs?.descriptions?.length) {
+            tooltip.foodLogs = {
+                descriptions: foodLogs.descriptions,
+                netCarbs: Number(foodLogs.netCarbs ?? 0)
+            }
+        } else {
+            tooltip.foodLogs = null
         }
     }
 
@@ -403,6 +414,7 @@
                   :hourly-basal-label="tooltip.hourlyBasalLabel"
                   :bolus="tooltip.bolus"
                   :note="tooltip.note"
+                  :foodLogs="tooltip.foodLogs"
           />
 
           <div class="chart-box bg-box">
@@ -415,6 +427,10 @@
                     :selected-date="selectedDate"
                     note-icon-url="/note-icon.png"
             />
+          </div>
+
+          <div class="chart-box food-logs-box">
+            <FoodLogsChart :food-logs="data.foodLogs" :selected-date="selectedDate" />
           </div>
 
           <div class="chart-box basal-box">
@@ -509,6 +525,7 @@
   .notes-box { height: 50px; }
   .basal-box { height: 140px; }
   .hourly-basal-box { height: 140px; }
+  .food-logs-box { height: 120px; }
 
   /* Make the chart components and their canvases fill the box height */
   .chart-box > * { width: 100%; height: 100%; display: block; }

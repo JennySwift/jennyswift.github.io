@@ -12,6 +12,7 @@
         hourlyBasalLabel: { type: String, default: '' },
         bolus: { type: [Object, null], default: null },
         note: { type: [Object, null], default: null },
+        foodLogs: { type: [Object, null], default: null },
         // noteIconUrl: { type: String, default: '/note-icon.png' },
     })
 </script>
@@ -47,6 +48,13 @@
         <div v-if="note" class="row note-row">
             <span class="note-symbol">📝</span>
             <div class="note-text">{{ note.text }}</div>
+        </div>
+
+        <div v-if="foodLogs" class="row food-log-row" style="flex-direction: column;">
+            <div><strong>Foods ({{ foodLogs.netCarbs.toFixed(1) }}g net carbs) :</strong></div>
+            <ul style="margin: 4px 0 0; padding-left: 1rem;">
+                <li v-for="(desc, i) in foodLogs.descriptions" :key="i">{{ desc }}</li>
+            </ul>
         </div>
 
         <!--<div v-if="note" class="row note-row">-->
