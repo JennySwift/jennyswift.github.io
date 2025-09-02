@@ -93,20 +93,41 @@
             scales: {
                 x: {
                     type: 'time',
-                    time: { unit: 'hour', displayFormats: { hour: 'h:mm a' } },
-                    adapters: { date: { zone: 'Australia/Sydney' } },
-                    grid: { display: false },
-                    ticks: { display: false },
+                    time: { zone: 'Australia/Sydney', unit: 'hour', displayFormats: { hour: 'h:mm a' } },
+                    ticks: {
+                        source: 'auto',
+                        autoSkip: false,
+                        maxTicksLimit: 12,
+                        color: 'transparent',
+                        // callback: () => '',
+                        callback: (val) =>
+                            DateTime.fromMillis(Number(val))
+                                .setZone('Australia/Sydney')
+                                .toFormat('h a')
+                    },
+                    // ticks: { source: 'auto', autoSkip: false, maxTicksLimit: 12 },
+                    grid: { color: '#ccc', lineWidth: 1 },
                     min: xRange?.min,
                     max: xRange?.max,
                 },
                 // A dedicated Y scale [0..1] so notes always sit in their own lane
                 y: {
+                    position: 'right',
                     min: 0,
                     max: 1,
                     grid: { display: false },
-                    ticks: { display: false },
-                    beginAtZero: true
+                    ticks: {
+                        display: true,         // ← show ticks (to take up space)
+                        color: 'transparent',  // ← make the text invisible
+                        // callback: () => '',    // ← or use this to ensure no labels show
+                    },
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        color: 'transparent',
+                        text: 'Notes',
+                        align: 'center' // optional: 'start', 'center', or 'end'
+                    }
                 }
             }
         }
@@ -116,7 +137,7 @@
         return {
             type: 'scatter',
             data: pts,
-            pointRadius: 8,       // icon size (tweak)
+            pointRadius: 7,       // icon size (tweak)
             pointHoverRadius: 12,
             pointHitRadius: 18,    // easy to hover
             // pointBackgroundColor: 'transparent',
@@ -181,5 +202,5 @@
 </template>
 
 <style scoped>
-    canvas { width: 100% !important; height: 100% !important; display:block; }
+
 </style>

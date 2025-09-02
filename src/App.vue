@@ -523,10 +523,18 @@
   /* Fixed heights: you asked for 180px and 140px */
   .chart-box { position: relative; overflow: hidden; }
   .bg-box    { height: 180px; }
-  .notes-box { height: 40px; }
+  .notes-box {
+    height: 50px;
+    margin-bottom: -25px;
+    margin-top: -10px;
+    //Fix the notes not lining up with the other charts at the right times
+    padding-right: 5px
+  }
   .basal-box { height: 140px; }
   .hourly-basal-box { height: 140px; }
-  .food-logs-box { height: 120px; }
+  .food-logs-box {
+    height: 120px;
+  }
 
   /* Make the chart components and their canvases fill the box height */
   .chart-box > * { width: 100%; height: 100%; display: block; }
