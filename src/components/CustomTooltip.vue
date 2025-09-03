@@ -1,6 +1,8 @@
 
 <!-- CustomTooltip.vue -->
 <script setup>
+    import { formatHM } from '../helpers/dateHelpers'
+
     const props = defineProps({
         visible: { type: Boolean, default: false },
         time:    { type: String,  default: '' },
@@ -13,6 +15,7 @@
         bolus: { type: [Object, null], default: null },
         note: { type: [Object, null], default: null },
         foodLogs: { type: [Object, null], default: null },
+        workout: { type: [Object, null], default: null },
         // noteIconUrl: { type: String, default: '/note-icon.png' },
     })
 </script>
@@ -63,6 +66,12 @@
                 </li>
             </ul>
         </div>
+
+        <div v-if="workout" class="row">
+            🏃‍‍️{{ workout.name }}: <span>Avg H/R {{ Number(workout.averageHeartRate).toFixed(1) }} bpm for {{ formatHM(workout.duration / 60) }}</span>
+        </div>
+
+
 
         <!--<div v-if="note" class="row note-row">-->
             <!--<img class="note-icon" :src="noteIconUrl" alt="" aria-hidden="true" />-->

@@ -8,6 +8,7 @@
     import BolusChart from './components/charts/BolusChart.vue'
     import HourlyBasalChart from './components/charts/HourlyBasalChart.vue'
     import FoodLogsChart from './components/charts/FoodLogsChart.vue'
+    import WorkoutsChart from './components/charts/WorkoutsChart.vue'
     import Tabs from './components/tabs/Tabs.vue'
     import Tooltip from './components/CustomTooltip.vue'
     import { getSydneyStartOfToday } from './helpers/dateHelpers'
@@ -61,7 +62,8 @@
         hourlyBasalUnits: null,
         hourlyBasalLabel: '',
         bolus: null,
-        note: null
+        note: null,
+        workout: null,
     })
 
     // Treat ISO strings with an explicit offset/Z as that instant.
@@ -243,7 +245,7 @@
 
 
     function handleChartHover(e) {
-        const { x, px, source, hide, bolus, note, foodLogs } = e?.detail ?? {}
+        const { x, px, source, hide, bolus, note, foodLogs, workout } = e?.detail ?? {}
 
             console.log('[handleChartHover] x value:', x, 'type:', typeof x);
 
@@ -255,6 +257,7 @@
             tooltip.bolus = null
             tooltip.note = null
             tooltip.foodLogs = null
+            tooltip.workout = null
             return
         }
 
@@ -316,6 +319,12 @@
             }
         } else {
             tooltip.foodLogs = null
+        }
+
+        if (source === 'workouts' && workout) {
+            tooltip.workout = workout
+        } else {
+            tooltip.workout = null
         }
 
     }
@@ -416,6 +425,7 @@
                   :bolus="tooltip.bolus"
                   :note="tooltip.note"
                   :foodLogs="tooltip.foodLogs"
+                  :workout="tooltip.workout"
           />
 
           <div class="chart-box bg-box">
@@ -447,6 +457,10 @@
 
           <div class="chart-box bolus-box">
             <BolusChart :boluses="data.boluses" :selected-date="selectedDate" />
+          </div>
+
+          <div class="chart-box workout-box">
+            <WorkoutsChart :workouts="data.workouts" :selected-date="selectedDate" />
           </div>
 
 
@@ -506,6 +520,9 @@
   .bg-box   { --box-h: var(--bg-chart-h); }
   .basal-box{ --box-h: var(--basal-chart-h); }
   .bolus-box { height: 120px; }
+  .workout-box {
+    height: 120px;
+  }
 
   .chart-box > * {
     width: 100%;
