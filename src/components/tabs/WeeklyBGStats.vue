@@ -31,6 +31,7 @@
         let timeBetween8and10 = 0
         let timeAbove10 = 0
         let totalMinutes = 0
+        let weightedSum = 0
 
         for (let i = 1; i < readings.length; i++) {
             const prev = readings[i - 1]
@@ -41,6 +42,7 @@
 
             const minutes = Math.max(0, Math.round(t2.diff(t1).as('minutes')))
             totalMinutes += minutes
+            weightedSum += Number(prev.value) * minutes
 
             const value = Number(prev.value)
             if (value < 4) timeBelow4 += minutes
@@ -63,6 +65,7 @@
             timeBetween8and10,
             timeAbove10,
             totalMinutes,
+            averageBG: totalMinutes > 0 ? weightedSum / totalMinutes : null,
         }
     }
 
@@ -92,6 +95,7 @@
                 (stats.timeBetween4and6 || 0) +
                 (stats.timeBetween6and8 || 0) +
                 (stats.timeBetween8and10 || 0),
+                averageBG: stats.averageBG ?? null
             })
         }
 
@@ -114,6 +118,7 @@
                 <div>6–8<br>(108–144)</div>
                 <div>8–10<br>(144–180)</div>
                 <div>&gt;10<br>(180)</div>
+                <div>Avg<br>BG</div>
             </div>
 
             <div
@@ -128,6 +133,9 @@
                 <div>{{ Math.round((week.timeBetween6and8 / week.totalMinutes) * 100) }}%</div>
                 <div>{{ Math.round((week.timeBetween8and10 / week.totalMinutes) * 100) }}%</div>
                 <div>{{ Math.round((week.timeAbove10 / week.totalMinutes) * 100) }}%</div>
+                <div>
+                    {{ week.averageBG != null ? week.averageBG.toFixed(1) : '—' }}
+                </div>
             </div>
         </div>
     </div>
@@ -136,7 +144,7 @@
 <style scoped lang="scss">
     .weekly-stats-grid {
         display: grid;
-        grid-template-columns: 1fr repeat(6, 80px);
+        grid-template-columns: 1fr repeat(7, 80px);
         gap: 4px;
         font-size: 0.9rem;
         margin-top: 1rem;
