@@ -7,6 +7,8 @@
         glucoseReadings: { type: Array, default: () => [] },
     })
 
+    const toMgdl = (mmol) => mmol != null && isFinite(mmol) ? Math.round(mmol * 18) : null
+
     const segmentWidth = (minutes) => {
         const covered = glucoseSummary.value.totalCoveredMinutes || 1
         return `${(minutes / covered) * 100}%`
@@ -115,15 +117,16 @@
                     class="label-row"
             >
 
-      <span class="range-name">
-        {{
-          segment.class === 'low' ? 'Below 4' :
-          segment.class === 'in-range' ? '4–6' :
-          segment.class === '6-8' ? '6–8' :
-          segment.class === 'high' ? '8–10' :
-          segment.class === 'very-high' ? 'Above 10' : ''
-        }}
-      </span>
+                <span class="range-name">
+  {{
+    segment.class === 'low' ? `Below 4 (${toMgdl(4)})` :
+    segment.class === 'in-range' ? `4–6 (${toMgdl(4)}–${toMgdl(6)})` :
+    segment.class === 'six-to-eight' ? `6–8 (${toMgdl(6)}–${toMgdl(8)})` :
+    segment.class === 'high' ? `8–10 (${toMgdl(8)}–${toMgdl(10)})` :
+    segment.class === 'very-high' ? `Above 10 (${toMgdl(10)})` : ''
+  }}
+</span>
+
                 <span class="range-percent">
         {{ ((segment.minutes / glucoseSummary.totalCoveredMinutes) * 100).toFixed(1) }}%
       </span>
@@ -170,19 +173,14 @@
             <span>Average BG</span>
             <strong>
                 {{ glucoseSummary.averageBG != null ? glucoseSummary.averageBG.toFixed(2) + ' ' : '—' }}
-                <span v-if="glucoseSummary.averageBG != null" class="secondary">
-      ({{ (glucoseSummary.averageBG * 18).toFixed(0) }} mg/dL)
-    </span>
+                <span v-if="glucoseSummary.averageBG != null" class="secondary">({{ (glucoseSummary.averageBG * 18).toFixed(0) }} mg/dL)</span>
             </strong>
         </div>
 
         <div class="row low">
             <span>Lowest BG</span>
-            <strong>
-                {{ glucoseSummary.lowestBG != null ? glucoseSummary.lowestBG.toFixed(2) + ' ' : '—' }}
-                <span v-if="glucoseSummary.lowestBG != null" class="secondary">
-      ({{ (glucoseSummary.lowestBG * 18).toFixed(0) }} mg/dL)
-    </span>
+            <strong>{{ glucoseSummary.lowestBG != null ? glucoseSummary.lowestBG.toFixed(2) + ' ' : '—' }}
+                <span v-if="glucoseSummary.lowestBG != null" class="secondary">({{ (glucoseSummary.lowestBG * 18).toFixed(0) }} mg/dL)</span>
             </strong>
         </div>
 
@@ -190,9 +188,7 @@
             <span>Highest BG</span>
             <strong>
                 {{ glucoseSummary.highestBG != null ? glucoseSummary.highestBG.toFixed(2) + ' ' : '—' }}
-                <span v-if="glucoseSummary.highestBG != null" class="secondary">
-      ({{ (glucoseSummary.highestBG * 18).toFixed(0) }} mg/dL)
-    </span>
+                <span v-if="glucoseSummary.highestBG != null" class="secondary">({{ (glucoseSummary.highestBG * 18).toFixed(0) }} mg/dL)</span>
             </strong>
         </div>
 
@@ -312,26 +308,33 @@
         flex-direction: column;
         justify-content: space-between;
         height: 240px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
     }
 
     .label-row {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        font-size: 0.85rem;
-        line-height: 1.2;
-        padding: 2px 0;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
     }
 
-    .label-row .range-name {
-        font-weight: 600;
-        color: #111827;
+    .label-row .range-name,
+    .label-row .range-percent,
+    .label-row .range-duration {
+        font-size: 0.9rem;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        color: #1f2937;
+        min-width: 110px;
+        text-align: left;
     }
 
     .label-row .range-percent,
     .label-row .range-duration {
-        font-size: 0.8rem;
-        color: #4b5563;
+        text-align: right;
     }
     .range-bar-vertical .segment:first-child {
         border-top-left-radius: 8px;
