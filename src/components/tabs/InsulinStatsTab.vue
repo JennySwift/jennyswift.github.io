@@ -62,16 +62,60 @@
 </script>
 
 <template>
-    <div class="stat-grid">
-        <div class="card">💉 Bolus <strong>{{ totalBolus.toFixed(2) }}U</strong></div>
-        <div class="card">💉 Basal <strong>{{ totalBasal.toFixed(2) }}U</strong></div>
-        <div class="card">🧪 Total Insulin <strong>{{ totalInsulin.toFixed(2) }}U</strong></div>
-        <div class="card">➗ Net Carbs / Bolus <strong>{{ netCarbsToBolus }}</strong></div>
-        <div class="card">➗ Net Carbs / Total Insulin <strong>{{ netCarbsToTotal }}</strong></div>
+    <div class="stat-list">
+        <div class="stat-row">
+            <span class="label">💉 Total Insulin Units</span>
+            <span class="value">{{ totalInsulin.toFixed(2) }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="label">💉 Bolus Units</span>
+            <span class="value">{{ totalBolus.toFixed(2) }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="label">💉 Basal Units</span>
+            <span class="value">{{ totalBasal.toFixed(2) }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="label">➗ Net Carbs / Total Insulin</span>
+            <span class="value">{{ netCarbsToTotal }}</span>
+        </div>
+        <div class="stat-row">
+            <span class="label">➗ Net Carbs / Bolus Units</span>
+            <span class="value">{{ netCarbsToBolus }}</span>
+        </div>
     </div>
 </template>
 
 <style scoped>
-    .stat-grid { display:grid; gap:.5rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-    .card { background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; padding:.75rem .9rem; }
+    /*.card { background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; padding:.75rem .9rem; }*/
+    .stat-list {
+        display: grid;
+        gap: 8px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 4px 0;
+    }
+
+    .stat-row:last-child {
+        border-bottom: none;
+    }
+
+    .label {
+        color: #334155;
+        font-weight: 500;
+    }
+
+    .value {
+        font-weight: bold;
+        color: #0f172a;
+    }
 </style>
