@@ -7,6 +7,24 @@
         glucoseReadings: { type: Array, default: () => [] },
     })
 
+    const segmentWidth = (minutes) => {
+        const covered = glucoseSummary.value.totalCoveredMinutes || 1
+        return `${(minutes / covered) * 100}%`
+    }
+
+    const segments = computed(() => {
+        const s = glucoseSummary.value
+        const covered = s.totalCoveredMinutes
+
+        return [
+            { class: 'low',       minutes: s.timeBelow4 },
+            { class: 'in-range',  minutes: s.timeBetween4and6 },
+            { class: 'six-to-eight',  minutes: s.timeBetween6and8 },
+            { class: 'high',      minutes: s.timeBetween8and10 },
+            { class: 'very-high', minutes: s.timeAbove10 },
+        ].filter(seg => seg.minutes > 0 && covered > 0)
+    })
+
     const glucoseSummary = computed(() => {
         const { startOfDay, endOfDay } = getStartAndEndOfDay(props.selectedDate)
         const readings = props.glucoseReadings
@@ -14,7 +32,7 @@
             .filter(r => r.timestamp >= startOfDay && r.timestamp < endOfDay)
             .sort((a, b) => a.timestamp - b.timestamp)
 
-        let tBelow4 = 0, t4to6 = 0, t4to10 = 0, tAbove8 = 0, tAbove10 = 0, covered = 0
+        let tBelow4 = 0, t4to6 = 0, t6to8 = 0, t8to10 = 0, tAbove8 = 0, tAbove10 = 0, t4to10 = 0, covered = 0
         let minVal = Infinity
         let maxVal = -Infinity
         //Average BG
@@ -29,9 +47,11 @@
             const v = cur.value
             if (v < 4) tBelow4 += mins
             if (v >= 4 && v <= 6) t4to6 += mins
+            if (v > 6 && v <= 8) t6to8 += mins
             if (v >= 4 && v <= 10) t4to10 += mins
             if (v > 8) tAbove8 += mins
             if (v > 10) tAbove10 += mins
+            if (v > 8 && v <= 10) t8to10 += mins
 
             //Min BG
             if (Number.isFinite(v) && v < minVal) minVal = v
@@ -52,11 +72,14 @@
         return {
             timeBelow4: tBelow4,
             timeBetween4and6: t4to6,
-            timeBetween4and10: t4to10,
+            timeBetween6and8: t6to8,
+            timeBetween8and10: t8to10,
             timeAbove8: tAbove8,
             timeAbove10: tAbove10,
+            timeBetween4and10: t4to10,
             totalCoveredMinutes: covered,
             uncoveredMinutes: Math.max(0, 1440 - covered),
+            uncoveredSeconds: Math.max(0, (1440 - covered) * 60),
 
             // Percentages based on covered time (matches Dexcom-style reporting)
             pct4to6: (t4to6 / denom) * 100,
@@ -72,7 +95,7 @@
 
 <template>
     <div class="bg-grid">
-        <div class="row green">
+        <div class="row in-range">
             <span>In range (4–10)</span>
             <div class="right">
                 <span class="chip chip-green">{{ glucoseSummary.pct4to10.toFixed(1) }}%</span>
@@ -80,7 +103,7 @@
             </div>
         </div>
 
-        <div class="row green">
+        <div class="row in-range">
             <span>In range, stricter (4–6)</span>
             <div class="right">
                 <span class="chip chip-green">{{ glucoseSummary.pct4to6.toFixed(1) }}%</span>
@@ -88,22 +111,22 @@
             </div>
         </div>
 
-        <div class="row red">
+        <div class="row above-10">
             <span>High (above 10)</span>
             <strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove10) }}</strong>
         </div>
 
-        <div class="row amber">
+        <div class="row above-8">
             <span>Above 8</span>
             <strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove8) }}</strong>
         </div>
 
-        <div class="row red">
+        <div class="row low">
             <span>Low (below 4)</span>
             <strong>{{ formatMinutesAsHM(glucoseSummary.timeBelow4) }}</strong>
         </div>
 
-        <div class="row red">
+        <div class="row low">
             <span>Lowest BG</span>
             <strong>
                 {{ glucoseSummary.lowestBG != null ? glucoseSummary.lowestBG.toFixed(2) + ' ' : '—' }}
@@ -113,7 +136,7 @@
             </strong>
         </div>
 
-        <div class="row red">
+        <div class="row above-10">
             <span>Highest BG</span>
             <strong>
                 {{ glucoseSummary.highestBG != null ? glucoseSummary.highestBG.toFixed(2) + ' ' : '—' }}
@@ -136,18 +159,39 @@
         <div class="foot">
             Time not covered in the calculations:
             <strong>{{ formatMinutesAsHM(glucoseSummary.uncoveredMinutes) }}</strong>
+            <!--<small>{{ glucoseSummary.uncoveredSeconds.toFixed(2) }} seconds</small>-->
         </div>
+    </div>
+
+    <div class="range-bar">
+        <div
+                v-for="segment in segments"
+                :key="segment.class"
+                class="segment"
+                :class="segment.class"
+                :style="{ width: `${(segment.minutes / glucoseSummary.totalCoveredMinutes) * 100}%` }"
+        />
     </div>
 
 </template>
 
 <style scoped>
     .bg-grid { display:grid; gap:.5rem; }
-    .row { display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; padding:.6rem .8rem; }
-    .row.red   { border-left:4px solid #ef4444; }
-    .row.grey   { border-left:4px solid #777; }
-    .row.amber { border-left:4px solid #f59e0b; }
-    .row.green { border-left:4px solid #10b981; }
+
+    .row {
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        background:#f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius:8px;
+        padding:.6rem .8rem;
+        &.above-8  { border-left: 4px solid var(--color-high); }
+        &.above-10  { border-left: 4px solid var(--color-very-high); }
+        &.low   { border-left: 4px solid var(--color-low); }
+        &.grey  { border-left: 4px solid #777; }
+        &.in-range { border-left: 4px solid var(--color-in-range); }
+    }
     .foot { color:#374151; font-size:.9rem; }
     .right { display: flex; align-items: center; gap: 8px; }
 
@@ -167,4 +211,33 @@
         color: #166534;
     }
     .secondary { opacity: .75; margin-left: 6px; font-weight: 600; }
+
+    .range-bar {
+        display: flex;
+        height: 20px;
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        border: 1px solid var(--color-border);
+    }
+
+    .segment {
+        height: 100%;
+    }
+
+    .segment.low  { background-color: var(--color-low); }
+    .segment.in-range  { background-color: var(--color-in-range); }
+    .segment.six-to-eight  { background-color: var(--color-6-8); }
+    .segment.high      { background-color: var(--color-high); }
+    .segment.very-high { background-color: var(--color-very-high); }
+    .segment:first-child {
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+    }
+
+    .segment:last-child {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
 </style>

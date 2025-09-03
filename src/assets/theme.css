@@ -13,6 +13,14 @@
     --color-basal: #6495ED; /* Cornflower blue */
     /*--color-basal:  rgba(100, 149, 237, 0.7); !* cornflower blue *!*/
 
+    /*Range colours*/
+    --color-very-low:  #d14343;
+    --color-low:       #d14343;
+    --color-in-range:  #10b981;
+    --color-6-8:       #e6c700;
+    --color-high:      #f59e0b;
+    --color-very-high: #d14343;
+
     /* Neutrals */
     --color-border:  #e5e7eb;
     --color-bg:      #ffffff;
