@@ -45,7 +45,7 @@
         <div v-if="bolus" class="row">
             Bolus:
             <strong>{{ Number(bolus.amount).toFixed(2) }}</strong> units
-            <span v-if="bolus.type"> ({{ bolus.type }})</span>
+            <span v-if="bolus.type && bolus.type != 'unknown'"> ({{ bolus.type }})</span>
         </div>
 
         <div v-if="note" class="row note-row">
@@ -59,7 +59,6 @@
                 <strong>Foods</strong>
                 <span class="carbs-label">({{ foodLogs.netCarbs.toFixed(1) }}g net carbs)</span>
             </div>
-            <span>Occasionally foods should be in mLs not grams, such as almond milk.</span>
             <ul class="food-list">
                 <li v-for="(log, i) in foodLogs.logs" :key="i">
                     <span>{{ log.quantity }}g</span> {{ log.name }}
@@ -67,8 +66,12 @@
             </ul>
         </div>
 
-        <div v-if="workout" class="row">
-            🏃‍‍️{{ workout.name }}: <span>Avg H/R {{ Number(workout.averageHeartRate).toFixed(1) }} bpm for {{ formatHM(workout.duration / 60) }}</span>
+        <div v-if="workout" class="row workout-row">
+            <div>
+                <div class="workout-name">🏃‍‍️ {{ workout.name }}</div>
+                <div class="workout-line">❤️ Avg: {{ Number(workout.averageHeartRate).toFixed(1) }} bpm</div>
+                <div class="workout-line">⏱ Duration: {{ formatHM(workout.duration / 60) }}</div>
+            </div>
         </div>
 
 
@@ -95,16 +98,16 @@
         box-shadow: 0 4px 14px rgba(0,0,0,.25);
         pointer-events: none;
         z-index: 9999;
-        max-width: 360px;
+        max-width: 500px;
         /* lift it up from wherever JS sets top */
         transform: translateY(-80px);
-        min-width: 220px;      /* make it wider */
+        min-width: 300px;      /* make it wider */
         /*white-space: nowrap;   !* prevent wrapping *!*/
     }
     .row { display: flex; gap: 8px; align-items: flex-start; }
     .row + .row { margin-top: 4px; }
 
-    .note-row {
+    .note-row, .workout-row {
         margin-top: 6px;
         padding-top: 6px;
         border-top: 1px solid rgba(255,255,255,0.12); /* divider before notes */
@@ -158,5 +161,15 @@
         margin: 0;
         padding-left: 1.2rem;
         list-style: disc;
+    }
+
+    .workout-name {
+        font-weight: bold;
+        margin-bottom: 2px;
+    }
+
+    .workout-line {
+        margin-top: 2px;
+        opacity: 0.95;
     }
 </style>
