@@ -94,6 +94,46 @@
 </script>
 
 <template>
+    <div class="range-bar-wrapper">
+        <div class="range-bar-vertical">
+            <!-- Reverse both the bar and label segments so 'Above 10' is at the top -->
+            <div
+
+                    v-for="segment in segments.slice().reverse()"
+                    :key="segment.class"
+                    class="segment"
+                    :class="segment.class"
+                    :style="{ height: `${(segment.minutes / glucoseSummary.totalCoveredMinutes) * 100}%` }"
+            />
+        </div>
+
+        <div class="range-bar-labels">
+            <!-- Reverse both the bar and label segments so 'Above 10' is at the top -->
+            <div
+                    v-for="segment in segments.slice().reverse()"
+                    :key="segment.class + '-label'"
+                    class="label-row"
+            >
+
+      <span class="range-name">
+        {{
+          segment.class === 'low' ? 'Below 4' :
+          segment.class === 'in-range' ? '4–6' :
+          segment.class === '6-8' ? '6–8' :
+          segment.class === 'high' ? '8–10' :
+          segment.class === 'very-high' ? 'Above 10' : ''
+        }}
+      </span>
+                <span class="range-percent">
+        {{ ((segment.minutes / glucoseSummary.totalCoveredMinutes) * 100).toFixed(1) }}%
+      </span>
+                <span class="range-duration">
+        {{ formatMinutesAsHM(segment.minutes) }}
+      </span>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-grid">
         <div class="row in-range">
             <span>In range (4–10)</span>
@@ -103,27 +143,37 @@
             </div>
         </div>
 
-        <div class="row in-range">
-            <span>In range, stricter (4–6)</span>
-            <div class="right">
-                <span class="chip chip-green">{{ glucoseSummary.pct4to6.toFixed(1) }}%</span>
-                <strong>{{ formatMinutesAsHM(glucoseSummary.timeBetween4and6) }}</strong>
-            </div>
-        </div>
+        <!--<div class="row in-range">-->
+            <!--<span>In range, stricter (4–6)</span>-->
+            <!--<div class="right">-->
+                <!--<span class="chip chip-green">{{ glucoseSummary.pct4to6.toFixed(1) }}%</span>-->
+                <!--<strong>{{ formatMinutesAsHM(glucoseSummary.timeBetween4and6) }}</strong>-->
+            <!--</div>-->
+        <!--</div>-->
 
-        <div class="row above-10">
-            <span>High (above 10)</span>
-            <strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove10) }}</strong>
-        </div>
+        <!--<div class="row above-10">-->
+            <!--<span>High (above 10)</span>-->
+            <!--<strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove10) }}</strong>-->
+        <!--</div>-->
 
-        <div class="row above-8">
-            <span>Above 8</span>
-            <strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove8) }}</strong>
-        </div>
+        <!--<div class="row above-8">-->
+            <!--<span>Above 8</span>-->
+            <!--<strong>{{ formatMinutesAsHM(glucoseSummary.timeAbove8) }}</strong>-->
+        <!--</div>-->
 
-        <div class="row low">
-            <span>Low (below 4)</span>
-            <strong>{{ formatMinutesAsHM(glucoseSummary.timeBelow4) }}</strong>
+        <!--<div class="row low">-->
+            <!--<span>Low (below 4)</span>-->
+            <!--<strong>{{ formatMinutesAsHM(glucoseSummary.timeBelow4) }}</strong>-->
+        <!--</div>-->
+
+        <div class="row grey">
+            <span>Average BG</span>
+            <strong>
+                {{ glucoseSummary.averageBG != null ? glucoseSummary.averageBG.toFixed(2) + ' ' : '—' }}
+                <span v-if="glucoseSummary.averageBG != null" class="secondary">
+      ({{ (glucoseSummary.averageBG * 18).toFixed(0) }} mg/dL)
+    </span>
+            </strong>
         </div>
 
         <div class="row low">
@@ -146,15 +196,7 @@
             </strong>
         </div>
 
-        <div class="row grey">
-            <span>Average BG</span>
-            <strong>
-                {{ glucoseSummary.averageBG != null ? glucoseSummary.averageBG.toFixed(2) + ' ' : '—' }}
-                <span v-if="glucoseSummary.averageBG != null" class="secondary">
-      ({{ (glucoseSummary.averageBG * 18).toFixed(0) }} mg/dL)
-    </span>
-            </strong>
-        </div>
+
 
         <div class="foot">
             Time not covered in the calculations:
@@ -163,15 +205,17 @@
         </div>
     </div>
 
-    <div class="range-bar">
-        <div
-                v-for="segment in segments"
-                :key="segment.class"
-                class="segment"
-                :class="segment.class"
-                :style="{ width: `${(segment.minutes / glucoseSummary.totalCoveredMinutes) * 100}%` }"
-        />
-    </div>
+    <!--<div class="range-bar">-->
+        <!--<div-->
+                <!--v-for="segment in segments"-->
+                <!--:key="segment.class"-->
+                <!--class="segment"-->
+                <!--:class="segment.class"-->
+                <!--:style="{ width: `${(segment.minutes / glucoseSummary.totalCoveredMinutes) * 100}%` }"-->
+        <!--/>-->
+    <!--</div>-->
+
+
 
 </template>
 
@@ -231,13 +275,71 @@
     .segment.six-to-eight  { background-color: var(--color-6-8); }
     .segment.high      { background-color: var(--color-high); }
     .segment.very-high { background-color: var(--color-very-high); }
-    .segment:first-child {
-        border-top-left-radius: 8px;
-        border-bottom-left-radius: 8px;
+    /*.segment:first-child {*/
+        /*border-top-left-radius: 8px;*/
+        /*border-bottom-left-radius: 8px;*/
+    /*}*/
+
+    /*.segment:last-child {*/
+        /*border-top-right-radius: 8px;*/
+        /*border-bottom-right-radius: 8px;*/
+    /*}*/
+
+    .range-bar-wrapper {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-top: 2rem;
+        margin-bottom: 30px;
     }
 
-    .segment:last-child {
+    .range-bar-vertical {
+        display: flex;
+        flex-direction: column;
+        width: 20px;
+        height: 240px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--color-border);
+    }
+
+    .range-bar-vertical .segment {
+        width: 100%;
+    }
+
+    .range-bar-labels {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 240px;
+    }
+
+    .label-row {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        font-size: 0.85rem;
+        line-height: 1.2;
+        padding: 2px 0;
+    }
+
+    .label-row .range-name {
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .label-row .range-percent,
+    .label-row .range-duration {
+        font-size: 0.8rem;
+        color: #4b5563;
+    }
+    .range-bar-vertical .segment:first-child {
+        border-top-left-radius: 8px;
         border-top-right-radius: 8px;
+    }
+
+    .range-bar-vertical .segment:last-child {
+        border-bottom-left-radius: 8px;
         border-bottom-right-radius: 8px;
     }
 </style>
