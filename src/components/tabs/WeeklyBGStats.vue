@@ -87,7 +87,11 @@
                 timeBetween8and10: stats.timeBetween8and10 || 0,
                 timeAbove10: stats.timeAbove10 || 0,
                 timeBelow4: stats.timeBelow4 || 0,
-                totalMinutes: stats.totalMinutes || 0
+                totalMinutes: stats.totalMinutes || 0,
+                timeBetween4and10:
+                (stats.timeBetween4and6 || 0) +
+                (stats.timeBetween6and8 || 0) +
+                (stats.timeBetween8and10 || 0),
             })
         }
 
@@ -104,6 +108,7 @@
         <div v-if="!loading" class="weekly-stats-grid">
             <div class="grid-header">
                 <div>Week Start</div>
+                <div>4–10<br>(72–180)</div>
                 <div>&lt;4<br>(72)</div>
                 <div>4–6<br>(72–108)</div>
                 <div>6–8<br>(108–144)</div>
@@ -117,6 +122,7 @@
                     class="grid-row"
             >
                 <div class="date-cell">{{ formatDayAndMonthInSydney(week.startDate) }}</div>
+                <div>{{ Math.round((week.timeBetween4and10 / week.totalMinutes) * 100) }}%</div>
                 <div>{{ Math.round((week.timeBelow4 / week.totalMinutes) * 100) }}%</div>
                 <div>{{ Math.round((week.timeBetween4and6 / week.totalMinutes) * 100) }}%</div>
                 <div>{{ Math.round((week.timeBetween6and8 / week.totalMinutes) * 100) }}%</div>
@@ -130,7 +136,7 @@
 <style scoped lang="scss">
     .weekly-stats-grid {
         display: grid;
-        grid-template-columns: 1fr repeat(5, 80px);
+        grid-template-columns: 1fr repeat(6, 80px);
         gap: 4px;
         font-size: 0.9rem;
         margin-top: 1rem;
