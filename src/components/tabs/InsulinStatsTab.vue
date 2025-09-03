@@ -59,6 +59,14 @@
         const net = netCarbs.value, tot = totalInsulin.value
         return (tot > 0) ? `${(net / tot).toFixed(2)}` : 'N/A'
     })
+
+    const bolusPercent = computed(() => {
+        return totalInsulin.value > 0
+            ? (totalBolus.value / totalInsulin.value) * 100
+            : 0
+    })
+
+    const basalPercent = computed(() => 100 - bolusPercent.value)
 </script>
 
 <template>
@@ -83,6 +91,24 @@
             <span class="label">➗ Net Carbs / Bolus Units</span>
             <span class="value">{{ netCarbsToBolus }}</span>
         </div>
+    </div>
+
+    <div class="split-bar">
+        <div
+                class="bolus-segment"
+                :style="{ width: bolusPercent.toFixed(1) + '%' }"
+                title="Bolus"
+        />
+        <div
+                class="basal-segment"
+                :style="{ width: basalPercent.toFixed(1) + '%' }"
+                title="Basal"
+        />
+    </div>
+
+    <div class="percent-row">
+        <div>💉 Bolus: <strong>{{ bolusPercent.toFixed(1) }}%</strong></div>
+        <div>💉 Basal: <strong>{{ basalPercent.toFixed(1) }}%</strong></div>
     </div>
 </template>
 
@@ -117,5 +143,35 @@
     .value {
         font-weight: bold;
         color: #0f172a;
+    }
+
+    .split-bar {
+        display: flex;
+        height: 16px;
+        margin-top: 12px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        background: #f1f5f9;
+    }
+
+    .bolus-segment {
+        background: var(--color-bolus);
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+
+    .basal-segment {
+        background: var(--color-basal);
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+
+    .percent-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        margin-top: 4px;
+        color: #334155;
     }
 </style>

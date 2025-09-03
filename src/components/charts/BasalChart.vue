@@ -2,6 +2,7 @@
 <script setup>
     import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
     import { parseAsSydneyDate, getStartAndEndOfDay } from '../../helpers/dateHelpers'
+    import { cssVarToRgba } from '../../helpers/colorHelpers'
 
     import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler } from 'chart.js'
     import { DateTime } from 'luxon'
@@ -93,8 +94,8 @@
             pointRadius: 0,
             pointHoverRadius: 6,
             borderWidth: 2,
-            backgroundColor: 'rgba(100, 149, 237, 0.5)',  // cornflower blue, softer
-            borderColor: 'rgba(100, 149, 237, 0.7)',
+            backgroundColor: cssVarToRgba('--color-basal', 0.7),
+            borderColor: cssVarToRgba('--color-basal', 0.3),
             fill: true,
         }
     }

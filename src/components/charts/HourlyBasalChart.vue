@@ -2,6 +2,7 @@
     import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
     import { DateTime } from 'luxon'
     import 'chartjs-adapter-luxon'
+    import { cssVarToRgba } from '../../helpers/colorHelpers'
 
     import {
         Chart,
@@ -83,9 +84,8 @@
             pointRadius: 0,
             pointHoverRadius: 6,
             borderWidth: 2,
-            // keep styling consistent with your BasalChart
-            backgroundColor: 'rgba(100, 149, 237, 0.5)',
-            borderColor: 'rgba(100, 149, 237, 0.7)',
+            backgroundColor: cssVarToRgba('--color-basal', 0.7),
+            borderColor: cssVarToRgba('--color-basal', 0.3),
             fill: true,
         }
     }

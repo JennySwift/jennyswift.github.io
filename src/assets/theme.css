@@ -10,6 +10,9 @@
     --color-bolus-correction: #f97316; /* orange */
     --color-bolus-controliq:  #6b7280; /* gray */
 
+    --color-basal: #6495ED; /* Cornflower blue */
+    /*--color-basal:  rgba(100, 149, 237, 0.7); !* cornflower blue *!*/
+
     /* Neutrals */
     --color-border:  #e5e7eb;
     --color-bg:      #ffffff;
@@ -22,3 +25,4 @@
     .soft-bg{ background: color-mix(in srgb, var(--accent) 12%, white); }
     .soft-br{ border-color: color-mix(in srgb, var(--accent) 35%, white); }
 }
+
