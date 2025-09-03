@@ -1,7 +1,7 @@
 //supabaseBG.js
 import { DateTime } from 'luxon'
 import { supabase } from './supabase'
-import { sydneyDayRangeUtcISO, sydneyRangeUtcISOExclusive, parseAsSydneyDate } from '../helpers/dateHelpers'
+import { sydneyDayRangeUtcISO, sydneyRangeUtcISOExclusive, parseAsSydneyDate, toInstant } from '../helpers/dateHelpers'
 
 export async function fetchGlucoseReadingsForDay(date) {
     const base = date instanceof Date ? date : new Date(date)
@@ -26,20 +26,37 @@ export async function fetchGlucoseReadingsForDay(date) {
     }))
 }
 
-export async function fetchGlucoseReadingsBetween(startDate, endDate) {
-    const { startUtcISO, endUtcISO } = sydneyRangeUtcISOExclusive(startDate, endDate)
 
-    const { data, error } = await supabase
-        .from('glucose_readings')
-        .select('timestamp, value')
-        .gte('timestamp', startUtcISO)
-        .lt('timestamp', endUtcISO)
-        .order('timestamp', { ascending: true })
+export async function fetchGlucoseReadingsBetween(start, end) {
+    const fromISOString = toInstant(start).toISO()
+    const toISOString = toInstant(end).toISO()
 
-    if (error) throw error
+    let allReadings = []
+    let page = 0
+    const pageSize = 1000
+    let done = false
 
-    return (data ?? []).map(r => ({
-        timestamp: parseAsSydneyDate(r.timestamp),
-        value: Number(r.value ?? 0),
-    }))
+    while (!done) {
+        const { data, error } = await supabase
+            .from('glucose_readings')
+            .select('*')
+            .gte('timestamp', fromISOString)
+            .lt('timestamp', toISOString)
+            .order('timestamp', { ascending: true })
+            .range(page * pageSize, (page + 1) * pageSize - 1)
+
+        if (error) {
+            console.error('[Supabase] Error fetching glucose readings:', error)
+            break
+        }
+
+        if (data.length === 0 || data.length < pageSize) {
+            done = true
+        }
+
+        allReadings.push(...data)
+        page++
+    }
+
+    return allReadings
 }

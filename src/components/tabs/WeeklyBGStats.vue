@@ -69,21 +69,32 @@
         }
     }
 
-    onMounted(async () => {
-        const firstDate = new Date('2025-07-07')
-        const today = getSydneyStartOfToday()
+    async function loadWeeklyStats() {
+        const firstDate = DateTime.fromISO('2025-07-07', { zone: 'Australia/Sydney' }).startOf('day')
+        const today = DateTime.local().setZone('Australia/Sydney').startOf('day')
         const results = []
 
-        for (let d = new Date(firstDate); d < today; d.setDate(d.getDate() + 7)) {
-            const start = new Date(d)
-            const end = new Date(d)
-            end.setDate(end.getDate() + 7)
+        for (let d = firstDate; d < today; d = d.plus({ days: 7 })) {
+            const start = d
+            const end = d.plus({ days: 7 })
 
-            const readings = await fetchGlucoseReadingsBetween(start, end)
+            console.log(`📅 Week starting: ${toInstant(start).toFormat('ccc dd MMM yyyy')}`)
+            console.log(`→ Expecting readings from ${toInstant(start).toFormat('HH:mm dd MMM')} to ${toInstant(end).toFormat('HH:mm dd MMM')}`)
+
+            const readings = await fetchGlucoseReadingsBetween(start.toJSDate(), end.toJSDate())
+
+            console.log(`→ Readings count: ${readings.length}`)
+
+            // Log unique Sydney days present in the readings
+            const dayNames = [...new Set(
+                readings.map(r => toInstant(r.timestamp).setZone('Australia/Sydney').toFormat('ccc dd MMM'))
+            )]
+            console.log(`→ Days with readings (${dayNames.length}): ${dayNames.join(', ')}`)
+
             const stats = computeTimeInRangeFromReadings(readings)
 
             results.push({
-                startDate: new Date(start),
+                startDate: start.toJSDate(),
                 days: stats.days || 0,
                 timeBetween4and6: stats.timeBetween4and6 || 0,
                 timeBetween6and8: stats.timeBetween6and8 || 0,
@@ -91,16 +102,77 @@
                 timeAbove10: stats.timeAbove10 || 0,
                 timeBelow4: stats.timeBelow4 || 0,
                 totalMinutes: stats.totalMinutes || 0,
+                averageBG: stats.averageBG ?? null,
                 timeBetween4and10:
                 (stats.timeBetween4and6 || 0) +
                 (stats.timeBetween6and8 || 0) +
                 (stats.timeBetween8and10 || 0),
-                averageBG: stats.averageBG ?? null
             })
         }
 
         weeklyStats.value = results
         loading.value = false
+    }
+
+    onMounted(async () => {
+        loadWeeklyStats()
+
+        // const firstDate = new Date('2025-07-07')
+        // const today = getSydneyStartOfToday()
+        // const results = []
+        //
+        // for (let d = new Date(firstDate); d < today; d.setDate(d.getDate() + 7)) {
+        //     const start = new Date(d)
+        //     const end = new Date(d)
+        //     end.setDate(end.getDate() + 7)
+        //
+        //     console.log(
+        //         `[Week ${toInstant(start).toFormat('dd MMM yyyy')} - ${toInstant(end).toFormat('dd MMM yyyy')}]`,
+        //         'Start (Sydney):', toInstant(start).setZone('Australia/Sydney').toFormat('ccc dd MMM yyyy HH:mm:ss'),
+        //         '| UTC:', toInstant(start).toUTC().toFormat('ccc dd MMM yyyy HH:mm:ss'),
+        //         '| End (Sydney):', toInstant(end).setZone('Australia/Sydney').toFormat('ccc dd MMM yyyy HH:mm:ss'),
+        //         '| UTC:', toInstant(end).toUTC().toFormat('ccc dd MMM yyyy HH:mm:ss'),
+        //     )
+        //
+        //     const readings = await fetchGlucoseReadingsBetween(start, end)
+        //
+        //     console.log(`📅 Week starting: ${toInstant(start).toFormat('ccc dd MMM yyyy')}`)
+        //     console.log(`→ Expecting readings from ${toInstant(start).toFormat('HH:mm dd MMM')} to ${toInstant(end).toFormat('HH:mm dd MMM')}`)
+        //     console.log(`→ Readings count: ${readings.length}`)
+        //
+        //     const days = new Set(readings.map(r =>
+        //         toInstant(r.timestamp).setZone('Australia/Sydney').toFormat('ccc dd MMM')
+        //     ))
+        //
+        //     console.log(`→ Days with readings (${days.size}):`, [...days].join(', '))
+        //
+        //     const stats = computeTimeInRangeFromReadings(readings)
+        //
+        //     // console.log(`Readings for week starting ${toInstant(start).toFormat('ccc dd MMM yyyy')}`)
+        //     // console.table(readings.map(r => ({
+        //     //     timestamp: toInstant(r.timestamp).setZone('Australia/Sydney').toFormat('ccc dd MMM yyyy HH:mm'),
+        //     //     value: r.value
+        //     // })))
+        //
+        //     results.push({
+        //         startDate: new Date(start),
+        //         days: stats.days || 0,
+        //         timeBetween4and6: stats.timeBetween4and6 || 0,
+        //         timeBetween6and8: stats.timeBetween6and8 || 0,
+        //         timeBetween8and10: stats.timeBetween8and10 || 0,
+        //         timeAbove10: stats.timeAbove10 || 0,
+        //         timeBelow4: stats.timeBelow4 || 0,
+        //         totalMinutes: stats.totalMinutes || 0,
+        //         timeBetween4and10:
+        //         (stats.timeBetween4and6 || 0) +
+        //         (stats.timeBetween6and8 || 0) +
+        //         (stats.timeBetween8and10 || 0),
+        //         averageBG: stats.averageBG ?? null
+        //     })
+        // }
+        //
+        // weeklyStats.value = results
+        // loading.value = false
     })
 </script>
 
