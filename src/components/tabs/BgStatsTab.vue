@@ -1,6 +1,8 @@
+//BgStatsTab.vue
 <script setup>
     import { computed } from 'vue'
     import { getStartAndEndOfDay, parseAsSydneyDate, formatMinutesAsHM } from '../../helpers/dateHelpers'
+    import WeeklyBGStats from './WeeklyBGStats.vue'
 
     const props = defineProps({
         selectedDate:    { type: Date, required: true },
@@ -200,6 +202,8 @@
             <!--<small>{{ glucoseSummary.uncoveredSeconds.toFixed(2) }} seconds</small>-->
         </div>
     </div>
+
+    <WeeklyBGStats />
 
     <!--<div class="range-bar">-->
         <!--<div-->

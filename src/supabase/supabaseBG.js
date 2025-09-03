@@ -1,7 +1,7 @@
 //supabaseBG.js
 import { DateTime } from 'luxon'
 import { supabase } from './supabase'
-import { sydneyDayRangeUtcISO } from '../helpers/dateHelpers'
+import { sydneyDayRangeUtcISO, sydneyRangeUtcISOExclusive, parseAsSydneyDate } from '../helpers/dateHelpers'
 
 export async function fetchGlucoseReadingsForDay(date) {
     const base = date instanceof Date ? date : new Date(date)
@@ -22,6 +22,24 @@ export async function fetchGlucoseReadingsForDay(date) {
 
     return (data ?? []).map(r => ({
         timestamp: DateTime.fromISO(r.timestamp).toJSDate(), // DB → JS Date
+        value: Number(r.value ?? 0),
+    }))
+}
+
+export async function fetchGlucoseReadingsBetween(startDate, endDate) {
+    const { startUtcISO, endUtcISO } = sydneyRangeUtcISOExclusive(startDate, endDate)
+
+    const { data, error } = await supabase
+        .from('glucose_readings')
+        .select('timestamp, value')
+        .gte('timestamp', startUtcISO)
+        .lt('timestamp', endUtcISO)
+        .order('timestamp', { ascending: true })
+
+    if (error) throw error
+
+    return (data ?? []).map(r => ({
+        timestamp: parseAsSydneyDate(r.timestamp),
         value: Number(r.value ?? 0),
     }))
 }
