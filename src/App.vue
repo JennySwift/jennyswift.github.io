@@ -527,6 +527,7 @@
   /* Layout the two boxes with a tiny gap */
   .chart-stage {
     display: grid;
+    z-index: 1;
     /*row-gap: 8px;*/
   }
 

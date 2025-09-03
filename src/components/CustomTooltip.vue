@@ -94,7 +94,7 @@
         line-height: 1.25;
         box-shadow: 0 4px 14px rgba(0,0,0,.25);
         pointer-events: none;
-        z-index: 5;
+        z-index: 9999;
         max-width: 360px;
         /* lift it up from wherever JS sets top */
         transform: translateY(-80px);

@@ -1,3 +1,4 @@
+//CombinedTab.vue
 <script setup>
     import { computed } from 'vue'
     import FoodLogRow from '../rows/FoodLogRow.vue'
@@ -103,7 +104,7 @@
         border-radius: 10px;
         padding: 10px 12px;
         background: #ffffff;
-        position: relative;
+        /*position: relative;*/
 
         /* subtle left accent strip */
         box-shadow: inset 4px 0 0 0 var(--accent);
