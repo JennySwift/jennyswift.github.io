@@ -17,6 +17,7 @@
     import WeeklyCaloriesTab from './WeeklyCaloriesTab.vue'
     import BgStatsTab from './BgStatsTab.vue'
     import FoodHistorySearchTab from './FoodHistorySearchTab.vue'
+    import TestResultsTab from './TestResultsTab.vue'
     import { formatDateTime, parseAsSydneyDate, getStartAndEndOfDay, isSameDay, formatTimeFromString, minutesOverlapWithinDay, formatHM, minutesBetweenOrEndOfDay} from '../../helpers/dateHelpers'
     import { formatMinutesPerKm, formatKmPerHour, formatDistance } from '../../helpers/workoutHelpers'
 
@@ -56,6 +57,7 @@
             <button class="tab-button" :class="{ active: activeTab === 'bg-stats' }" @click="setTab('bg-stats')">📈 BG Stats</button>
             <button class="tab-button" :class="{ active: activeTab === 'food-history' }" @click="setTab('food-history')">🔎 Food History</button>
             <button class="tab-button" :class="{ active: activeTab === 'weekly-calories' }" @click="setTab('weekly-calories')">⚖︎ Weight Analysis</button>
+            <button class="tab-button" :class="{ active: activeTab === 'test-results' }" @click="setTab('test-results')">🧪 Test Results</button>
         </div>
 
         <!-- Containers -->
@@ -186,6 +188,10 @@
                     :daily-activity="data.dailyActivity"
             tz="Australia/Sydney"
             />
+        </div>
+
+        <div class="tab-content" :class="{ 'active-tab': activeTab === 'test-results' }">
+            <TestResultsTab :test-results="data.testResults" />
         </div>
 
 

@@ -1,6 +1,50 @@
 import { DateTime } from 'luxon'
 
 
+// “20 Jun 2013” in Australia/Sydney — short version
+export function formatShortDateInSydney(dateLike) {
+    const date = parseAsSydneyDate(dateLike)
+    return DateTime.fromJSDate(date)
+        .setZone('Australia/Sydney')
+        .toFormat('d LLL yyyy')
+}
+
+
+// “2 years ago”, “4 months ago”, etc., from now in Sydney
+// “1y 3m ago”, “2w ago”, “5d ago” etc.
+export function timeAgoInWords(date) {
+    const now = DateTime.now().setZone('Australia/Sydney')
+    const past = DateTime.fromJSDate(asJSDate(date)).setZone('Australia/Sydney')
+
+    const diff = now.diff(past, ['years', 'months', 'weeks', 'days']).toObject()
+
+    const parts = []
+
+    if (diff.years >= 1) {
+        const y = Math.floor(diff.years)
+        parts.push(`${y} year${y === 1 ? '' : 's'}`)
+        const remainingMonths = Math.floor(diff.months)
+        if (remainingMonths > 0) {
+            parts.push(`${remainingMonths} month${remainingMonths === 1 ? '' : 's'}`)
+        }
+    } else if (diff.months >= 1) {
+        const m = Math.floor(diff.months)
+        parts.push(`${m} month${m === 1 ? '' : 's'}`)
+        const remainingWeeks = Math.floor(diff.weeks)
+        if (remainingWeeks > 0) {
+            parts.push(`${remainingWeeks} week${remainingWeeks === 1 ? '' : 's'}`)
+        }
+    } else if (diff.weeks >= 1) {
+        const w = Math.floor(diff.weeks)
+        parts.push(`${w} week${w === 1 ? '' : 's'}`)
+    } else {
+        const d = Math.floor(diff.days)
+        parts.push(`${d} day${d === 1 ? '' : 's'}`)
+    }
+
+    return parts.join(', ') + ' ago'
+}
+
 // Sydney-local day's [start, end) as UTC ISO strings for DB filters
 //dateLike just means “anything you can turn into a Date.”
 //Inclusive

@@ -19,6 +19,7 @@
     import { fetchFoodLogsBetween } from './supabase/supabaseFoodLogs'
     import { fetchWeightsBetween } from './supabase/supabaseWeights'
     import { fetchDailyActivityBetween } from './supabase/supabaseDailyActivity'
+    import { fetchTestResults } from './supabase/supabaseTestResults'
 
 
     const data = reactive({
@@ -35,7 +36,8 @@
         //For the weekly calories tab
         weeklyFoodLogs: [],
         weeklyWeights: [],
-        dailyActivity: []
+        dailyActivity: [],
+        testResults: [],
     })
 
     const loading = reactive({
@@ -46,7 +48,8 @@
         foodLogs: false,
         foods: false,
         fasts: false,
-        workouts: false
+        workouts: false,
+        testResults: false
     })
 
     const selectedDate = ref(getSydneyStartOfToday())
@@ -158,6 +161,18 @@
         const at = e?.detail?.at
         const source = e?.detail?.source ?? 'any'
             goToTimestamp(at, source)
+    }
+
+    async function loadTestResults() {
+        loading.testResults = true
+        try {
+            data.testResults = await fetchTestResults()
+        } catch (e) {
+            console.error('[loadTestResults] failed:', e)
+            data.testResults = []
+        } finally {
+            loading.testResults = false
+        }
     }
 
     async function loadFoodsFromSupabase() {
@@ -382,6 +397,7 @@
         await loadWeeklyFoodLogs(26) // last ~6 months
         await loadWeeklyWeights(26)
         await loadDailyActivity(26)
+        await loadTestResults()
 
         try {
             // const payload = await fetchDashboardData()
