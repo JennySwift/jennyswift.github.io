@@ -1,20 +1,19 @@
 @use './variables' as *;
-@use './date-nav';
-@use './time-nav';
-@use './tabs';
-@use './charts';
-@use './logs';
-@use './stats';
 
-html, body, #app { height: 100%; }
+html, body, #app {
+  height: 100%;
+}
+
 body {
   font-family: sans-serif;
-  margin: 2rem;
   background: var(--bg);
   color: var(--fg);
 }
 
-h1 { text-align: center; margin-bottom: 2rem; }
+h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
 
 .clickable-row {
   cursor: pointer;

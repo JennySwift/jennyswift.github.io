@@ -82,7 +82,7 @@
         display: grid;
         gap: 0.75rem;
         justify-items: center;
-        margin-top: 1.25rem;
+        /*margin-top: 1.25rem;*/
     }
 
     .date-heading {

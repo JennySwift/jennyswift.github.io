@@ -428,6 +428,10 @@
                   :workout="tooltip.workout"
           />
 
+          <div class="chart-box food-logs-box">
+            <FoodLogsChart :food-logs="data.foodLogs" :selected-date="selectedDate" />
+          </div>
+
           <div class="chart-box bg-box">
             <BgChart :glucose-readings="data.glucoseReadings" :selected-date="selectedDate" />
           </div>
@@ -440,8 +444,8 @@
             />
           </div>
 
-          <div class="chart-box food-logs-box">
-            <FoodLogsChart :food-logs="data.foodLogs" :selected-date="selectedDate" />
+          <div class="chart-box bolus-box">
+            <BolusChart :boluses="data.boluses" :selected-date="selectedDate" />
           </div>
 
           <div class="chart-box basal-box">
@@ -453,10 +457,6 @@
                     :hourly-totals="hourlyBasalTotals"
                     :selected-date="selectedDate"
             />
-          </div>
-
-          <div class="chart-box bolus-box">
-            <BolusChart :boluses="data.boluses" :selected-date="selectedDate" />
           </div>
 
           <div class="chart-box workout-box">
@@ -517,19 +517,12 @@
     }
   }
 
-  .bg-box   { --box-h: var(--bg-chart-h); }
-  .basal-box{ --box-h: var(--basal-chart-h); }
-  .bolus-box { height: 120px; }
-  .workout-box {
-    height: 120px;
-  }
-
   .chart-box > * {
     width: 100%;
     height: 100%;
+    position: relative;
+    overflow: hidden;
   }
-
-
 
   /* Layout the two boxes with a tiny gap */
   .chart-stage {
@@ -537,9 +530,10 @@
     /*row-gap: 8px;*/
   }
 
-  /* Fixed heights: you asked for 180px and 140px */
-  .chart-box { position: relative; overflow: hidden; }
-  .bg-box    { height: 180px; }
+  .bg-box {
+    height: 120px;
+  }
+
   .notes-box {
     height: 50px;
     margin-bottom: -25px;
@@ -547,10 +541,23 @@
     //Fix the notes not lining up with the other charts at the right times
     padding-right: 5px
   }
-  .basal-box { height: 140px; }
-  .hourly-basal-box { height: 140px; }
+  .basal-box {
+    height: 100px;
+  }
+
+  .hourly-basal-box {
+    height: 100px;
+  }
+
   .food-logs-box {
-    height: 120px;
+    height: 100px;
+  }
+  .bolus-box {
+    height: 100px;
+  }
+
+  .workout-box {
+    height: 100px;
   }
 
   /* Make the chart components and their canvases fill the box height */

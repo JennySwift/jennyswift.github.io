@@ -193,7 +193,7 @@
 </template>
 
 <style scoped lang="scss">
-    .tab-section { margin-top: 2rem; }
+    /*.tab-section { margin-top: 2rem; }*/
 
     .tab-bar {
         display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; justify-content: center;
