@@ -10,6 +10,12 @@ export function formatShortDateInSydney(dateLike) {
         .toFormat('d LLL yyyy')
 }
 
+// Format as "D/M" in Sydney time (e.g., "7/7")
+export function formatDayAndMonthInSydney(date) {
+    const dt = DateTime.fromJSDate(date).setZone('Australia/Sydney')
+    return `${dt.day}/${dt.month}`
+}
+
 
 // “2 years ago”, “4 months ago”, etc., from now in Sydney
 // “1y 3m ago”, “2w ago”, “5d ago” etc.

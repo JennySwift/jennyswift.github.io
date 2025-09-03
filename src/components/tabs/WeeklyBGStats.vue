@@ -3,7 +3,7 @@
 <script setup>
     import { ref, onMounted } from 'vue'
     import { fetchGlucoseReadingsBetween } from '../../supabase/supabaseBG'
-    import { getSydneyStartOfToday, formatDateInSydney, toInstant } from '../../helpers/dateHelpers'
+    import { getSydneyStartOfToday, formatDayAndMonthInSydney, toInstant } from '../../helpers/dateHelpers'
     import { DateTime } from 'luxon'
 
     const weeklyStats = ref([])
@@ -101,59 +101,67 @@
         <h3>Weekly BG Time in Range</h3>
         <p v-if="loading">Calculating...</p>
 
-        <table v-else class="weekly-stats-table">
-            <thead>
-            <tr>
-                <th>Week Start</th>
-                <th>&lt;4<br>(72)</th>
-                <th>4–6<br>(72–108)</th>
-                <th>6–8<br>(108–144)</th>
-                <th>8–10<br>(144–180)</th>
-                <th>&gt;10<br>(180)</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="week in [...weeklyStats].reverse()" :key="week.startDate.toISOString()">
-                <td>{{ formatDateInSydney(week.startDate).replace(/^Monday /, '').replace(/,? 2025$/, '') }}</td>
-                <td>{{ Math.round((week.timeBelow4 / week.totalMinutes) * 100) }}%</td>
-                <td>{{ Math.round((week.timeBetween4and6 / week.totalMinutes) * 100) }}%</td>
-                <td>{{ Math.round((week.timeBetween6and8 / week.totalMinutes) * 100) }}%</td>
-                <td>{{ Math.round((week.timeBetween8and10 / week.totalMinutes) * 100) }}%</td>
-                <td>{{ Math.round((week.timeAbove10 / week.totalMinutes) * 100) }}%</td>
-            </tr>
-            </tbody>
-        </table>
+        <div v-if="!loading" class="weekly-stats-grid">
+            <div class="grid-header">
+                <div>Week Start</div>
+                <div>&lt;4<br>(72)</div>
+                <div>4–6<br>(72–108)</div>
+                <div>6–8<br>(108–144)</div>
+                <div>8–10<br>(144–180)</div>
+                <div>&gt;10<br>(180)</div>
+            </div>
+
+            <div
+                    v-for="week in [...weeklyStats].reverse()"
+                    :key="week.startDate.toISOString()"
+                    class="grid-row"
+            >
+                <div class="date-cell">{{ formatDayAndMonthInSydney(week.startDate) }}</div>
+                <div>{{ Math.round((week.timeBelow4 / week.totalMinutes) * 100) }}%</div>
+                <div>{{ Math.round((week.timeBetween4and6 / week.totalMinutes) * 100) }}%</div>
+                <div>{{ Math.round((week.timeBetween6and8 / week.totalMinutes) * 100) }}%</div>
+                <div>{{ Math.round((week.timeBetween8and10 / week.totalMinutes) * 100) }}%</div>
+                <div>{{ Math.round((week.timeAbove10 / week.totalMinutes) * 100) }}%</div>
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped lang="scss">
-    .weekly-stats-table {
-        width: 100%;
-        border-collapse: collapse;
+    .weekly-stats-grid {
+        display: grid;
+        grid-template-columns: 1fr repeat(5, 80px);
+        gap: 4px;
         font-size: 0.9rem;
         margin-top: 1rem;
+
+        div {
+            font-variant-numeric: tabular-nums;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            white-space: nowrap;
+        }
     }
 
-    .weekly-stats-table th,
-    .weekly-stats-table td {
-        padding: 6px 10px;
-        border: 1px solid #ccc;
-        text-align: center;
+    .grid-header {
+        display: contents;
+
+        div {
+            font-weight: 600;
+            background: #f3f4f6;
+            border-bottom: 1px solid #ccc;
+            padding: 4px 8px;
+            text-align: right;
+            font-size: 0.8rem;
+        }
     }
 
-    .weekly-stats-table thead th {
-        background-color: #f3f4f6;
-        font-weight: 600;
-        font-size: 0.85rem;
-        white-space: nowrap;
-    }
+    .grid-row {
+        display: contents;
 
-    .weekly-stats-table tbody tr:nth-child(even) {
-        background-color: #fafafa;
-    }
-
-    .weekly-stats-table td:first-child {
-        text-align: left;
-        font-weight: 500;
+        div {
+            padding: 6px 8px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
     }
 </style>
