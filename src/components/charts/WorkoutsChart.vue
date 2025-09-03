@@ -204,9 +204,22 @@
 </script>
 
 <template>
-    <canvas ref="canvasRef" aria-label="Workout chart" />
+    <p v-if="workoutPoints.length === 0" class="no-workouts-msg">
+        No workouts for the selected day.
+    </p>
+    <div class="workouts-chart" v-show="workoutPoints.length > 0">
+        <canvas
+                ref="canvasRef"
+                aria-label="Workout chart"
+        />
+    </div>
 </template>
 
 <style scoped>
-
+    .no-workouts-msg {
+        margin: 1rem 0;
+        font-style: italic;
+        color: #666;
+        text-align: center;
+    }
 </style>
