@@ -23,7 +23,7 @@
 <template>
     <div
             v-show="visible"
-            class="tooltip"
+            :class="['tooltip', { visible }]"
             :style="{ left: left + 'px', top: top + 'px' }"
             role="status"
             aria-live="polite"
@@ -103,6 +103,10 @@
         transform: translateY(-80px);
         min-width: 300px;      /* make it wider */
         /*white-space: nowrap;   !* prevent wrapping *!*/
+    }
+    /*Prevent date navigation buttons behind the tooltip being accidentally clicked*/
+    .tooltip.visible {
+        pointer-events: auto;
     }
     .row { display: flex; gap: 8px; align-items: flex-start; }
     .row + .row { margin-top: 4px; }

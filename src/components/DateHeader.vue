@@ -9,6 +9,8 @@
 
     const emit = defineEmits(['update:selectedDate'])
 
+    const isMobile = window.matchMedia('(max-width: 600px)').matches
+
     const selectedDate = computed({
         get: () => props.selectedDate,
         set: (d) => emit('update:selectedDate', d)
@@ -43,7 +45,7 @@
 
 <template>
     <header class="date-header">
-        <h1 class="date-heading">{{ dateHeading }}</h1>
+        <h1 v-show="!isMobile" class="date-heading">{{ dateHeading }}</h1>
 
         <div class="date-nav">
             <button

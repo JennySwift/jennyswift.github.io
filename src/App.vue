@@ -22,6 +22,7 @@
     import { fetchTestResults } from './supabase/supabaseTestResults'
 
 
+
     const data = reactive({
         notes: [],
         filteredNotes: [],
@@ -393,6 +394,10 @@
         window.addEventListener('jump-to-time', onJumptoTime)
         window.addEventListener('chart-hover', handleChartHover)
 
+        window.addEventListener('click', () => {
+            tooltip.visible = false
+        })
+
         await loadFoodsFromSupabase()
         await loadWeeklyFoodLogs(26) // last ~6 months
         await loadWeeklyWeights(26)
@@ -427,7 +432,10 @@
     <!-- stage wrapper so tooltip can't cover the header -->
     <section class="dashboard-grid">
       <aside class="left-rail">
-        <DateHeader v-model:selectedDate="selectedDate" />
+        <DateHeader
+                v-model:selectedDate="selectedDate"
+        />
+
         <div ref="stageRef" class="chart-stage">
           <Tooltip
                   :visible="tooltip.visible"
