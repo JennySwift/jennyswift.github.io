@@ -576,6 +576,8 @@
 
   .food-logs-box {
     height: 100px;
+    /*Allow space for tooltip so it doesn't cover up the chart too much*/
+    margin-top: 50px;
   }
   .bolus-box {
     height: 100px;
