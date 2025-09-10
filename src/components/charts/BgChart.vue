@@ -157,14 +157,24 @@
 
 
                     ticks: {
-                        stepSize: 2,
-                        // padding: 12,      // space between tick and chart area
-                        // callback: (val) => val, // normal labels
+                        callback: val => val, // label everything in the list
+                        stepSize: undefined, // let Chart.js do what it wants — we override it later
                     },
-                    // afterFit: function(scaleInstance) {
-                    //     // Force exact width of Y-axis space
-                    //     scaleInstance.width = 60  // or whatever fixed width you decide
-                    // },
+
+                    // 🔧 FORCE tick values after Chart.js builds its defaults
+                    afterBuildTicks: (axis) => {
+                        const ticks = []
+                        const min = Math.floor(yBounds.min)
+                        const max = yBounds.max  // Keep exact, don’t round up
+
+                        for (let val = min; val <= max; val++) {
+                            if (val === 4 || val === 6 || val === 8 || (val >= 10 && val <= max && val % 2 === 0)) {
+                                ticks.push({ value: val })
+                            }
+                        }
+
+                        axis.ticks = ticks
+                    }
                 }
             },
 
@@ -189,7 +199,7 @@
                         inRangeBand: {
                             type: 'box',
                             yMin: 4,
-                            yMax: 6,
+                            yMax: 8,
                             backgroundColor: 'rgba(100, 149, 237, 0.5)',
                             borderWidth: 0,
                         },
