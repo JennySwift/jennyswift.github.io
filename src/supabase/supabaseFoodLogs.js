@@ -113,7 +113,7 @@ export async function fetchFoodLogsForDay(date) {
         protein: r.protein,
         totalCarbs: r.total_carbs,
         fibre: r.fibre,
-        isUnfinished: !!r.is_unfinished,
+        isUnfinished: r.is_unfinished,
         resumedAt: r.resumed_at ? DateTime.fromISO(r.resumed_at).toJSDate() : null,
         foodTags: Array.isArray(r.food_tags) ? r.food_tags : [],
     }))

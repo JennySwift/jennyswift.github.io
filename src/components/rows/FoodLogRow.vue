@@ -25,6 +25,7 @@
         <div class="log-title">
             <strong>{{ formatTimeInSydney(ts) }}</strong>:
             {{ log.foodName || 'Food' }}
+            <span v-if="log.isUnfinished">⚠️Unfinished</span>
         </div>
 
         <div class="log-details">
