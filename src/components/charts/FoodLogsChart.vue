@@ -48,7 +48,8 @@
             entry.y += carbs
             entry.logs.push({
                 name: log.foodName,
-                quantity: log.quantity
+                quantity: log.quantity,
+                isUnfinished: log.isUnfinished
             })
         }
 
@@ -188,7 +189,14 @@
                 datasets: [{
                     label: 'Net Carbs',
                     data: pts,
-                    backgroundColor: cssVarRGBA('--color-food', 0.6, '#10b981'),
+                    //If any of the logs are unfinished, colour the bar grey
+                    backgroundColor: pts.map(p => {
+                        const hasUnfinished = p.logs.some(l => l?.isUnfinished)
+                        return hasUnfinished
+                            ? cssVarRGBA('--color-food-unfinished', 0.6)  // grey for unfinished
+                            : cssVarRGBA('--color-food', 0.6)
+                    }),
+                    // backgroundColor: cssVarRGBA('--color-food', 0.6, '#10b981'),
                     barThickness: 10,
                     borderRadius: 3,
                     borderWidth: 1,
@@ -208,6 +216,12 @@
         const bounds = computeYBounds(pts)
 
         chartInstance.data.datasets[0].data = pts
+        chartInstance.data.datasets[0].backgroundColor = pts.map(p => {
+            const hasUnfinished = p.logs.some(l => l?.isUnfinished)
+            return hasUnfinished
+                ? cssVarRGBA('--color-food-unfinished', 0.6)
+                : cssVarRGBA('--color-food', 0.6)
+        })
         chartInstance.options.scales.x.min = start
         chartInstance.options.scales.x.max = end
         chartInstance.options.scales.y.min = bounds.min

@@ -1,6 +1,7 @@
 :root{
     /* Type accents */
     --color-food:    #10b981; /* emerald */
+    --color-food-unfinished:    #777;
     --color-bolus:   #2563eb; /* blue */
     --color-note:    #f59e0b; /* amber */
     --color-workout: #ef4444; /* red */
