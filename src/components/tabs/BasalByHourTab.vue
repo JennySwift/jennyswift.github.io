@@ -15,6 +15,12 @@
             : new Array(24).fill(0)
     )
 
+    const avgBasalBetweenMidnightAnd9am = computed(() => {
+        const earlyHours = totalsByHour.value.slice(0, 9) // 12 AM–9 AM
+        const sum = earlyHours.reduce((a, b) => a + b, 0)
+        return sum / earlyHours.length
+    })
+
 
     // Build rows for display: ["12:00 AM – 1:00 AM", value]
     const rows = computed(() => {
@@ -48,6 +54,7 @@
 
         <div class="summary">
             <div><strong>Total basal for the day:</strong> {{ totalPerDay.toFixed(2) }} U</div>
+            <div><strong>Average Rate from 12am-9am:</strong> {{ avgBasalBetweenMidnightAnd9am.toFixed(3) }} U/hr</div>
         </div>
 
         <div class="table-wrap">
