@@ -1,5 +1,5 @@
 <script setup>
-    import { computed } from 'vue'
+    import { computed, ref } from 'vue'
     import { DateTime } from 'luxon'
 
     // Props: pass in your exported basal entries and, optionally, pumpUploadTime
@@ -15,10 +15,29 @@
             : new Array(24).fill(0)
     )
 
-    const avgBasalBetweenMidnightAnd9am = computed(() => {
-        const earlyHours = totalsByHour.value.slice(0, 9) // 12 AM–9 AM
-        const sum = earlyHours.reduce((a, b) => a + b, 0)
-        return sum / earlyHours.length
+    // Hour picker state (defaults to 12 AM → 9 AM)
+    const selectedStartHour = ref(0)  // 0–23
+    const selectedEndHour   = ref(9)  // 1–24 (end exclusive)
+
+    // Dropdown options: 0–23 rendered as "12 AM", "1 AM", … "11 PM"
+    const hourOptions = Array.from({ length: 24 }, (_, h) => ({
+        value: h,
+        label: `${(h % 12) || 12} ${h < 12 ? 'AM' : 'PM'}`
+    }))
+
+    // const hourOptions = Array.from({ length: 24 }, (_, h) => ({
+    //     value: h,
+    //     label: DateTime.fromObject({ hour: h }, { zone: 'Australia/Sydney' }).toFormat('h a')
+    // }))
+
+
+    const averageBasalInTimeRange = computed(() => {
+        const start = Number(selectedStartHour.value)
+        const end = Number(selectedEndHour.value)
+
+        const hours = totalsByHour.value.slice(start, end)
+        const sum = hours.reduce((a, b) => a + b, 0)
+        return sum / hours.length
     })
 
 
@@ -54,7 +73,28 @@
 
         <div class="summary">
             <div><strong>Total basal for the day:</strong> {{ totalPerDay.toFixed(2) }} U</div>
-            <div><strong>Average Rate from 12am-9am:</strong> {{ avgBasalBetweenMidnightAnd9am.toFixed(3) }} U/hr</div>
+        </div>
+
+        <!--Average basal in time range-->
+        <div class="range-controls">
+            <strong>Average basal in time range:</strong>
+            <label>
+                <select v-model.number="selectedStartHour">
+                    <option v-for="opt in hourOptions" :key="'s'+opt.value" :value="opt.value">
+                        {{ opt.label }}
+                    </option>
+                </select>
+            </label>
+
+            <label>
+                <select v-model.number="selectedEndHour">
+                    <option v-for="opt in hourOptions" :key="'e'+opt.value" :value="opt.value">
+                        {{ opt.label }}
+                    </option>
+                </select>
+            </label>
+
+            <div class="average-display">{{ averageBasalInTimeRange.toFixed(3) }} U/hr</div>
         </div>
 
         <div class="table-wrap">
@@ -94,4 +134,33 @@
     .hour-table th { background: #f9fafb; }
     .hour-label { white-space: nowrap; }
     .units { text-align: right; }
+
+    .range-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.5rem 0;
+        flex-wrap: wrap;
+
+    label {
+        display: flex;
+        flex-direction: column;
+        font-weight: 500;
+        color: #0f172a;
+
+    select {
+        margin-top: 0.25rem;
+        padding: 0.25rem 0.4rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        background: #fff;
+    }
+    }
+
+    .average-display {
+        margin-left: 10px;
+        white-space: nowrap;
+        font-weight: 600;
+    }
+    }
 </style>
