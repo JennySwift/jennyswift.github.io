@@ -3,6 +3,7 @@
     import {computed} from 'vue'
     import {DateTime} from 'luxon'
     import {parseAsSydneyDate, toInstant} from '../../helpers/dateHelpers'
+    import WeeklyEnergyWeightChart from '../../components/charts/WeeklyEnergyWeightChart.vue'
 
     const props = defineProps({
         // [{ timestamp, calories }]  (timestamp = Date | ISO string | epoch)
@@ -204,6 +205,8 @@
 </script>
 
 <template>
+    <WeeklyEnergyWeightChart :rows="rows" :tz="tz" />
+
     <div class="weekly-table">
         <table>
             <thead>
