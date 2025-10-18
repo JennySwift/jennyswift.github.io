@@ -1,6 +1,8 @@
 <script setup>
     import { computed } from 'vue'
     import { formatShortDateInSydney, timeAgoInWords } from '../../helpers/dateHelpers'
+    import TestResultsChart from '../../components/charts/TestResultsChart.vue'
+
 
     const props = defineProps({
         testResults: { type: Array, default: () => [] }
@@ -18,6 +20,8 @@
 <template>
     <div class="test-results-tab">
         <h2>HbA1c Test Results</h2>
+        <TestResultsChart :testResults="testResults" />
+
         <ul class="test-results-list">
             <li v-for="r in sortedResults" :key="r.id">
                 <strong class="label">{{ formatShortDateInSydney(r.testDate) }}</strong>
