@@ -12,11 +12,11 @@
     console.log('[TestResultsTab] testResults:', props.testResults)
 
     const IRON_METRICS = [
-        { key: 'iron',        label: 'Iron (µmol/L)',          colorVar: '--color-test-iron' },
-        { key: 'transferrin', label: 'Transferrin (g/L)',      colorVar: '--color-test-transferrin' },
-        { key: 'tibc',        label: 'TIBC (µmol/L)',          colorVar: '--color-test-tibc' },
-        { key: 'saturation',  label: 'Transferrin Sat (%)',    colorVar: '--color-test-saturation' },
-        { key: 'ferritin',    label: 'Ferritin (µg/L)',        colorVar: '--color-test-ferritin' }
+        { key: 'iron',        label: 'Iron (µmol/L)',       colorVar: '--color-test-iron',        targetRange: { min: 5,  max: 30 } },
+        { key: 'transferrin', label: 'Transferrin (g/L)',   colorVar: '--color-test-transferrin', targetRange: { min: 2.0, max: 3.6 } },
+        { key: 'tibc',        label: 'TIBC (µmol/L)',       colorVar: '--color-test-tibc',        targetRange: { min: 46,  max: 77 } },
+        { key: 'saturation',  label: 'Transferrin Sat (%)', colorVar: '--color-test-saturation',  targetRange: { min: 10,  max: 45 } },
+        { key: 'ferritin',    label: 'Ferritin (µg/L)',     colorVar: '--color-test-ferritin',    targetRange: { min: 15,  max: 200 } }
     ]
 
     // Helper to build rows for a given metric key: [{ date: Date, value: number }]
@@ -49,6 +49,7 @@
                 metricKey="hba1c"
                 label="HbA1c (%)"
                 colorVar="--color-test-hba1c"
+                :targetRange="{ min: 4.5, max: 6.5 }"
         />
 
         <!-- Iron Studies grid -->
@@ -59,6 +60,7 @@
                         :metricKey="m.key"
                         :label="m.label"
                         :colorVar="m.colorVar"
+                        :targetRange="m.targetRange"
                 />
             </div>
         </div>

@@ -4,13 +4,18 @@
     import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend } from 'chart.js'
     import 'chartjs-adapter-luxon'
     import { parseAsSydneyDate, formatShortDateInSydney } from '../../helpers/dateHelpers'
+    import annotationPlugin from 'chartjs-plugin-annotation'
+    Chart.register(LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, annotationPlugin)
 
-    Chart.register(LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend)
 
     const props = defineProps({
         testResults: { type: Array, default: () => [] }, // [{ test_date, hba1c }],
         metricKey:   { type: String, required: true },
-        label:       { type: String, required: true }
+        label:       { type: String, required: true },
+        targetRange: {
+            type: Object,
+            default: null // e.g. { min: 30, max: 150 }
+        }
     })
 
     const canvasRef = ref(null)
@@ -91,7 +96,21 @@
                             },
                             label: (ctx) => `${props.label}: ${ctx.parsed.y}`
                         }
-                    }
+                    },
+                    annotation: {
+                        annotations:
+                            props.targetRange && props.targetRange.min != null && props.targetRange.max != null
+                                ? {
+                                    targetRange: {
+                                        type: 'box',
+                                        yMin: props.targetRange.min,
+                                        yMax: props.targetRange.max,
+                                        backgroundColor: 'rgba(0, 200, 0, .5)', // soft green
+                                        borderWidth: 0,
+                                    },
+                                }
+                                : {},
+                    },
                 },
                 scales: {
                     x: {
