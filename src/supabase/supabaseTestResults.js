@@ -15,6 +15,7 @@ export async function fetchTestResults() {
         testDate: parseAsSydneyDate(r.test_date),
         //diabetic related
         hba1c: r.hba1c,
+        cPeptide: r.c_peptide,
         //iron related
         iron: r.iron,
         transferrin: r.transferrin,
@@ -30,6 +31,13 @@ export async function fetchTestResults() {
         //other
         b12: r.b12,
         iodine: r.iodine,
+        creatinine: r.creatinine,
+        vitaminD: r.vitamin_d,
+        //lipids
+        cholesterol: r.cholesterol,
+        triglycerides: r.triglycerides,
+        hdlCholesterol: r.hdl_cholesterol,
+        ldlCholesterol: r.ldl_cholesterol,
         //notes
         notes: r.notes ?? '',
     }))

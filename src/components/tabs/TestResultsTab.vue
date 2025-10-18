@@ -11,6 +11,19 @@
 
     console.log('[TestResultsTab] testResults:', props.testResults)
 
+    const DIABETIC_METRICS = [
+        {
+            key: 'hba1c',
+            label: 'HbA1c (%)',
+            targetRange: { min: 4.5,  max: 6.5 }
+        },
+        {
+            key: 'cPeptide',
+            label: 'C-Peptide',
+            targetRange: { min: .4,  max: 1.5 }
+        }
+    ]
+
     const IRON_METRICS = [
         { key: 'iron',        label: 'Iron (µmol/L)',       colorVar: '--color-test-iron',        targetRange: { min: 5,  max: 30 } },
         { key: 'transferrin', label: 'Transferrin (g/L)',   colorVar: '--color-test-transferrin', targetRange: { min: 2.0, max: 3.6 } },
@@ -47,6 +60,29 @@
         },
     ]
 
+    const LIPID_METRICS = [
+        {
+            key: 'cholesterol',
+            label: 'Cholesterol',
+            targetRange: { min: 3.9,  max: 5.5 }
+        },
+        {
+            key: 'triglycerides',
+            label: 'Triglycerides',
+            targetRange: { min: .5,  max: 1.7 }
+        },
+        {
+            key: 'hdlCholesterol',
+            label: 'HDL Cholesterol',
+            targetRange: { min: .9,  max: 2.1 }
+        },
+        {
+            key: 'ldlCholesterol',
+            label: 'LDL Cholesterol',
+            targetRange: { min: 1.7,  max: 3.5 }
+        },
+    ]
+
     const OTHER_METRICS = [
         {
             key: 'b12',
@@ -56,6 +92,16 @@
         {
             key: 'iodine',
             label: 'Iodine'
+        },
+        {
+            key: 'creatinine',
+            label: 'Creatinine',
+            targetRange: { min: 45,  max: 85 }
+        },
+        {
+            key: 'vitaminD',
+            label: 'Vitamin D',
+            targetRange: { min: 50,  max: 140 }
         },
     ]
 
@@ -85,13 +131,15 @@
     <div class="test-results-tab">
         <h1>Diabetic-related</h1>
         <!-- HbA1c chart -->
-        <TestResultsChart
-                :testResults="testResults"
-                metricKey="hba1c"
-                label="HbA1c (%)"
-                colorVar="--color-test-hba1c"
-                :targetRange="{ min: 4.5, max: 6.5 }"
-        />
+        <div v-for="m in DIABETIC_METRICS" :key="m.key" class="mini">
+            <TestResultsChart
+                    :testResults="testResults"
+                    :metricKey="m.key"
+                    :label="m.label"
+                    :colorVar="m.colorVar"
+                    :targetRange="m.targetRange"
+            />
+        </div>
 
         <!-- Iron Studies -->
         <h1>Iron-related</h1>
@@ -109,6 +157,17 @@
 
         <h1>Thyroid-related</h1>
         <div v-for="m in THYROID_METRICS" :key="m.key" class="mini">
+            <TestResultsChart
+                    :testResults="testResults"
+                    :metricKey="m.key"
+                    :label="m.label"
+                    :colorVar="m.colorVar"
+                    :targetRange="m.targetRange"
+            />
+        </div>
+
+        <h1>Lipids</h1>
+        <div v-for="m in LIPID_METRICS" :key="m.key" class="mini">
             <TestResultsChart
                     :testResults="testResults"
                     :metricKey="m.key"
