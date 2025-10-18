@@ -16,7 +16,47 @@
         { key: 'transferrin', label: 'Transferrin (g/L)',   colorVar: '--color-test-transferrin', targetRange: { min: 2.0, max: 3.6 } },
         { key: 'tibc',        label: 'TIBC (µmol/L)',       colorVar: '--color-test-tibc',        targetRange: { min: 46,  max: 77 } },
         { key: 'saturation',  label: 'Transferrin Sat (%)', colorVar: '--color-test-saturation',  targetRange: { min: 10,  max: 45 } },
-        { key: 'ferritin',    label: 'Ferritin (µg/L)',     colorVar: '--color-test-ferritin',    targetRange: { min: 15,  max: 200 } }
+        { key: 'ferritin',    label: 'Ferritin (µg/L)',     colorVar: '--color-test-ferritin',    targetRange: { min: 15,  max: 200 } },
+        {
+            key: 'zinc',
+            label: 'Zinc',
+            targetRange: { min: 10,  max: 18 }
+        },
+        {
+            key: 'copper',
+            label: 'Copper',
+            targetRange: { min: 12,  max: 22 }
+        },
+    ]
+
+    const THYROID_METRICS = [
+        {
+            key: 'tsh',
+            label: 'TSH',
+            targetRange: { min: .4,  max: 3.5 }
+        },
+        {
+            key: 't4',
+            label: 'T4',
+            targetRange: { min: 9,  max: 19 }
+        },
+        {
+            key: 't3',
+            label: 'T3',
+            targetRange: { min: 2.6,  max: 6.0 }
+        },
+    ]
+
+    const OTHER_METRICS = [
+        {
+            key: 'b12',
+            label: 'B12',
+            targetRange: { min: 135,  max: 650 }
+        },
+        {
+            key: 'iodine',
+            label: 'Iodine'
+        },
     ]
 
     // Helper to build rows for a given metric key: [{ date: Date, value: number }]
@@ -43,6 +83,7 @@
 
 <template>
     <div class="test-results-tab">
+        <h1>Diabetic-related</h1>
         <!-- HbA1c chart -->
         <TestResultsChart
                 :testResults="testResults"
@@ -52,7 +93,8 @@
                 :targetRange="{ min: 4.5, max: 6.5 }"
         />
 
-        <!-- Iron Studies grid -->
+        <!-- Iron Studies -->
+        <h1>Iron-related</h1>
         <div class="iron-grid">
             <div v-for="m in IRON_METRICS" :key="m.key" class="mini">
                 <TestResultsChart
@@ -63,6 +105,28 @@
                         :targetRange="m.targetRange"
                 />
             </div>
+        </div>
+
+        <h1>Thyroid-related</h1>
+        <div v-for="m in THYROID_METRICS" :key="m.key" class="mini">
+            <TestResultsChart
+                    :testResults="testResults"
+                    :metricKey="m.key"
+                    :label="m.label"
+                    :colorVar="m.colorVar"
+                    :targetRange="m.targetRange"
+            />
+        </div>
+
+        <h1>Other</h1>
+        <div v-for="m in OTHER_METRICS" :key="m.key" class="mini">
+            <TestResultsChart
+                    :testResults="testResults"
+                    :metricKey="m.key"
+                    :label="m.label"
+                    :colorVar="m.colorVar"
+                    :targetRange="m.targetRange"
+            />
         </div>
 
         <ul class="test-results-list">

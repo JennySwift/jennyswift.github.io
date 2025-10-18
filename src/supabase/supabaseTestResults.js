@@ -13,21 +13,24 @@ export async function fetchTestResults() {
     return (data ?? []).map(r => ({
         id: r.id,
         testDate: parseAsSydneyDate(r.test_date),
+        //diabetic related
         hba1c: r.hba1c,
-        b12: r.b12,
-        iodine: r.iodine,
+        //iron related
         iron: r.iron,
-        notes: r.notes ?? '',
-        //iron studies
         transferrin: r.transferrin,
         tibc: r.tibc,
         saturation: r.saturation,
         ferritin: r.ferritin,
+        zinc: r.zinc,
+        copper: r.copper,
         //thyroid
         tsh: r.tsh,
         t4: r.t4,
         t3: r.t3,
-        zinc: r.zinc,
-        copper: r.copper,
+        //other
+        b12: r.b12,
+        iodine: r.iodine,
+        //notes
+        notes: r.notes ?? '',
     }))
 }
