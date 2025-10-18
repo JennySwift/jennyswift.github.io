@@ -24,6 +24,7 @@
                 <strong class="label">{{ formatShortDateInSydney(r.testDate) }}</strong>
                 <span class="value">{{ r.hba1c }}%</span>
                 <span class="ago">({{ timeAgoInWords(r.testDate) }})</span>
+                <span v-if="r.notes" class="notes">{{ r.notes }}</span>
             </li>
         </ul>
     </div>
