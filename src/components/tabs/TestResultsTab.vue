@@ -18,7 +18,6 @@
 <template>
     <div class="test-results-tab">
         <h2>HbA1c Test Results</h2>
-        <p>The 13.6% on 8 August 2018 the test that basically diagnosed me with T1D.</p>
         <ul class="test-results-list">
             <li v-for="r in sortedResults" :key="r.id">
                 <strong class="label">{{ formatShortDateInSydney(r.testDate) }}</strong>
