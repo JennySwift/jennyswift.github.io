@@ -94,7 +94,11 @@
                                 const t = items?.[0]?.parsed?.x
                                 return t ? formatShortDateInSydney(new Date(t)) : ''
                             },
-                            label: (ctx) => `${props.label}: ${ctx.parsed.y}`
+                            label: (ctx) => `${props.label}: ${ctx.parsed.y}`,
+                            afterLabel: () => {
+                                if (!props.targetRange || props.targetRange.min == null || props.targetRange.max == null) return ''
+                                return `Target: ${props.targetRange.min} – ${props.targetRange.max}`
+                            }
                         }
                     },
                     annotation: {
