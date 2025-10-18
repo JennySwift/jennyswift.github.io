@@ -18,5 +18,16 @@ export async function fetchTestResults() {
         iodine: r.iodine,
         iron: r.iron,
         notes: r.notes ?? '',
+        //iron studies
+        transferrin: r.transferrin,
+        tibc: r.tibc,
+        saturation: r.saturation,
+        ferritin: r.ferritin,
+        //thyroid
+        tsh: r.tsh,
+        t4: r.t4,
+        t3: r.t3,
+        zinc: r.zinc,
+        copper: r.copper,
     }))
 }

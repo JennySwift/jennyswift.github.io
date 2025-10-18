@@ -1,3 +1,4 @@
+//TestResultsTab.vue
 <script setup>
     import { computed } from 'vue'
     import { formatShortDateInSydney, timeAgoInWords } from '../../helpers/dateHelpers'
@@ -10,17 +11,57 @@
 
     console.log('[TestResultsTab] testResults:', props.testResults)
 
+    const IRON_METRICS = [
+        { key: 'iron',        label: 'Iron (µmol/L)',          colorVar: '--color-test-iron' },
+        { key: 'transferrin', label: 'Transferrin (g/L)',      colorVar: '--color-test-transferrin' },
+        { key: 'tibc',        label: 'TIBC (µmol/L)',          colorVar: '--color-test-tibc' },
+        { key: 'saturation',  label: 'Transferrin Sat (%)',    colorVar: '--color-test-saturation' },
+        { key: 'ferritin',    label: 'Ferritin (µg/L)',        colorVar: '--color-test-ferritin' }
+    ]
+
+    // Helper to build rows for a given metric key: [{ date: Date, value: number }]
+    function metricRows(key) {
+        return (props.testResults ?? [])
+            .map(r => ({ date: r.testDate, value: r?.[key] }))
+            .filter(p => p.date && Number.isFinite(p.value))
+            .sort((a, b) => a.date - b.date)
+    }
+
+    // HbA1c chart rows
+    // const hba1cRows = computed(() => metricRows('hba1c'))
+
     const sortedResults = computed(() =>
-        [...props.testResults].sort((a, b) =>
-            new Date(b.test_date) - new Date(a.test_date)
-        )
+        [...(props.testResults ?? [])].sort((a, b) => b.testDate - a.testDate)
     )
+
+    // const sortedResults = computed(() =>
+    //     [...props.testResults].sort((a, b) =>
+    //         new Date(b.test_date) - new Date(a.test_date)
+    //     )
+    // )
 </script>
 
 <template>
     <div class="test-results-tab">
-        <h2>HbA1c Test Results</h2>
-        <TestResultsChart :testResults="testResults" />
+        <!-- HbA1c chart -->
+        <TestResultsChart
+                :testResults="testResults"
+                metricKey="hba1c"
+                label="HbA1c (%)"
+                colorVar="--color-test-hba1c"
+        />
+
+        <!-- Iron Studies grid -->
+        <div class="iron-grid">
+            <div v-for="m in IRON_METRICS" :key="m.key" class="mini">
+                <TestResultsChart
+                        :testResults="testResults"
+                        :metricKey="m.key"
+                        :label="m.label"
+                        :colorVar="m.colorVar"
+                />
+            </div>
+        </div>
 
         <ul class="test-results-list">
             <li v-for="r in sortedResults" :key="r.id">
